@@ -1,0 +1,14 @@
+How to Connect To Database (To Run The Server)
+
+Download postgresql from https://www.enterprisedb.com/downloads/postgres-postgresql-downloads.
+Install postgresql with a password for superuser of your choice
+Add bin folder to PATH environment variables(the bin folder is somewhere in the folder where you installed postgresql)
+Open the Command Prompt and write the commands:
+2.1. psql -U postgres 
+ enter the chosen superuser password
+2.2 CREATE DATABASE smart_parking_lot;
+2.3 CREATE USER smart WITH PASSWORD 'smart';
+2.4 ALTER ROLE smart WITH SUPERUSER;
+2.5 GRANT ALL PRIVILEGES ON DATABASE smart_parking_lot TO smart;
+2.6 GRANT ALL PRIVILEGES ON DATABASE smart_parking_lot TO postgres;
+You should be able to run the server and it will be connected to the database.
