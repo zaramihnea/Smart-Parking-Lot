@@ -2,20 +2,19 @@ package com.smartparkinglot.backend.configuration;
 
 import com.smartparkinglot.backend.entity.User;
 import com.smartparkinglot.backend.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.domain.Example;
+
 import java.util.Date;
-import java.util.List;
-import javax.xml.crypto.Data;
 
 @Configuration
 public class UserConfig {
 
     //aici am incercat sa adaug niste inregistrati in tabelul users din baza de date si a functionat
     //las comentariu ca sa nu mai fie adaugate o data
-    /*
+
     @Bean
     CommandLineRunner commandLineRunner(UserRepository userRepository){
         return args -> {
@@ -24,7 +23,7 @@ public class UserConfig {
                    "84732saf",
                    User.UserType.REGULAR,
                     "cosmina_baciu@gmail.com",
-                    new Date(1999, 12, 10),
+                    new Date(1999, 11, 10),
                     "Romania",
                     "Iasi",
                     57.00
@@ -40,11 +39,15 @@ public class UserConfig {
                     "Iasi",
                     517.00
             );
-
-            userRepository.saveAll(
-                    List.of(user1, user2)
-            );
+            Example<User> exampleUser1 = Example.of(user1);
+            Example<User> exampleUser2 = Example.of(user2);
+            if(!userRepository.exists(exampleUser1)) {
+                userRepository.save(user1);
+            }
+            if(!userRepository.exists(exampleUser2)) {
+                userRepository.save(user2);
+            }
         };
     }
-    */
+
 }
