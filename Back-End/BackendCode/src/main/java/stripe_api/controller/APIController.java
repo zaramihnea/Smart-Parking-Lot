@@ -109,7 +109,40 @@ public class APIController {
                 .build();
 
         PaymentIntent paymentIntent = PaymentIntent.create(paymentParams);
+        System.out.println("Payment intent id: " + paymentIntent.getId());
         return new CreatePaymentResponse(paymentIntent.getClientSecret());
     }
 
+    @GetMapping("/payment-complete")
+    public String handlePaymentResult(@RequestParam("payment_intent") String paymentIntentId) {
+        // 1. Extract the payment_intent ID
+        System.out.println("Received Payment Intent ID: " + paymentIntentId);
+
+        // 2. Retrieve PaymentIntent
+        Stripe.apiKey = stripeKey;
+
+        try {
+            PaymentIntent paymentIntent = PaymentIntent.retrieve(paymentIntentId);
+            String paymentStatus = paymentIntent.getStatus();
+            System.out.println("Payment intent id: " + paymentIntent.getId());
+
+            // Get user id(the id of the user whose balance will be increased in the database
+            Customer customer = Customer.retrieve(paymentIntent.getCustomer());
+            String customerName = customer.getName(); // Access the name here
+            System.out.println("Customer id: " + customerName);
+
+            // Handle Success, failures, etc. based on paymentStatus
+            if (paymentStatus.equals("succeeded")) {
+                // Payment successful - Update user balance, send confirmations, etc.
+                System.out.println("Payment successful");
+                return "payment-success";
+            } else {
+                // Payment failed or other status - Handle accordingly
+            }
+        } catch (StripeException e) {
+            // Handle errors from Stripe API
+            System.out.println("Error retrieving PaymentIntent: " + e.getMessage());
+        }
+        return "payment-result";
+    }
 }
