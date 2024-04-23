@@ -1,4 +1,4 @@
-const stripe = Stripe("pk_test_51P2f1mFMoAFG0pvpxbY5z2isuPG1wWMlaDGP3Vx21ryOCVO8vNtjM0nKoM9ipyrfWHQa099Xr3Mpa4NJYC23ptyl00YVARcNGn");
+const stripe = Stripe("pk_test_51P8kZTLUKYZGpEMGxg6CdTha9384AZkoxi7fNSEJ4W4jFTjm63PDW1pU3PaigjQo3wjYqFaCQrjpeoiPC1NilcW900z1cuBbeb");
 
 const items = [{ id: "Parking Spot" }];
 
@@ -41,7 +41,7 @@ async function handleSubmit(e) {
         elements,
         confirmParams: {
             // Make sure to change this to your payment completion page
-            return_url: "http://localhost:8081/index.html",
+            return_url: "http://localhost:8081/payment-complete",
         },
     });
 
