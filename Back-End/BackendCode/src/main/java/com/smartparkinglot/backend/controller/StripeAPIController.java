@@ -1,22 +1,20 @@
-package stripe_api.controller;
+package com.smartparkinglot.backend.controller;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
-import com.stripe.model.*;
-import com.stripe.net.Webhook;
+import com.stripe.model.Customer;
+import com.stripe.model.PaymentIntent;
 import com.stripe.param.CustomerCreateParams;
 import com.stripe.param.CustomerListParams;
 import com.stripe.param.PaymentIntentCreateParams;
-import com.stripe.param.PaymentMethodAttachParams;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController //REST returns a ResponseBody object that contains data in a format such as JSON or XML
-public class APIController {
+public class StripeAPIController {
     @Value("${stripe.apiKey}")
     String stripeKey;
 
