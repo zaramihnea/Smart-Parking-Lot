@@ -7,6 +7,7 @@ import com.smartparkinglot.backend.repository.ParkingSpotRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.domain.Example;
 
 import java.util.Optional;
 
@@ -28,10 +29,10 @@ public class ParkingSpotConfig {
             ParkingSpot parkingSpot3 = new ParkingSpot("PS3", parkingLot2, "available", 47.5679, 27.9877);
             ParkingSpot parkingSpot4 = new ParkingSpot("PS4", parkingLot2, "available", 47.5680, 27.9878);
 
-            parkingSpotRepository.save(parkingSpot1);
-            parkingSpotRepository.save(parkingSpot2);
-            parkingSpotRepository.save(parkingSpot3);
-            parkingSpotRepository.save(parkingSpot4);
+            if(!parkingSpotRepository.exists(Example.of(parkingSpot1)))parkingSpotRepository.save(parkingSpot1);
+            if(!parkingSpotRepository.exists(Example.of(parkingSpot2)))parkingSpotRepository.save(parkingSpot2);
+            if(!parkingSpotRepository.exists(Example.of(parkingSpot3)))parkingSpotRepository.save(parkingSpot3);
+            if(!parkingSpotRepository.exists(Example.of(parkingSpot4)))parkingSpotRepository.save(parkingSpot4);
         };
     }
 }
