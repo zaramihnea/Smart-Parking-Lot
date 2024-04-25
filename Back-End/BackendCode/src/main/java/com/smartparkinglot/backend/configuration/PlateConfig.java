@@ -7,6 +7,7 @@ import com.smartparkinglot.backend.repository.UserRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.domain.Example;
 
 import java.util.Date;
 import java.util.Optional;
@@ -24,8 +25,8 @@ public class PlateConfig {
             Plate plate1 = new Plate("B012ABC", user1);
             Plate plate2 = new Plate("IS12CDE", user2);
 
-            plateRepository.save(plate1);
-            plateRepository.save(plate2);
+            if(!plateRepository.exists(Example.of(plate1)))plateRepository.save(plate1);
+            if(!plateRepository.exists(Example.of(plate2)))plateRepository.save(plate2);
         };
     }
 
