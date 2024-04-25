@@ -2,6 +2,8 @@ package com.smartparkinglot.backend.entity;
 
 import jakarta.persistence.*;
 
+import java.math.BigDecimal;
+
 @Entity
 @Table(name = "parking_lots")
 public class ParkingLot {
@@ -10,20 +12,20 @@ public class ParkingLot {
     private String id;
 
     @Column(name = "nr_spots")
-    private int numberOfSpots;
+    private Long nrSpots;
 
     @Column(name = "latitude")
-    private double latitude;
+    private BigDecimal latitude;
 
     @Column(name = "longitude")
-    private double longitude;
+    private BigDecimal longitude;
 
     public ParkingLot() {
     }
 
-    public ParkingLot(String id, int numberOfSpots, double latitude, double longitude) {
+    public ParkingLot(String id, Long nrSpots, BigDecimal latitude, BigDecimal longitude) {
         this.id = id;
-        this.numberOfSpots = numberOfSpots;
+        this.nrSpots = nrSpots;
         this.latitude = latitude;
         this.longitude = longitude;
     }
@@ -35,28 +37,27 @@ public class ParkingLot {
     public void setId(String id) {
         this.id = id;
     }
-
-    public int getNumberOfSpots() {
-        return numberOfSpots;
-    }
-
-    public void setNumberOfSpots(int numberOfSpots) {
-        this.numberOfSpots = numberOfSpots;
-    }
-
-    public double getLatitude() {
+    public BigDecimal getLatitude() {
         return latitude;
     }
 
-    public void setLatitude(double latitude) {
+    public Long getNrSpots() {
+        return nrSpots;
+    }
+
+    public void setNrSpots(Long nrSpots) {
+        this.nrSpots = nrSpots;
+    }
+
+    public void setLatitude(BigDecimal latitude) {
         this.latitude = latitude;
     }
 
-    public double getLongitude() {
+    public BigDecimal getLongitude() {
         return longitude;
     }
 
-    public void setLongitude(double longitude) {
+    public void setLongitude(BigDecimal longitude) {
         this.longitude = longitude;
     }
 }

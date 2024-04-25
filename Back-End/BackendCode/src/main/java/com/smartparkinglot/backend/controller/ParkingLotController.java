@@ -5,6 +5,7 @@ import com.smartparkinglot.backend.service.ParkingLotService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
@@ -26,5 +27,23 @@ public class ParkingLotController {
     @PostMapping
     public void registerNewParkingLot(@RequestBody ParkingLot parkingLot) {
         parkingLotService.addNewParkingLot(parkingLot);
+    }
+
+    //DeleteMapping <=> DELETE requests
+    @DeleteMapping(path = "{parkingLotId}")
+    public void deleteParkingLot(@PathVariable("parkingLotId") String parkingLotId){
+        parkingLotService.deleteStudent(parkingLotId);
+    }
+
+    //PutMapping <=> PUT requests
+    @PutMapping(path = "{parkingLotId}")
+    // the names must be the same as in the ParkingLot class
+    // PathVariable <=> se cauta dupa el
+    // RequestParam <=> parametru care va fi modificat
+    public void updateParkingLot(@PathVariable("parkingLotId") String parkingLotId,
+                                 @RequestParam(required = false) Long nrSpots,
+                                 @RequestParam(required = false) BigDecimal latitude,
+                                 @RequestParam(required = false) BigDecimal longitude){
+        parkingLotService.updateParkingLot(parkingLotId, nrSpots, latitude, longitude);
     }
 }
