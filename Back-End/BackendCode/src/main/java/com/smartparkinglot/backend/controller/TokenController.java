@@ -18,13 +18,4 @@ public class TokenController {
         this.tokenService = tokenService;
     }
 
-    @GetMapping
-    public List<Token> getTokens(){
-        return tokenService.getAllTokens();
-    }
-
-    @PostMapping
-    public void registerNewToken(@RequestBody Token token) {
-        tokenService.addNewToken(token);
-    }
 }

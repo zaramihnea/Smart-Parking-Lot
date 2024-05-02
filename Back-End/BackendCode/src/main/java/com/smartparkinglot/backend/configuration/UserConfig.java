@@ -39,12 +39,10 @@ public class UserConfig {
                     "Iasi",
                     517.00
             );
-            Example<User> exampleUser1 = Example.of(user1);
-            Example<User> exampleUser2 = Example.of(user2);
-            if(!userRepository.exists(exampleUser1)) {
+            if(!userRepository.existsByUsername(user1.getUsername())) {
                 userRepository.save(user1);
             }
-            if(!userRepository.exists(exampleUser2)) {
+            if(!userRepository.existsByUsername(user2.getUsername())) {
                 userRepository.save(user2);
             }
         };
