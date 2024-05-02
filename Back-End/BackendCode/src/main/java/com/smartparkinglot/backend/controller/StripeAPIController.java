@@ -128,7 +128,9 @@ public class StripeAPIController {
             Customer customer = Customer.retrieve(paymentIntent.getCustomer());
             String customerName = customer.getName(); // Access the name here
             System.out.println("Customer id: " + customerName);
-
+            // Get the amount
+            long amount = paymentIntent.getAmount();
+            System.out.println("Payment Amount: " + amount);
             // Handle Success, failures, etc. based on paymentStatus
             if (paymentStatus.equals("succeeded")) {
                 // Payment successful - Update user balance, send confirmations, etc.

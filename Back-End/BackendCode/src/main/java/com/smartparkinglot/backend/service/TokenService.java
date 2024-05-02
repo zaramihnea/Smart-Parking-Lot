@@ -2,14 +2,25 @@ package com.smartparkinglot.backend.service;
 
 import com.smartparkinglot.backend.entity.Reservation;
 import com.smartparkinglot.backend.entity.Token;
+import com.smartparkinglot.backend.entity.User;
 import com.smartparkinglot.backend.repository.TokenRepository;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.sql.Date;
+import java.sql.Time;
+import java.sql.Timestamp;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class TokenService {
+    private String secretKey = "5BxDlhCs3OIZ5S910xf1bpXK5RR9B7HqoMI+2zLsybE=";
     private final TokenRepository tokenRepository;
 
     @Autowired
@@ -17,14 +28,39 @@ public class TokenService {
         this.tokenRepository = tokenRepository;
     }
 
-    public List<Token> getAllTokens() {
-        return tokenRepository.findAll();
+    public String generateToken(User user) {
+        Timestamp now = new Timestamp(System.currentTimeMillis());
+        Timestamp expiryDate = new Timestamp(now.getTime() + 1000 * 60 * 60 * 10); // 10 hours validity
+
+        String token = Jwts.builder()
+                .setSubject(user.getUsername())
+                .setIssuedAt(now)
+                .setExpiration(expiryDate)
+                .signWith(SignatureAlgorithm.HS256, secretKey)
+                .compact();
+
+        Token jwtToken = new Token();
+        jwtToken.setToken(token);
+        jwtToken.setUser(user);
+        jwtToken.setCreationDate(now);
+        jwtToken.setExpirationDate(expiryDate);
+        tokenRepository.save(jwtToken);
+
+        return token;
     }
 
-    public void addNewToken(Token token) {
-        if (tokenRepository.existsById(token.getToken())) {
-            throw new IllegalStateException("Token " + token.getToken() + " already exists");
+    @Transactional
+    public Boolean validateToken(String token) {
+        Optional<Token> jwtTokenOpt = tokenRepository.findByToken(token);
+        Timestamp now = new Timestamp(System.currentTimeMillis());
+        if (jwtTokenOpt.isPresent()) {
+            Token jwtToken = jwtTokenOpt.get();
+            if (jwtToken.getExpirationDate().before(new Date(now.getTime()))) {
+                tokenRepository.delete(jwtToken); // Delete expired token
+                return false;
+            }
+            return true;
         }
-        tokenRepository.save(token);
+        return false;
     }
 }

@@ -1,7 +1,6 @@
 package com.smartparkinglot.backend.service;
 
 import com.smartparkinglot.backend.entity.ParkingLot;
-import com.smartparkinglot.backend.entity.Plate;
 import com.smartparkinglot.backend.repository.ParkingLotRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;

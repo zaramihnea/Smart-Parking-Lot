@@ -3,7 +3,7 @@ package com.smartparkinglot.backend.entity;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "card")
+@Table(name = "cards")
 public class Card {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

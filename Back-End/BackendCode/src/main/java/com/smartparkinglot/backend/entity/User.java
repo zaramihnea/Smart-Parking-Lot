@@ -1,6 +1,8 @@
 package com.smartparkinglot.backend.entity;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.Date;
 
@@ -9,31 +11,49 @@ import java.util.Date;
 public class User {
 
     //datele memebre care reprezinta coloanele din tabele "users"
+    @Setter
+    @Getter
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Getter
+    @Setter
     @Column(nullable = false, unique = true)
     private String username;
 
+    @Setter
+    @Getter
     @Column(nullable = false)
     private String password;
 
+    @Setter
+    @Getter
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private UserType type;
 
+    @Getter
+    @Setter
     @Column
     private String email;
 
+    @Setter
+    @Getter
     @Column
     private Date dob;
+    @Setter
+    @Getter
     @Column
     private String country;
 
+    @Getter
+    @Setter
     @Column
     private String city;
 
+    @Setter
+    @Getter
     @Column
     private Double balance;
     public enum UserType {
@@ -56,76 +76,4 @@ public class User {
         this.balance = balance;
     }
 
-    //getters & setters
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public UserType getType() {
-        return type;
-    }
-
-    public void setType(UserType type) {
-        this.type = type;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getCountry() {
-        return country;
-    }
-
-    public void setCountry(String country) {
-        this.country = country;
-    }
-
-    public String getCity() {
-        return city;
-    }
-
-    public void setCity(String city) {
-        this.city = city;
-    }
-
-    public Double getBalance() {
-        return balance;
-    }
-
-    public void setBalance(Double balance) {
-        this.balance = balance;
-    }
-
-    public Date getDob() {
-        return dob;
-    }
-
-    public void setDob(Date dob) {
-        this.dob = dob;
-    }
 }
