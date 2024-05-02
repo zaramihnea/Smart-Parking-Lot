@@ -28,6 +28,14 @@ public class TokenService {
         this.tokenRepository = tokenRepository;
     }
 
+    public User getUserByToken(String token) {
+        Optional<Token> tokenOptional = tokenRepository.findByToken(token);
+        if(tokenOptional.isPresent()) {
+            Token tokenFound = tokenOptional.get();
+            return tokenFound.getUser();
+        }
+        return null;
+    }
     public String generateToken(User user) {
         Timestamp now = new Timestamp(System.currentTimeMillis());
         Timestamp expiryDate = new Timestamp(now.getTime() + 1000 * 60 * 60 * 10); // 10 hours validity
