@@ -9,4 +9,6 @@ public class SmartParkingLotApplication {
         SpringApplication.run(SmartParkingLotApplication.class, args);
     }
 
+
+
 }

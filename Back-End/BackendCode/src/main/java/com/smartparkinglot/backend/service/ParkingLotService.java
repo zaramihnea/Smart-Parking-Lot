@@ -29,13 +29,6 @@ public class ParkingLotService {
         parkingLotRepository.save(parkingLot);
     }
 
-    public void deleteStudent(String parkingLotId) {
-        if(!parkingLotRepository.existsById(parkingLotId)){
-            throw new IllegalStateException("Parking lot id " + parkingLotId + " doesn't exist");
-        }
-        parkingLotRepository.deleteById(parkingLotId);
-    }
-
     // Transactional <=> no need of verification queries
     @Transactional
     public void updateParkingLot(String parkingLotId, Long nrSpots, BigDecimal latitude, BigDecimal longitude){

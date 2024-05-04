@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ParkingSpotRepository extends JpaRepository<ParkingSpot, String> {
+    public boolean existsById(Long id);
 }

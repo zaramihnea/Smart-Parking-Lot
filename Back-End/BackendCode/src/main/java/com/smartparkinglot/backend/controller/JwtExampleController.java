@@ -28,7 +28,7 @@ public class JwtExampleController {
             return "User " + userAuthorized + " accessed his protected resource, authorized by token " + token;
         }
         else {
-            return "Authentication token invalid. Protected resource could not be acessed";
+            return "Authentication token invalid. Protected resource could not be accessed";
         }
     }
 }

@@ -6,8 +6,9 @@ import jakarta.persistence.*;
 @Table(name = "parking_spots")
 public class ParkingSpot {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", length = 11)
-    private String id;
+    private Long id;
 
     @ManyToOne
     @JoinColumn(name = "parking_lot_id", referencedColumnName = "id", foreignKey = @ForeignKey(name = "FK_parking_spots_parking_lots"), nullable = false)
@@ -16,28 +17,11 @@ public class ParkingSpot {
     @Column(name = "status", length = 11, columnDefinition = "VARCHAR(11) DEFAULT 'undefined'")
     private String status;
 
-    @Column(name = "latitude")
-    private double latitude;
-
-    @Column(name = "longitude")
-    private double longitude;
-
     public ParkingSpot() {
     }
-    public ParkingSpot(String id, ParkingLot parkingLot, String status, double latitude, double longitude) {
-        this.id = id;
+    public ParkingSpot(ParkingLot parkingLot, String status) {
         this.parkingLot = parkingLot;
         this.status = status;
-        this.latitude = latitude;
-        this.longitude = longitude;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
     }
 
     public ParkingLot getParkingLot() {
@@ -56,19 +40,11 @@ public class ParkingSpot {
         this.status = status;
     }
 
-    public double getLatitude() {
-        return latitude;
+    public Long getId() {
+        return id;
     }
 
-    public void setLatitude(double latitude) {
-        this.latitude = latitude;
-    }
-
-    public double getLongitude() {
-        return longitude;
-    }
-
-    public void setLongitude(double longitude) {
-        this.longitude = longitude;
+    public void setId(Long id) {
+        this.id = id;
     }
 }
