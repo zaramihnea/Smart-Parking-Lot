@@ -14,10 +14,10 @@ public class ParkingLot {
     @Column(name = "nr_spots")
     private Long nrSpots;
 
-    @Column(name = "latitude")
+    @Column(name = "latitude", precision=10, scale=8)
     private BigDecimal latitude;
 
-    @Column(name = "longitude")
+    @Column(name = "longitude", precision=10, scale=8)
     private BigDecimal longitude;
 
     public ParkingLot() {

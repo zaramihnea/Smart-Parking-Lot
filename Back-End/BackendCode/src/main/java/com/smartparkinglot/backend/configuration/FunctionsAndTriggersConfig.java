@@ -13,6 +13,8 @@ public class FunctionsAndTriggersConfig {
     @PostConstruct
     public void init() {
         List<String> sqlStatements = List.of(
+                "CREATE EXTENSION IF NOT EXISTS cube;",
+                "CREATE EXTENSION IF NOT EXISTS earthdistance CASCADE;",
                 "CREATE EXTENSION IF NOT EXISTS pgcrypto",
 
 
