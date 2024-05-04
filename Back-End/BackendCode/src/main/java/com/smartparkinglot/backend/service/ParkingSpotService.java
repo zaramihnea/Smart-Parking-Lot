@@ -1,5 +1,6 @@
 package com.smartparkinglot.backend.service;
 
+import com.smartparkinglot.backend.entity.ParkingLot;
 import com.smartparkinglot.backend.entity.ParkingSpot;
 import com.smartparkinglot.backend.repository.ParkingSpotRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,5 +26,9 @@ public class ParkingSpotService {
             throw new IllegalStateException("Parking spot with ID " + parkingSpot.getId() + " already exists");
         }
         parkingSpotRepository.save(parkingSpot);
+    }
+
+    public List<ParkingSpot> findByParkingLot(ParkingLot parkingLot) {
+        return parkingSpotRepository.findByParkingLot(parkingLot).orElse(null);
     }
 }

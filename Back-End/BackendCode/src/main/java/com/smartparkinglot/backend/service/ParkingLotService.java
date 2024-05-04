@@ -17,6 +17,9 @@ public class ParkingLotService {
     public ParkingLotService(ParkingLotRepository parkingLotRepository) {
         this.parkingLotRepository = parkingLotRepository;
     }
+    public List<ParkingLot> getParkingLotsWithinRadius(BigDecimal latitude, BigDecimal longitude, Long radius) {
+        return parkingLotRepository.findWithinRadius(latitude, longitude, radius);
+    }
 
     public List<ParkingLot> getAllParkingLots() {
         return parkingLotRepository.findAll();
