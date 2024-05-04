@@ -29,12 +29,6 @@ public class ParkingLotController {
         parkingLotService.addNewParkingLot(parkingLot);
     }
 
-    //DeleteMapping <=> DELETE requests
-    @DeleteMapping(path = "{parkingLotId}")
-    public void deleteParkingLot(@PathVariable("parkingLotId") String parkingLotId){
-        parkingLotService.deleteStudent(parkingLotId);
-    }
-
     //PutMapping <=> PUT requests
     @PutMapping(path = "{parkingLotId}")
     // the names must be the same as in the ParkingLot class

@@ -8,7 +8,7 @@ import java.math.BigDecimal;
 @Table(name = "parking_lots")
 public class ParkingLot {
     @Id
-    @Column(name = "id", length = 11)
+    @Column(name = "id", length = 200)
     private String id;
 
     @Column(name = "nr_spots")

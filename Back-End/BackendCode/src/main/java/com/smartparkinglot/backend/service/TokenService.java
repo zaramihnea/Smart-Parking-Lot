@@ -20,7 +20,7 @@ import java.util.Optional;
 
 @Service
 public class TokenService {
-    private String secretKey = "5BxDlhCs3OIZ5S910xf1bpXK5RR9B7HqoMI+2zLsybE=";
+    private final String secretKey = "5BxDlhCs3OIZ5S910xf1bpXK5RR9B7HqoMI+2zLsybE=";
     private final TokenRepository tokenRepository;
 
     @Autowired
