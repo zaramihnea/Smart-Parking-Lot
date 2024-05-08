@@ -4,7 +4,7 @@ drop table reservations;
 drop table cars;
 drop table parking_spots;
 drop table parking_lots;
-drop table user_types;
+drop table messages;
 drop table users;
 
 
@@ -16,12 +16,8 @@ CREATE TABLE users (
     dob DATE,
     country VARCHAR(35),
     city VARCHAR(35),
-    balance NUMERIC(5, 2) DEFAULT 0
-);
-
-CREATE TABLE user_types (
-	type VARCHAR(11),
-	email VARCHAR(35) REFERENCES users(email) ON DELETE CASCADE
+    balance NUMERIC(5, 2) DEFAULT 0,
+	is_admin BOOLEAN
 );
 
 CREATE TABLE messages (
@@ -61,9 +57,7 @@ CREATE TABLE parking_lots (
 
 CREATE TABLE parking_spots (
     id VARCHAR(11) PRIMARY KEY,
-    parking_lot_id VARCHAR(11) REFERENCES parking_lots(id) ON DELETE CASCADE,
-    latitude NUMERIC,
-    longitude NUMERIC
+    parking_lot_id VARCHAR(11) REFERENCES parking_lots(id) ON DELETE CASCADE
 );
 
 CREATE TABLE reservations (
@@ -95,7 +89,8 @@ CREATE OR REPLACE FUNCTION AddNewUser(
     p_dob users.dob%TYPE,
     p_country users.country%TYPE,
     p_city users.city%TYPE,
-    p_balance users.balance%TYPE DEFAULT 0
+    p_balance users.balance%TYPE DEFAULT 0,
+	p_is_admin users.is_admin%TYPE DEFAULT FALSE
 ) RETURNS VOID AS $$
 DECLARE
     user_count INTEGER;
@@ -106,8 +101,8 @@ BEGIN
         RAISE EXCEPTION 'User already exists';
     END IF;
 
-    INSERT INTO users (email, name, password, dob, country, city, balance)
-    VALUES (p_mail, p_name, p_password, p_dob, p_country, p_city, p_balance);
+    INSERT INTO users (email, name, password, dob, country, city, balance, is_admin)
+    VALUES (p_mail, p_name, p_password, p_dob, p_country, p_city, p_balance, p_is_admin);
 	
 END;
 			
@@ -152,7 +147,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 CREATE TRIGGER encrypt_password_trigger
-BEFORE INSERT users
+BEFORE INSERT ON users
 FOR EACH ROW
 EXECUTE FUNCTION EncryptPasswordFunction();
 
@@ -223,17 +218,17 @@ $$ LANGUAGE plpgsql;
 
 
 
-CREATE OR REPLACE FUNCTION VerifyUniqueSpotCoordinates()
+CREATE OR REPLACE FUNCTION VerifyUniqueLotCoordinates()
 RETURNS TRIGGER AS $$
 DECLARE
-    spot_count INTEGER;
+    lot_count INTEGER;
 BEGIN
-    SELECT COUNT(*) INTO spot_count 
-    FROM parking_spots 
+    SELECT COUNT(*) INTO lot_count 
+    FROM parking_lots 
     WHERE latitude = NEW.latitude AND longitude = NEW.longitude;
 	
-	IF spot_count > 0 THEN
-        RAISE EXCEPTION 'Spot already exists';
+	IF lot_count > 0 THEN
+        RAISE EXCEPTION 'Lot already exists';
     END IF;
 	
 	RETURN NEW;
@@ -246,15 +241,14 @@ FOR EACH ROW
 EXECUTE FUNCTION VerifyUniqueSpotCoordinates();
 
 
-
 CREATE OR REPLACE FUNCTION GetAvailableParkingSpots(
 	p_start_time TIMESTAMP, 
 	p_stop_time TIMESTAMP
 )
-RETURNS TABLE(id VARCHAR, parking_lot_id VARCHAR, latitude NUMERIC, longitude NUMERIC) AS $$
+RETURNS TABLE(id VARCHAR, parking_lot_id VARCHAR) AS $$
 BEGIN
     RETURN QUERY 
-    SELECT ps.id, ps.parking_lot_id, ps.latitude, ps.longitude
+    SELECT ps.id, ps.parking_lot_id
     FROM parking_spots ps
     WHERE NOT EXISTS (
         SELECT 1 FROM reservations r
@@ -265,6 +259,7 @@ BEGIN
     );
 END;
 $$ LANGUAGE plpgsql;
+
 
 
 CREATE OR REPLACE FUNCTION GetMostVisitedParkingLot()
