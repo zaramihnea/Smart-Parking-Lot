@@ -1,6 +1,8 @@
 package com.smartparkinglot.backend.entity;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.math.BigDecimal;
 
@@ -14,6 +16,10 @@ public class ParkingLot {
     @Column(name = "nr_spots")
     private Long nrSpots;
 
+    @Getter @Setter
+    @Column(name = "price")
+    private Long price;
+
     @Column(name = "latitude", precision=10, scale=8)
     private BigDecimal latitude;
 
@@ -23,9 +29,10 @@ public class ParkingLot {
     public ParkingLot() {
     }
 
-    public ParkingLot(String id, Long nrSpots, BigDecimal latitude, BigDecimal longitude) {
+    public ParkingLot(String id, Long nrSpots, Long price, BigDecimal latitude, BigDecimal longitude) {
         this.id = id;
         this.nrSpots = nrSpots;
+        this.price = price;
         this.latitude = latitude;
         this.longitude = longitude;
     }

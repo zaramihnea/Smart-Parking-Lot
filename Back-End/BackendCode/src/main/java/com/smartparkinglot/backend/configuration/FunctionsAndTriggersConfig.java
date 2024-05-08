@@ -17,8 +17,6 @@ public class FunctionsAndTriggersConfig {
                 "CREATE EXTENSION IF NOT EXISTS earthdistance CASCADE;",
                 "CREATE EXTENSION IF NOT EXISTS pgcrypto",
 
-
-                // Add your function definitions here, each as a separate string
                 "CREATE OR REPLACE FUNCTION TryLogin(\n" +
                         "    p_username users.username%TYPE,\n" +
                         "    p_password users.password%TYPE\n" +
@@ -60,7 +58,45 @@ public class FunctionsAndTriggersConfig {
                         "        BEFORE INSERT ON users\n" +
                         "        FOR EACH ROW EXECUTE FUNCTION EncryptPasswordFunction();\n" +
                         "    END IF;\n" +
-                        "END $$;"
+                        "END $$;",
+
+                "CREATE OR REPLACE FUNCTION CalculateReservationCost(\n" +
+                        "    p_start_time reservations.start_time%TYPE,\n" +
+                        "    p_stop_time reservations.stop_time%TYPE,\n" +
+                        "\tp_spot parking_spots.id%TYPE\n" +
+                        ") RETURNS NUMERIC AS $$\n" +
+                        "DECLARE\n" +
+                        "    duration INTERVAL;\n" +
+                        "    l_cost NUMERIC;\n" +
+                        "\tv_price NUMERIC;\n" +
+                        "BEGIN\n" +
+                        "\n" +
+                        "\tSELECT price INTO v_price FROM ( SELECT pl.price FROM parking_spots ps JOIN parking_lots pl ON ps.parking_lot_id = pl.id WHERE ps.id = p_spot);\n" +
+                        "\n" +
+                        "    duration := p_stop_time - p_start_time;\n" +
+                        "    l_cost := EXTRACT(EPOCH FROM duration) / 3600 * v_price;\n" +
+                        "    RETURN l_cost;\n" +
+                        "END;\n" +
+                        "$$ LANGUAGE plpgsql;",
+
+                "CREATE OR REPLACE FUNCTION GetAvailableParkingSpots(\n" +
+                        "\tp_start_time TIMESTAMP, \n" +
+                        "\tp_stop_time TIMESTAMP\n" +
+                        ")\n" +
+                        "RETURNS TABLE(id bigint, parking_lot_id VARCHAR, status VARCHAR, ownerID bigint) AS $$\n" +
+                        "BEGIN\n" +
+                        "    RETURN QUERY \n" +
+                        "    SELECT ps.id, ps.parking_lot_id, ps.status, ps.ownerID\n" +
+                        "    FROM parking_spots ps\n" +
+                        "    WHERE NOT EXISTS (\n" +
+                        "        SELECT 1 FROM reservations r\n" +
+                        "        WHERE r.parking_spot_id = ps.id\n" +
+                        "        AND (\n" +
+                        "            (r.start_time <= p_stop_time AND r.stop_time >= p_start_time)\n" +
+                        "        )\n" +
+                        "    );\n" +
+                        "END;\n" +
+                        "$$ LANGUAGE plpgsql;"
         );
 
         sqlStatements.forEach(sql -> {

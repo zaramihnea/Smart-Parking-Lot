@@ -6,6 +6,7 @@ import com.smartparkinglot.backend.repository.ParkingSpotRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.sql.Timestamp;
 import java.util.List;
 
 @Service
@@ -30,5 +31,9 @@ public class ParkingSpotService {
 
     public List<ParkingSpot> findByParkingLot(ParkingLot parkingLot) {
         return parkingSpotRepository.findByParkingLot(parkingLot).orElse(null);
+    }
+
+    public List<ParkingSpot> findAvailableParkingSpots(Timestamp start_time, Timestamp stop_time) {
+        return parkingSpotRepository.findAvailableParkingSpots(start_time, stop_time).orElse(null);
     }
 }
