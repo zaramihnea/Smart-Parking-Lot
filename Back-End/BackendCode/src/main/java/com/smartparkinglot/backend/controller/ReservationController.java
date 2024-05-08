@@ -7,6 +7,7 @@ import com.smartparkinglot.backend.service.ReservationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.sql.Timestamp;
 import java.util.List;
 
 @RestController
@@ -25,7 +26,13 @@ public class ReservationController {
     }
 
     @PostMapping
-    public void registerNewReservation(@RequestBody Reservation reservation) {
-        reservationService.addNewReservation(reservation);
+    public void registerNewReservation(@RequestHeader("Authorization") String authorizationHeader, @RequestBody ReservationRequest reservationRequest) {
+//        reservationService.addNewReservation(reservation);
+    }
+
+    public static class ReservationRequest {
+        private Long userID;
+        private Timestamp startTime;
+        private Timestamp endTime;
     }
 }

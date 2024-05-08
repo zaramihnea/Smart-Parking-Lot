@@ -11,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
+import java.sql.Time;
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -27,6 +29,25 @@ public class ParkingLotController {
         this.parkingSpotService = parkingSpotService;
     }
 
+    @GetMapping("/available-spots-search")
+    public List<ParkingLotAndSpots> getParkingLots(@RequestParam BigDecimal latitude, @RequestParam BigDecimal longitude, @RequestParam long radius, @RequestParam Timestamp start_time, @RequestParam Timestamp stop_time) {
+        List<ParkingLot> parkingLots = parkingLotService.getParkingLotsWithinRadius(latitude, longitude, radius);
+        List<ParkingSpot> availableParkingSpots = parkingSpotService.findAvailableParkingSpots(start_time, stop_time);
+
+        parkingLots.forEach(parkingLot -> {
+            System.out.println(parkingLot.getId());
+        });
+        return parkingLots.stream().map(parkingLot -> {
+            List<ParkingSpot> availableSpots = availableParkingSpots.stream().filter(parkingSpot -> {
+                return parkingSpot.getParkingLot().getId().equals(parkingLot.getId());
+            }).toList();
+
+            List<ParkingSpotData> spotsOnlyWithRequiredFields = availableSpots.stream().map(parkingSpot -> new ParkingSpotData(parkingSpot.getId(), parkingSpot.getOwnerUserID())).toList();
+
+            return new ParkingLotAndSpots(parkingLot, spotsOnlyWithRequiredFields);
+        }).collect(Collectors.toList());
+    }
+
     @GetMapping("/search")
     public List<ParkingLotAndSpots> getParkingLots(@RequestParam BigDecimal latitude, @RequestParam BigDecimal longitude, @RequestParam long radius) {
         List<ParkingLot> parkingLots = parkingLotService.getParkingLotsWithinRadius(latitude, longitude, radius);
@@ -35,7 +56,7 @@ public class ParkingLotController {
         });
         return parkingLots.stream().map(parkingLot -> {
             List<ParkingSpot> spots = parkingSpotService.findByParkingLot(parkingLot);
-            List<ParkingSpotData> spotsTrimmed = spots.stream().map(parkingSpot -> new ParkingSpotData(parkingSpot.getId(), parkingSpot.getStatus())).toList();
+            List<ParkingSpotData> spotsTrimmed = spots.stream().map(parkingSpot -> new ParkingSpotData(parkingSpot.getId(), parkingSpot.getOwnerUserID())).toList();
             return new ParkingLotAndSpots(parkingLot, spotsTrimmed);
         }).collect(Collectors.toList());
     }
@@ -58,7 +79,7 @@ public class ParkingLotController {
     @AllArgsConstructor
     public static class ParkingSpotData {
         private Long id;
-        private String status;
+        private Long ownerID;
     }
 
 

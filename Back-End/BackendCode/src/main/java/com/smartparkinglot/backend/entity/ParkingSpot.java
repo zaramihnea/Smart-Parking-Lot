@@ -1,6 +1,8 @@
 package com.smartparkinglot.backend.entity;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
 @Table(name = "parking_spots")
@@ -14,8 +16,13 @@ public class ParkingSpot {
     @JoinColumn(name = "parking_lot_id", referencedColumnName = "id", foreignKey = @ForeignKey(name = "FK_parking_spots_parking_lots"), nullable = false)
     private ParkingLot parkingLot;
 
-    @Column(name = "status", length = 11, columnDefinition = "VARCHAR(11) DEFAULT 'undefined'")
+    @Column(name = "status", length = 11, columnDefinition = "VARCHAR(11) DEFAULT 'available'")
     private String status;
+
+    @Getter @Setter
+    @Column(name = "ownerID", nullable = true)
+    private Long ownerUserID;  // Stores the ID of the User that owns the spot
+
 
     public ParkingSpot() {
     }
