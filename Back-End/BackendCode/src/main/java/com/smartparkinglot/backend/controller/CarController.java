@@ -2,9 +2,15 @@ package com.smartparkinglot.backend.controller;
 
 import com.smartparkinglot.backend.entity.Car;
 import com.smartparkinglot.backend.entity.ParkingLot;
+import com.smartparkinglot.backend.entity.User;
 import com.smartparkinglot.backend.service.CarService;
+import com.smartparkinglot.backend.service.TokenService;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
 import org.intellij.lang.annotations.JdkConstants;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -13,19 +19,40 @@ import java.util.List;
 @RequestMapping("/car")
 public class CarController {
     private final CarService carService;
+    private final TokenService tokenService;
 
     @Autowired
-    public CarController(CarService carService) {
+    public CarController(CarService carService, TokenService tokenService) {
         this.carService = carService;
+        this.tokenService = tokenService;
     }
 
-    @GetMapping
-    public List<Car> getCars(){
-        return carService.getAllCars();
+    @GetMapping("/user-cars")
+    public ResponseEntity<?> getCars(@RequestHeader("Authorization") String authorizationHeader) {
+        String token = authorizationHeader.substring(7);// Assuming the scheme is "Bearer "
+        if(tokenService.validateToken(token)) {
+            User userAuthorized = tokenService.getUserByToken(token);
+
+            return ResponseEntity.ok().body(carService.getCarsByUser(userAuthorized).stream().map(car -> {
+                return new CarDetails(car.getPlate(), car.getCapacity(), car.getType(), car.getUser().getUsername());
+            }));
+        }
+        else {
+            return ResponseEntity.badRequest().body("Authentication token invalid. Protected resource could not be accessed");
+        }
     }
 
     @PostMapping
     public void registerNewCar(@RequestBody Car car) {
         carService.addNewCar(car);
+    }
+
+    @Getter @Setter
+    @AllArgsConstructor
+    public class CarDetails {
+        private String plate;
+        private int capacity;
+        private String type;
+        private String username;
     }
 }

@@ -42,9 +42,9 @@ public class ParkingLotController {
                 return parkingSpot.getParkingLot().getId().equals(parkingLot.getId());
             }).toList();
 
-            List<ParkingSpotData> spotsOnlyWithRequiredFields = availableSpots.stream().map(parkingSpot -> new ParkingSpotData(parkingSpot.getId(), parkingSpot.getOwnerUserID())).toList();
+            List<Long> spotsIds = availableSpots.stream().map(parkingSpot -> parkingSpot.getId()).toList();
 
-            return new ParkingLotAndSpots(parkingLot, spotsOnlyWithRequiredFields);
+            return new ParkingLotAndSpots(parkingLot, spotsIds);
         }).collect(Collectors.toList());
     }
 
@@ -56,7 +56,7 @@ public class ParkingLotController {
         });
         return parkingLots.stream().map(parkingLot -> {
             List<ParkingSpot> spots = parkingSpotService.findByParkingLot(parkingLot);
-            List<ParkingSpotData> spotsTrimmed = spots.stream().map(parkingSpot -> new ParkingSpotData(parkingSpot.getId(), parkingSpot.getOwnerUserID())).toList();
+            List<Long> spotsTrimmed = spots.stream().map(parkingSpot -> parkingSpot.getId()).toList();
             return new ParkingLotAndSpots(parkingLot, spotsTrimmed);
         }).collect(Collectors.toList());
     }
@@ -71,15 +71,8 @@ public class ParkingLotController {
     @Getter @Setter
     public static class ParkingLotAndSpots {
         private ParkingLot parkingLot;
-        private List<ParkingSpotData> parkingSpots;
+        private List<Long> parkingSpotsIds;
 
-    }
-
-    @Getter @Setter
-    @AllArgsConstructor
-    public static class ParkingSpotData {
-        private Long id;
-        private Long ownerID;
     }
 
 
