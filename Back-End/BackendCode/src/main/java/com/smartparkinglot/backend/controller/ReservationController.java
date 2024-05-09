@@ -1,10 +1,7 @@
 package com.smartparkinglot.backend.controller;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.smartparkinglot.backend.entity.Card;
-import com.smartparkinglot.backend.entity.ParkingSpot;
-import com.smartparkinglot.backend.entity.Reservation;
-import com.smartparkinglot.backend.entity.User;
+import com.smartparkinglot.backend.entity.*;
 import com.smartparkinglot.backend.service.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -26,12 +23,14 @@ public class ReservationController {
     private final ReservationService reservationService;
     private final TokenService tokenService;
     private final ParkingSpotService parkingSpotService;
+    private final CarService carService;
 
     @Autowired
-    public ReservationController(ReservationService reservationService, TokenService tokenService, ParkingSpotService parkingSpotService, UserService userService) {
+    public ReservationController(ReservationService reservationService, TokenService tokenService, ParkingSpotService parkingSpotService, UserService userService, CarService carService) {
         this.reservationService = reservationService;
         this.tokenService = tokenService;
         this.parkingSpotService = parkingSpotService;
+        this.carService = carService;
     }
     @PostMapping("/reserve")
     public ResponseEntity<String> registerNewReservation(@RequestHeader("Authorization") String authorizationHeader, @RequestBody ReservationRequest reservationRequest) {
@@ -46,7 +45,9 @@ public class ReservationController {
             if(parkingSpotService.checkParkingSpotAvailability(reservationRequest.spotID, startTimestamp, endTimestamp)) {
                 int reservationCost = parkingSpotService.calculateReservationCost(startTimestamp, endTimestamp, reservationRequest.spotID);
                 if(reservationCost < userAuthorized.getBalance()) {
-                    return reservationService.createReservation(userAuthorized, reservationRequest.spotID, startTimestamp, endTimestamp, reservationCost);
+                    Car userCar = new Car(reservationRequest.carPlate, reservationRequest.carCapacity, reservationRequest.carType, userAuthorized);
+                    carService.addNewCar(userCar);
+                    return reservationService.createReservation(userAuthorized, reservationRequest.spotID, startTimestamp, endTimestamp, reservationCost, userCar);
                 }
                 else {
                     return ResponseEntity.badRequest().body("User does not have enough money in his balance");
@@ -68,5 +69,8 @@ public class ReservationController {
         private Long spotID;
         private String startTime;
         private String endTime;
+        private String carPlate;
+        private int carCapacity;
+        private String carType;
     }
 }

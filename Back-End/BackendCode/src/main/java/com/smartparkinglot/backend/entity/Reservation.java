@@ -17,10 +17,6 @@ public class Reservation {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Getter @Setter
-    @Column(name = "ownerID", nullable = true)
-    private Long ownerUserID;  // Stores the ID of the User that made the reservation
-
     @ManyToOne
     @OnDelete(action = OnDeleteAction.SET_NULL)
     @JoinColumn(name = "plate", referencedColumnName = "plate", foreignKey = @ForeignKey(name = "fk_plate"))
@@ -46,18 +42,18 @@ public class Reservation {
     public Reservation() {
     }
 
-    public Reservation(Long ownerUserID, Car car, ParkingSpot parkingSpot, Timestamp startTime, Timestamp stopTime) {
-        this.ownerUserID = ownerUserID;
+    public Reservation(Car car, ParkingSpot parkingSpot, Timestamp startTime, Timestamp stopTime, String status) {
         this.car = car;
         this.parkingSpot = parkingSpot;
         this.startTime = startTime;
         this.stopTime = stopTime;
+        this.status = status;
     }
-    public Reservation(Long ownerUserID, ParkingSpot parkingSpot, Timestamp startTime, Timestamp stopTime) {
-        this.ownerUserID = ownerUserID;
+    public Reservation(ParkingSpot parkingSpot, Timestamp startTime, Timestamp stopTime, String status) {
         this.parkingSpot = parkingSpot;
         this.startTime = startTime;
         this.stopTime = stopTime;
+        this.status = status;
     }
     public Timestamp getStartTime() {
         return startTime;

@@ -1,9 +1,6 @@
 package com.smartparkinglot.backend.service;
 
-import com.smartparkinglot.backend.entity.Card;
-import com.smartparkinglot.backend.entity.ParkingSpot;
-import com.smartparkinglot.backend.entity.Reservation;
-import com.smartparkinglot.backend.entity.User;
+import com.smartparkinglot.backend.entity.*;
 import com.smartparkinglot.backend.repository.CardRepository;
 import com.smartparkinglot.backend.repository.ReservationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,11 +16,13 @@ public class ReservationService {
     private final ReservationRepository reservationRepository;
     private final UserService userService;
     private final ParkingSpotService parkingSpotService;
+    private final CarService carService;
     @Autowired
-    public ReservationService(ReservationRepository reservationRepository, UserService userService, ParkingSpotService parkingSpotService) {
+    public ReservationService(ReservationRepository reservationRepository, UserService userService, ParkingSpotService parkingSpotService, CarService carService) {
         this.reservationRepository = reservationRepository;
         this.userService = userService;
         this.parkingSpotService = parkingSpotService;
+        this.carService = carService;
     }
 
     public List<Reservation> getAllReservations() {
@@ -35,13 +34,14 @@ public class ReservationService {
     }
 
     @Transactional
-    public ResponseEntity<String> createReservation(User userAuthorized, Long spotId, Timestamp startTimestamp, Timestamp endTimestamp, int reservationCost) {
+    public ResponseEntity<String> createReservation(User userAuthorized, Long spotId, Timestamp startTimestamp, Timestamp endTimestamp, int reservationCost, Car car) {
         try {
             userAuthorized.setBalance(userAuthorized.getBalance() - reservationCost);
             userService.saveUser(userAuthorized);  // Save the user's new balance
 
+
             ParkingSpot spot = parkingSpotService.getById(spotId);
-            Reservation reservation = new Reservation(userAuthorized.getId(), spot, startTimestamp, endTimestamp);
+            Reservation reservation = new Reservation(car, spot, startTimestamp, endTimestamp, "active");
             reservationRepository.save(reservation);  // Persist the reservation
 
             return ResponseEntity.ok("Spot reserved successfully");

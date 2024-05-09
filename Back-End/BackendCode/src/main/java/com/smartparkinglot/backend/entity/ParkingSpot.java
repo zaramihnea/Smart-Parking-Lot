@@ -16,19 +16,11 @@ public class ParkingSpot {
     @JoinColumn(name = "parking_lot_id", referencedColumnName = "id", foreignKey = @ForeignKey(name = "FK_parking_spots_parking_lots"), nullable = false)
     private ParkingLot parkingLot;
 
-    @Column(name = "status", length = 11, columnDefinition = "VARCHAR(11) DEFAULT 'available'")
-    private String status;
-
-    @Getter @Setter
-    @Column(name = "ownerID", nullable = false)
-    private Long ownerUserID;  // Stores the ID of the User that owns the spot
-
 
     public ParkingSpot() {
     }
-    public ParkingSpot(ParkingLot parkingLot, String status) {
+    public ParkingSpot(ParkingLot parkingLot) {
         this.parkingLot = parkingLot;
-        this.status = status;
     }
 
     public ParkingLot getParkingLot() {
@@ -37,14 +29,6 @@ public class ParkingSpot {
 
     public void setParkingLot(ParkingLot parkingLot) {
         this.parkingLot = parkingLot;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
     }
 
     public Long getId() {

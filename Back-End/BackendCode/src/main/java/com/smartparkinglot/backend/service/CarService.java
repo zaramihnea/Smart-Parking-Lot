@@ -2,6 +2,7 @@ package com.smartparkinglot.backend.service;
 
 import com.smartparkinglot.backend.entity.Car;
 import com.smartparkinglot.backend.entity.Card;
+import com.smartparkinglot.backend.entity.User;
 import com.smartparkinglot.backend.repository.CarRepository;
 import com.smartparkinglot.backend.repository.CardRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,9 +24,11 @@ public class CarService {
     }
 
     public void addNewCar(Car car) {
-        if (carRepository.existsById(car.getPlate())) {
-            throw new IllegalStateException("Car with plate " + car.getPlate() + " already exists");
+        if (!carRepository.existsById(car.getPlate())) {
+            carRepository.save(car);
         }
-        carRepository.save(car);
+    }
+    public List<Car> getCarsByUser(User user) {
+        return carRepository.getCarsByUser(user);
     }
 }
