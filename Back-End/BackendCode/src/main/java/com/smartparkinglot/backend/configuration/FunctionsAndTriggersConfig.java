@@ -96,6 +96,51 @@ public class FunctionsAndTriggersConfig {
                         "        )\n" +
                         "    );\n" +
                         "END;\n" +
+                        "$$ LANGUAGE plpgsql;",
+
+                "CREATE OR REPLACE FUNCTION CheckParkingSpotAvailability(\n" +
+                        "    p_parking_spot_id parking_spots.id%TYPE,\n" +
+                        "    p_start_time TIMESTAMP,\n" +
+                        "    p_stop_time TIMESTAMP\n" +
+                        ") RETURNS BOOLEAN AS $$\n" +
+                        "DECLARE\n" +
+                        "    l_count INTEGER;\n" +
+                        "    l_available BOOLEAN := TRUE;\n" +
+                        "BEGIN\n" +
+                        "    SELECT COUNT(*) INTO l_count\n" +
+                        "    FROM reservations\n" +
+                        "    WHERE parking_spot_id = p_parking_spot_id\n" +
+                        "    AND (\n" +
+                        "        (start_time >= p_start_time AND start_time < p_stop_time) OR\n" +
+                        "        (stop_time >= p_start_time AND stop_time < p_stop_time) OR\n" +
+                        "        (start_time < p_start_time AND stop_time > p_stop_time)\n" +
+                        "    );\n" +
+                        "\n" +
+                        "    IF l_count > 0 THEN\n" +
+                        "        l_available := FALSE;\n" +
+                        "    END IF;\n" +
+                        "\n" +
+                        "    RETURN l_available;\n" +
+                        "END;\n" +
+                        "$$ LANGUAGE plpgsql;",
+
+                "CREATE OR REPLACE FUNCTION CalculateReservationCost(\n" +
+                        "    p_start_time reservations.start_time%TYPE,\n" +
+                        "    p_stop_time reservations.stop_time%TYPE,\n" +
+                        "\tp_spot parking_spots.id%TYPE\n" +
+                        ") RETURNS NUMERIC AS $$\n" +
+                        "DECLARE\n" +
+                        "    duration INTERVAL;\n" +
+                        "    l_cost NUMERIC;\n" +
+                        "\tv_price NUMERIC;\n" +
+                        "BEGIN\n" +
+                        "\n" +
+                        "\tSELECT price INTO v_price FROM ( SELECT pl.price FROM parking_spots ps JOIN parking_lots pl ON ps.parking_lot_id = pl.id WHERE ps.id = p_spot);\n" +
+                        "\n" +
+                        "    duration := p_stop_time - p_start_time;\n" +
+                        "    l_cost := EXTRACT(EPOCH FROM duration) / 3600 * v_price;\n" +
+                        "    RETURN l_cost;\n" +
+                        "END;\n" +
                         "$$ LANGUAGE plpgsql;"
         );
 

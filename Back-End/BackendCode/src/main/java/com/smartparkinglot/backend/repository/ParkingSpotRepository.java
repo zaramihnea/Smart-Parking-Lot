@@ -15,8 +15,15 @@ import java.util.Optional;
 public interface ParkingSpotRepository extends JpaRepository<ParkingSpot, String> {
     public boolean existsById(Long id);
     public Optional<List<ParkingSpot>> findByParkingLot(ParkingLot parkingLot);
+    public Optional<ParkingSpot> getParkingSpotById(Long id);
 
     @Query(value = "SELECT * FROM GetAvailableParkingSpots(:start_time, :stop_time)", nativeQuery = true)
     Optional<List<ParkingSpot>> findAvailableParkingSpots(@Param("start_time") Timestamp start_time, @Param("stop_time") Timestamp stop_time);
+
+    @Query(value = "SELECT checkparkingspotavailability(:spot_id, :start_time, :stop_time)", nativeQuery = true)
+    public boolean checkParkingSpotAvailability(Long spot_id, Timestamp start_time, Timestamp stop_time);
+
+    @Query(value = "SELECT calculatereservationcost(:start_time, :stop_time, :spot_id)", nativeQuery = true)
+    public Integer calculateReservationCost(Timestamp start_time, Timestamp stop_time, Long spot_id);
 
 }

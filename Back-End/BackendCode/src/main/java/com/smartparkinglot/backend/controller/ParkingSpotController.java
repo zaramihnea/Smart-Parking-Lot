@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.sql.Time;
+import java.sql.Timestamp;
 import java.util.List;
 
 @RestController
@@ -18,9 +20,12 @@ public class ParkingSpotController {
         this.parkingSpotService = parkingSpotService;
     }
 
-    @GetMapping
-    public List<ParkingSpot> getParkingSpots(){
-        return parkingSpotService.getAllParkingSpots();
+    @GetMapping("/get-price")
+    public int getParkingSpotPrice(@RequestParam Timestamp start_time, @RequestParam Timestamp stop_time, @RequestParam Long id){
+        System.out.println(start_time);
+        System.out.println(stop_time);
+
+        return parkingSpotService.calculateReservationCost(start_time, stop_time, id);
     }
 
     @PostMapping
