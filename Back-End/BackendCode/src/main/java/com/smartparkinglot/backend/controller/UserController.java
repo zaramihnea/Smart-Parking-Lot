@@ -1,6 +1,7 @@
 package com.smartparkinglot.backend.controller;
 import com.smartparkinglot.backend.customexceptions.EmailExistsException;
 import com.smartparkinglot.backend.customexceptions.UsernameExistsException;
+import com.stripe.model.issuing.Authorization;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,15 +26,32 @@ public class UserController {
         this.userService = userService;
         this.tokenService = tokenService;
     }
+    @GetMapping(value = "/id")
+    public ResponseEntity<Long> getUserID(@RequestHeader("Authorization") String authorizationHeader) {
+        String token = authorizationHeader.substring(7);// Assuming the scheme is "Bearer "
+        if(tokenService.validateToken(token)) {
+            User userAuthorized = tokenService.getUserByToken(token);
+            return ResponseEntity.ok(userAuthorized.getId());
+        }
+        else {
+            return ResponseEntity.badRequest().body(-1L);
+        }
+    }
 
-    // get request to /user will return all users from db in json format
-    @GetMapping
-    public List<User> getUsers(){
-        return userService.getAllUsers();
+    @GetMapping(value = "/balance")
+    public ResponseEntity<Double> getUserBalance(@RequestHeader("Authorization") String authorizationHeader) {
+        String token = authorizationHeader.substring(7);// Assuming the scheme is "Bearer "
+        if(tokenService.validateToken(token)) {
+            User userAuthorized = tokenService.getUserByToken(token);
+            return ResponseEntity.ok(userAuthorized.getBalance());
+        }
+        else {
+            return ResponseEntity.badRequest().body(-1.0);
+        }
     }
 
     // A post request to /user will register a user in the db
-    @PostMapping
+    @PostMapping(value = "/register")
     public ResponseEntity<String> registerNewUser(@RequestBody RegisterRequest registerRequest) {
         try {
             User user = new User(registerRequest.getUsername(), registerRequest.getPassword(), User.UserType.REGULAR, registerRequest.getEmail(), registerRequest.getDob(), registerRequest.getCountry(), registerRequest.getCity(), 0.0);

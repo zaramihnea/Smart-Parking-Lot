@@ -1,6 +1,8 @@
 package com.smartparkinglot.backend.entity;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
@@ -9,9 +11,15 @@ import java.sql.Timestamp;
 @Entity
 @Table(name = "reservations")
 public class Reservation {
+    @Setter
+    @Getter
     @Id
-    @Column(name = "id", length = 35)
-    private String id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Getter @Setter
+    @Column(name = "ownerID", nullable = true)
+    private Long ownerUserID;  // Stores the ID of the User that made the reservation
 
     @ManyToOne
     @OnDelete(action = OnDeleteAction.SET_NULL)
@@ -38,24 +46,19 @@ public class Reservation {
     public Reservation() {
     }
 
-    public Reservation(String id, Car car, ParkingSpot parkingSpot, Timestamp startTime, Timestamp stopTime, String paymentConfirmation, String status) {
-        this.id = id;
+    public Reservation(Long ownerUserID, Car car, ParkingSpot parkingSpot, Timestamp startTime, Timestamp stopTime) {
+        this.ownerUserID = ownerUserID;
         this.car = car;
         this.parkingSpot = parkingSpot;
         this.startTime = startTime;
         this.stopTime = stopTime;
-        this.paymentConfirmation = paymentConfirmation;
-        this.status = status;
     }
-
-    public String getId() {
-        return id;
+    public Reservation(Long ownerUserID, ParkingSpot parkingSpot, Timestamp startTime, Timestamp stopTime) {
+        this.ownerUserID = ownerUserID;
+        this.parkingSpot = parkingSpot;
+        this.startTime = startTime;
+        this.stopTime = stopTime;
     }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
     public Timestamp getStartTime() {
         return startTime;
     }

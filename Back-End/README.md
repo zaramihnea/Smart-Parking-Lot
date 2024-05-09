@@ -1,9 +1,5 @@
 For more details and latest information visit https://docs.google.com/document/d/1_M8Usq3-MyN-l-pRvk7xeSiL49jh1QvwwT96yEMkmfs/view
 
-# Smart Parking Lot
-
-Smart Parking Lot is a Spring Boot application designed to simplify the process of finding and managing parking spots. This project utilizes PostgreSQL for database management and integrates with the Stripe API for payment processing.
-
 ## Features (May be outdated)
 
 - User authentication and authorization with JWT
@@ -53,9 +49,3 @@ Smart Parking Lot is a Spring Boot application designed to simplify the process 
 
 - **Check Available Spots:**
   GET from `http://localhost:8081/parking_lot/available-spots-search` with time and location parameters to find available parking spots.
-
-
-
-## License
-
-[MIT](https://choosealicense.com/licenses/mit/)

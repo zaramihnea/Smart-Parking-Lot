@@ -20,7 +20,7 @@ public class ParkingSpot {
     private String status;
 
     @Getter @Setter
-    @Column(name = "ownerID", nullable = true)
+    @Column(name = "ownerID", nullable = false)
     private Long ownerUserID;  // Stores the ID of the User that owns the spot
 
 
