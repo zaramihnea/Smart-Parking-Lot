@@ -27,17 +27,4 @@ public class StripeAPIController {
         return paymentService.createPaymentIntent(paymentRequest);
     }
 
-
-    @PostMapping("/payment-complete")
-    public ResponseEntity<?> handlePaymentResult(@RequestParam("payment_intent") String paymentIntentId) {
-        String result = paymentService.handlePaymentResult(paymentIntentId);
-        if ("payment-success".equals(result)) {
-            String customerEmail = paymentService.getCustomerEmail(paymentIntentId);
-            emailService.sendConfirmationEmail(customerEmail);
-            return ResponseEntity.ok(Map.of("status", "success"));
-        } else {
-            String errorMessage = paymentService.getErrorMessage(paymentIntentId);
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("status", "error", "message", errorMessage));
-        }
-    }
 }

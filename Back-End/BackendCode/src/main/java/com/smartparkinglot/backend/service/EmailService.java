@@ -19,17 +19,14 @@ public class EmailService {
     }
 
     public void sendConfirmationEmail(String userEmail) {
-        log.info("mail1");
         try {
             SimpleMailMessage message = new SimpleMailMessage();
-            log.info("mail2");
             message.setFrom("contact.smartparkinglot@gmail.com");
             message.setTo(userEmail);
             message.setSubject("Payment Confirmation");
             message.setText("Thank you for your payment. Your payment has been successfully processed.");
             mailSender.send(message);
         } catch (MailException e) {
-            // Log the exception details
             log.error("Error sending email: " + e.getMessage());
         }
     }

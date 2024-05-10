@@ -14,12 +14,13 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class StripeWebController {
 
     private final PaymentService paymentService;
+    private final EmailService emailService;
 
     @Autowired
-    public StripeWebController(PaymentService paymentService) {
+    public StripeWebController(PaymentService paymentService, EmailService emailService) {
         this.paymentService = paymentService;
+        this.emailService = emailService;
     }
-
     @RequestMapping("/")
     public String home(Model model) {
         return "index.html";
@@ -34,6 +35,8 @@ public class StripeWebController {
     public String handleWebPaymentResult(@RequestParam("payment_intent") String paymentIntentId, RedirectAttributes redirectAttributes) {
         String result = paymentService.handlePaymentResult(paymentIntentId);
         if ("payment-success".equals(result)) {
+            String customerEmail = paymentService.getCustomerEmail(paymentIntentId);
+            emailService.sendConfirmationEmail(customerEmail);
             return "/payment-success.html";
         } else {
             return "/";
