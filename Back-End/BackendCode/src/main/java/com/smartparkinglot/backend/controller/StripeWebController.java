@@ -1,18 +1,43 @@
 package com.smartparkinglot.backend.controller;
 
-import org.springframework.beans.factory.annotation.Value;
+import com.smartparkinglot.backend.service.EmailService;
+import com.smartparkinglot.backend.service.PaymentService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 public class StripeWebController {
 
-    @Value("${stripe.apiKey}")
-    String stripeKey;
+    private final PaymentService paymentService;
+
+    @Autowired
+    public StripeWebController(PaymentService paymentService) {
+        this.paymentService = paymentService;
+    }
 
     @RequestMapping("/")
     public String home(Model model) {
-        return "/index.html";
+        return "index.html";
     }
+
+    @RequestMapping("/payment-success")
+    public String paymentSuccess(Model model) {
+        return "payment-success.html";
+    }
+
+    @GetMapping("/payment-complete")
+    public String handleWebPaymentResult(@RequestParam("payment_intent") String paymentIntentId, RedirectAttributes redirectAttributes) {
+        String result = paymentService.handlePaymentResult(paymentIntentId);
+        if ("payment-success".equals(result)) {
+            return "/payment-success.html";
+        } else {
+            return "/";
+        }
+    }
+
 }

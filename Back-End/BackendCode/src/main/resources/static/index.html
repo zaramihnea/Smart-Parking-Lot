@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="utf-8" />
     <title>Accept a payment</title>
@@ -19,7 +19,10 @@
         <div class="spinner hidden" id="spinner"></div>
         <span id="button-text">Pay now</span>
     </button>
-    <div id="payment-message" class="hidden"></div>
+    <div id="payment-message" class="hidden">
+        <!-- Display error message if it exists -->
+        <p th:text="${errorMessage}" class="error-message"></p>
+    </div>
 </form>
 </body>
 </html>

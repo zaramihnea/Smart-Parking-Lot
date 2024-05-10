@@ -1,4 +1,4 @@
-const stripe = Stripe("pk_test_51P8kZTLUKYZGpEMGxg6CdTha9384AZkoxi7fNSEJ4W4jFTjm63PDW1pU3PaigjQo3wjYqFaCQrjpeoiPC1NilcW900z1cuBbeb");
+const stripe = Stripe("pk_test_51P2f1mFMoAFG0pvpxbY5z2isuPG1wWMlaDGP3Vx21ryOCVO8vNtjM0nKoM9ipyrfWHQa099Xr3Mpa4NJYC23ptyl00YVARcNGn");
 
 const items = [{ id: "Parking Spot" }];
 
@@ -13,10 +13,16 @@ document
 
 // Fetches a payment intent and captures the client secret
 async function initialize() {
+    const paymentDetails = {
+        parkingSpotId: "123", // This should be the actual parking spot ID
+        userMail: "amihaesiisimona5@gmail.com", // The user's email address
+        amount: 1000
+    };
+
     const response = await fetch("/create-payment-intent", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ items }),
+        body: JSON.stringify(paymentDetails),
     });
     const { clientSecret } = await response.json();
 
@@ -40,24 +46,25 @@ async function handleSubmit(e) {
     const { error } = await stripe.confirmPayment({
         elements,
         confirmParams: {
-            // Make sure to change this to your payment completion page
+            // This should be a server-side endpoint that checks the payment status
             return_url: "http://localhost:8081/payment-complete",
         },
     });
 
-    // This point will only be reached if there is an immediate error when
-    // confirming the payment. Otherwise, your customer will be redirected to
-    // your `return_url`. For some payment methods like iDEAL, your customer will
-    // be redirected to an intermediate site first to authorize the payment, then
-    // redirected to the `return_url`.
-    if (error.type === "card_error" || error.type === "validation_error") {
+    if (error) {
         showMessage(error.message);
     } else {
-        showMessage("An unexpected error occurred.");
+        const response = await fetch("/payment-complete?payment_intent=" + paymentIntentId);
+        const result = await response.json();
+        if (result.status === "success") {
+            window.location.href = "/payment-success";
+        } else {
+            showMessage(result.message || "An error occurred");
+        }
     }
-
     setLoading(false);
 }
+
 
 // Fetches the payment intent status after payment submission
 async function checkStatus() {
@@ -68,7 +75,6 @@ async function checkStatus() {
     if (!clientSecret) {
         return;
     }
-
     const { paymentIntent } = await stripe.retrievePaymentIntent(clientSecret);
 
     switch (paymentIntent.status) {
