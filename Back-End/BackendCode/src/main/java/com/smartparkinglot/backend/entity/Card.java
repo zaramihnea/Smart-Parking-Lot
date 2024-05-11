@@ -13,7 +13,7 @@ public class Card {
     private String cardNumber;
 
     @ManyToOne(cascade = CascadeType.REMOVE)
-    @JoinColumn(name = "username", referencedColumnName = "username", foreignKey = @ForeignKey(name = "fk_cards_users"))
+    @JoinColumn(name = "email", referencedColumnName = "email", foreignKey = @ForeignKey(name = "fk_cards_users"))
     private User user;
 
     public Card() {
