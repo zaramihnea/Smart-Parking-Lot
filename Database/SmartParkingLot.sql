@@ -25,8 +25,8 @@ CREATE TABLE messages (
 	sender_email VARCHAR(35) REFERENCES users(email) ON DELETE SET NULL, 
 	receiver_email VARCHAR(35) REFERENCES users(email) ON DELETE SET NULL,
 	message_content VARCHAR(256),
-	timestamp DATE,
-	status BOOLEAN
+	timestamp TIMESTAMP,
+	status BOOLEAN -- true = seen
 );
 
 CREATE TABLE cars (
@@ -66,8 +66,7 @@ CREATE TABLE reservations (
     parking_spot_id VARCHAR(11),
     start_time TIMESTAMP,
     stop_time TIMESTAMP,
-    payment_confirmation VARCHAR(500),
-    status VARCHAR(15),
+    status VARCHAR(15) DEFAULT 'active', -- 'active' / 'cancelled' / 'inactive'
     CONSTRAINT fk_plate FOREIGN KEY (plate) REFERENCES cars(plate) ON DELETE SET NULL,
     CONSTRAINT fk_parking_spot FOREIGN KEY (parking_spot_id) REFERENCES parking_spots(id) ON DELETE SET NULL
 );
@@ -206,7 +205,8 @@ BEGIN
         (start_time >= p_start_time AND start_time < p_stop_time) OR
         (stop_time >= p_start_time AND stop_time < p_stop_time) OR
         (start_time < p_start_time AND stop_time > p_stop_time)
-    );
+    )
+	AND status = 'active';
 
     IF l_count > 0 THEN
         l_available := FALSE;
@@ -235,10 +235,10 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER verify_unique_spots
-BEFORE INSERT ON parking_spots
+CREATE TRIGGER verify_unique_lots
+BEFORE INSERT ON parking_lots
 FOR EACH ROW
-EXECUTE FUNCTION VerifyUniqueSpotCoordinates();
+EXECUTE FUNCTION VerifyUniqueLotCoordinates();
 
 
 CREATE OR REPLACE FUNCTION GetAvailableParkingSpots(
@@ -256,6 +256,7 @@ BEGIN
         AND (
             (r.start_time <= p_stop_time AND r.stop_time >= p_start_time)
         )
+		AND r.status = 'active'
     );
 END;
 $$ LANGUAGE plpgsql;
@@ -297,6 +298,8 @@ END;
 $$ LANGUAGE plpgsql;
 
 
+
+
 CREATE OR REPLACE FUNCTION GetUsersFavoriteParkingLot(
     p_email users.email%TYPE
 )
@@ -332,7 +335,7 @@ BEGIN
             WHERE
                 r.stop_time >= CURRENT_TIMESTAMP - INTERVAL '30 days'
                 AND
-                r.plate = rec_row.plate -- Adjusted condition for the plate
+                r.plate = rec_row.plate
             GROUP BY
                 p.id
             ORDER BY
@@ -353,6 +356,104 @@ END;
 $$ LANGUAGE plpgsql;
 
 
+
+
+-- Reservations functions and triggers
+
+
+
+CREATE OR REPLACE FUNCTION VerifyStatus()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF NEW.status NOT IN ('active', 'cancelled', 'inactive') THEN
+        RAISE EXCEPTION 'Invalid status';
+    END IF;
+	
+	RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER verify_valid_reservation
+BEFORE UPDATE OF status ON reservations
+FOR EACH ROW
+WHEN (NEW.status IS DISTINCT FROM OLD.status)
+EXECUTE FUNCTION VerifyStatus();
+
+
+
+
+CREATE OR REPLACE FUNCTION GetUsersActiveReservations(
+	p_email users.email%TYPE
+)
+RETURNS TABLE(
+	id VARCHAR,
+    plate VARCHAR,
+    parking_spot_id VARCHAR,
+    start_time TIMESTAMP,
+    stop_time TIMESTAMP,
+    status VARCHAR
+) AS $$
+BEGIN
+    RETURN QUERY 
+    SELECT r.id, r.plate, r.parking_spot_id, r.start_time, r.stop_time, r.status
+    FROM cars c
+	JOIN reservations r
+	ON c.plate = r.plate
+	AND c.email = p_email
+	WHERE r.status = 'active';
+END;
+$$ LANGUAGE plpgsql;
+
+
+
+CREATE OR REPLACE FUNCTION GetUsersReservations(
+	p_email users.email%TYPE
+)
+RETURNS TABLE(
+	id VARCHAR,
+    plate VARCHAR,
+    parking_spot_id VARCHAR,
+    start_time TIMESTAMP,
+    stop_time TIMESTAMP,
+    status VARCHAR
+) AS $$
+BEGIN
+    RETURN QUERY 
+    SELECT r.id, r.plate, r.parking_spot_id, r.start_time, r.stop_time, r.status
+    FROM cars c
+	JOIN reservations r
+	ON c.plate = r.plate
+	AND c.email = p_email;
+END;
+$$ LANGUAGE plpgsql;
+
+
+
+-- Cars functions
+
+
+CREATE OR REPLACE FUNCTION GetUsersAvailablePlates(
+	p_email users.email%TYPE,
+	p_start_time reservations.start_time%TYPE,
+	p_stop_time reservations.stop_time%TYPE
+)
+RETURNS TABLE(
+	plate VARCHAR
+) AS $$
+BEGIN
+    RETURN QUERY 
+    SELECT c.plate
+    FROM reservations r
+	JOIN cars c
+	ON c.plate = r.plate
+	AND p_email = c.email
+	WHERE (p_start_time >= r.stop_time OR p_stop_time <= r.start_time) 
+	OR r.status <> 'active';
+END;
+$$ LANGUAGE plpgsql;
+
+
+
 -- Checking the recently created triggers and functions
 SELECT tgname AS trigger_name
 FROM pg_trigger
@@ -368,4 +469,7 @@ WHERE nspname = 'public'
 )
 AND proname IN ('AddNewUser', 'CalculateReservationCost', 'CheckParkingSpotAvailability', 'CheckAvailableBalance', 'TryLogin', 'VerifyUniqueSpotCoordinates', 'EncryptPasswordFunction')
 AND prokind = 'f';
+
+
+
 
