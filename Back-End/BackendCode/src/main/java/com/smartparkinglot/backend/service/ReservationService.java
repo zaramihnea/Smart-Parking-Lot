@@ -33,6 +33,12 @@ public class ReservationService {
         reservationRepository.save(reservation);
     }
 
+    public List<Reservation> getOwnActiveReservations(String email) {
+        return reservationRepository.getOwnActiveReservations(email).orElse(null);
+    }
+    public List<Reservation> getUsersReservations(String email) {
+        return reservationRepository.getUsersReservations(email).orElse(null);
+    }
     @Transactional
     public ResponseEntity<String> createReservation(User userAuthorized, Long spotId, Timestamp startTimestamp, Timestamp endTimestamp, int reservationCost, Car car) {
         try {

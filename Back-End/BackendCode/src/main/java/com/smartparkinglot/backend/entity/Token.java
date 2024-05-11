@@ -16,7 +16,7 @@ public class Token {
 
     @Getter @Setter
     @ManyToOne
-    @JoinColumn(name = "username", referencedColumnName = "username", foreignKey = @ForeignKey(name = "fk_tokens_users"))
+    @JoinColumn(name = "email", referencedColumnName = "email", foreignKey = @ForeignKey(name = "fk_tokens_users"))
     private User user;
 
     @Getter @Setter

@@ -16,7 +16,7 @@ public class Car {
     private String type;
 
     @ManyToOne(cascade = CascadeType.REMOVE)
-    @JoinColumn(name = "username", referencedColumnName = "username")
+    @JoinColumn(name = "email", referencedColumnName = "email")
     private User user;
 
     public Car() {

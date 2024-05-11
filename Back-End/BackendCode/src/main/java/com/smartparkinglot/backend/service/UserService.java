@@ -35,6 +35,9 @@ public class UserService {
     public boolean existsByUsername(String username) {
         return userRepository.existsByUsername(username);
     }
+    public boolean existsByEmail(String email) {
+        return userRepository.existsByEmail(email);
+    }
 
     public void deleteUserById(Long id){
         userRepository.deleteById(id);

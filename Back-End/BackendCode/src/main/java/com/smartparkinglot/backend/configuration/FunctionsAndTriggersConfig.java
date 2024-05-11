@@ -141,6 +141,76 @@ public class FunctionsAndTriggersConfig {
                         "    l_cost := EXTRACT(EPOCH FROM duration) / 3600 * v_price;\n" +
                         "    RETURN l_cost;\n" +
                         "END;\n" +
+                        "$$ LANGUAGE plpgsql;",
+
+                "CREATE OR REPLACE FUNCTION VerifyStatus()\n" +
+                        "RETURNS TRIGGER AS $$\n" +
+                        "BEGIN\n" +
+                        "    IF NEW.status NOT IN ('active', 'cancelled', 'inactive') THEN\n" +
+                        "        RAISE EXCEPTION 'Invalid status';\n" +
+                        "    END IF;\n" +
+                        "\t\n" +
+                        "\tRETURN NEW;\n" +
+                        "END;\n" +
+                        "$$ LANGUAGE plpgsql;",
+
+                "DO $$\n" +
+                        "BEGIN\n" +
+                        "    -- Check if the trigger 'verify_valid_reservation' does not exist\n" +
+                        "    IF NOT EXISTS (\n" +
+                        "        SELECT 1 FROM pg_trigger\n" +
+                        "        WHERE tgname = 'verify_valid_reservation'\n" +
+                        "    ) THEN\n" +
+                        "        -- Create the trigger if it does not exist\n" +
+                        "        CREATE TRIGGER verify_valid_reservation\n" +
+                        "        BEFORE UPDATE OF status ON reservations\n" +
+                        "        FOR EACH ROW\n" +
+                        "        WHEN (NEW.status IS DISTINCT FROM OLD.status)\n" +
+                        "        EXECUTE FUNCTION VerifyStatus();\n" +
+                        "    END IF;\n" +
+                        "END $$;",
+
+                "CREATE OR REPLACE FUNCTION GetUsersActiveReservations(\n" +
+                        "\tp_email users.email%TYPE\n" +
+                        ")\n" +
+                        "RETURNS TABLE(\n" +
+                        "\tid BIGINT,\n" +
+                        "    plate VARCHAR,\n" +
+                        "    parking_spot_id BIGINT,\n" +
+                        "    start_time TIMESTAMP,\n" +
+                        "    stop_time TIMESTAMP,\n" +
+                        "    status VARCHAR\n" +
+                        ") AS $$\n" +
+                        "BEGIN\n" +
+                        "    RETURN QUERY \n" +
+                        "    SELECT r.id, r.plate, r.parking_spot_id, r.start_time, r.stop_time, r.status\n" +
+                        "    FROM cars c\n" +
+                        "\tJOIN reservations r\n" +
+                        "\tON c.plate = r.plate\n" +
+                        "\tAND c.email = p_email\n" +
+                        "\tWHERE r.status = 'active';\n" +
+                        "END;\n" +
+                        "$$ LANGUAGE plpgsql;",
+
+                "CREATE OR REPLACE FUNCTION GetUsersReservations(\n" +
+                        "\tp_email users.email%TYPE\n" +
+                        ")\n" +
+                        "RETURNS TABLE(\n" +
+                        "\tid BIGINT,\n" +
+                        "    plate VARCHAR,\n" +
+                        "    parking_spot_id BIGINT,\n" +
+                        "    start_time TIMESTAMP,\n" +
+                        "    stop_time TIMESTAMP,\n" +
+                        "    status VARCHAR\n" +
+                        ") AS $$\n" +
+                        "BEGIN\n" +
+                        "    RETURN QUERY \n" +
+                        "    SELECT r.id, r.plate, r.parking_spot_id, r.start_time, r.stop_time, r.status\n" +
+                        "    FROM cars c\n" +
+                        "\tJOIN reservations r\n" +
+                        "\tON c.plate = r.plate\n" +
+                        "\tAND c.email = p_email;\n" +
+                        "END;\n" +
                         "$$ LANGUAGE plpgsql;"
         );
 

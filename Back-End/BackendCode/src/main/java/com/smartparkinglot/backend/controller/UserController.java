@@ -26,15 +26,15 @@ public class UserController {
         this.userService = userService;
         this.tokenService = tokenService;
     }
-    @GetMapping(value = "/id")
-    public ResponseEntity<Long> getUserID(@RequestHeader("Authorization") String authorizationHeader) {
+    @GetMapping(value = "/email")
+    public ResponseEntity<?> getUserID(@RequestHeader("Authorization") String authorizationHeader) {
         String token = authorizationHeader.substring(7);// Assuming the scheme is "Bearer "
         if(tokenService.validateToken(token)) {
             User userAuthorized = tokenService.getUserByToken(token);
-            return ResponseEntity.ok(userAuthorized.getId());
+            return ResponseEntity.ok(userAuthorized.getEmail());
         }
         else {
-            return ResponseEntity.badRequest().body(-1L);
+            return ResponseEntity.badRequest().body("Invalid token");
         }
     }
 

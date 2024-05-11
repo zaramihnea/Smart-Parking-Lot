@@ -21,7 +21,7 @@ public class UserConfig {
             User user1 = new User(
                    "cosmina_baciu",
                    "84732saf",
-                   User.UserType.REGULAR,
+                   User.UserType.ADMIN,
                     "cosmina_baciu@gmail.com",
                     new Date(1999, 11, 10),
                     "Romania",
@@ -32,7 +32,7 @@ public class UserConfig {
             User user2 = new User(
                     "baciu_elena",
                     "fd8473fs2saf",
-                    User.UserType.REGULAR,
+                    User.UserType.ADMIN,
                     "baciu33@gmail.com",
                     new Date(1994, 9, 30),
                     "Romania",

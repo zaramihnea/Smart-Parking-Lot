@@ -11,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -24,6 +25,7 @@ public class ReservationController {
     private final TokenService tokenService;
     private final ParkingSpotService parkingSpotService;
     private final CarService carService;
+    private final UserService userService;
 
     @Autowired
     public ReservationController(ReservationService reservationService, TokenService tokenService, ParkingSpotService parkingSpotService, UserService userService, CarService carService) {
@@ -31,7 +33,44 @@ public class ReservationController {
         this.tokenService = tokenService;
         this.parkingSpotService = parkingSpotService;
         this.carService = carService;
+        this.userService = userService;
     }
+    @GetMapping("get-own-active-reservations")
+    public ResponseEntity<?> getOwnReservations(@RequestHeader("Authorization") String authorizationHeader) {
+        String token = authorizationHeader.substring(7);// Assuming the scheme is "Bearer "
+        if(tokenService.validateToken(token)) {
+            User userAuthorized = tokenService.getUserByToken(token);
+
+            return ResponseEntity.ok().body(reservationService.getOwnActiveReservations(userAuthorized.getEmail()).stream().map(reservation -> {
+                return new ReservationDetails(reservation.getId(), reservation.getPlate().getPlate(), reservation.getParkingSpot().getId(), reservation.getStartTime(), reservation.getStopTime(), reservation.getStatus());
+            }));
+        }
+        else {
+            return ResponseEntity.badRequest().body("Authentication token invalid. Protected resource could not be accessed");
+        }
+    }
+    @GetMapping("get-user-reservations")
+    public ResponseEntity<?> getUsersReservations(@RequestHeader("Authorization") String authorizationHeader, @RequestParam String userEmail) {
+        String token = authorizationHeader.substring(7);// Assuming the scheme is "Bearer "
+        if(tokenService.validateToken(token)) {
+            User userAuthorized = tokenService.getUserByToken(token);
+            if(userAuthorized.getType().equals(User.UserType.ADMIN)) {
+                if(!userService.existsByEmail(userEmail)) {
+                    return ResponseEntity.badRequest().body("User for which data is requested does not exist");
+                }
+                return ResponseEntity.ok().body(reservationService.getUsersReservations(userEmail).stream().map(reservation -> {
+                    return new ReservationDetails(reservation.getId(), reservation.getPlate().getPlate(), reservation.getParkingSpot().getId(), reservation.getStartTime(), reservation.getStopTime(), reservation.getStatus());
+                }));
+            }
+            else {
+                return ResponseEntity.badRequest().body("User is not administrator");
+            }
+        }
+        else {
+            return ResponseEntity.badRequest().body("Authentication token invalid. Protected resource could not be accessed");
+        }
+    }
+
     @PostMapping("/reserve")
     public ResponseEntity<String> registerNewReservation(@RequestHeader("Authorization") String authorizationHeader, @RequestBody ReservationRequest reservationRequest) {
         String token = authorizationHeader.substring(7);// Assuming the scheme is "Bearer "
@@ -72,5 +111,16 @@ public class ReservationController {
         private String carPlate;
         private int carCapacity;
         private String carType;
+    }
+
+    @Getter @Setter
+    @AllArgsConstructor
+    public static class ReservationDetails {
+        private Long id;
+        private String plate;
+        private Long parking_spot_id;
+        private Timestamp start_time;
+        private Timestamp stop_time;
+        private String status;
     }
 }
