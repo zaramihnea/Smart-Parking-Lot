@@ -9,8 +9,16 @@
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Back-End/BackendCode/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/Back-End/BackendCode/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Back-End/BackendCode/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/Back-End/BackendCode/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Back-End/BackendCode/src/main/java/com/smartparkinglot/backend/DTO/PaymentDetailsDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/Back-End/BackendCode/src/main/java/com/smartparkinglot/backend/DTO/PaymentDetailsDTO.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Back-End/BackendCode/src/main/java/com/smartparkinglot/backend/DTO/PaymentResponseDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/Back-End/BackendCode/src/main/java/com/smartparkinglot/backend/DTO/PaymentResponseDTO.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Back-End/BackendCode/src/main/java/com/smartparkinglot/backend/SmartParkingLotApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/Back-End/BackendCode/src/main/java/com/smartparkinglot/backend/SmartParkingLotApplication.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Back-End/BackendCode/src/main/java/com/smartparkinglot/backend/controller/StripeAPIController.java" beforeDir="false" afterPath="$PROJECT_DIR$/Back-End/BackendCode/src/main/java/com/smartparkinglot/backend/controller/StripeAPIController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Back-End/BackendCode/src/main/java/com/smartparkinglot/backend/controller/StripeWebController.java" beforeDir="false" afterPath="$PROJECT_DIR$/Back-End/BackendCode/src/main/java/com/smartparkinglot/backend/controller/StripeWebController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Back-End/BackendCode/src/main/java/com/smartparkinglot/backend/service/PaymentService.java" beforeDir="false" afterPath="$PROJECT_DIR$/Back-End/BackendCode/src/main/java/com/smartparkinglot/backend/service/PaymentService.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Back-End/BackendCode/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/Back-End/BackendCode/src/main/resources/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Back-End/BackendCode/src/main/resources/static/checkout.js" beforeDir="false" afterPath="$PROJECT_DIR$/Back-End/BackendCode/src/main/resources/static/checkout.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Back-End/BackendCode/src/main/resources/static/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/Back-End/BackendCode/src/main/resources/static/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Back-End/BackendCode/src/main/resources/static/payment-success.html" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -85,7 +93,7 @@
       <workItem from="1715308016521" duration="319000" />
       <workItem from="1715361603862" duration="30000" />
       <workItem from="1715509023912" duration="1225000" />
-      <workItem from="1715511257744" duration="1643000" />
+      <workItem from="1715511257744" duration="20155000" />
     </task>
     <servers />
   </component>
