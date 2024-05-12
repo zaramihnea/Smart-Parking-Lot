@@ -11,11 +11,10 @@ import java.util.Date;
 public class User {
 
     //datele memebre care reprezinta coloanele din tabele "users"
-    @Setter
-    @Getter
+    @Getter @Setter
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(nullable = false, unique = true)
+    private String email;
 
     @Getter
     @Setter
@@ -33,10 +32,6 @@ public class User {
     @Column(nullable = false)
     private UserType type;
 
-    @Getter
-    @Setter
-    @Column
-    private String email;
 
     @Setter
     @Getter
