@@ -7,6 +7,10 @@
     <list default="true" id="7ac1f0cb-3d1c-4e60-9342-ce9da21177a5" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Back-End/BackendCode/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/Back-End/BackendCode/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Back-End/BackendCode/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/Back-End/BackendCode/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Back-End/BackendCode/src/main/java/com/smartparkinglot/backend/SmartParkingLotApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/Back-End/BackendCode/src/main/java/com/smartparkinglot/backend/SmartParkingLotApplication.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Back-End/BackendCode/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/Back-End/BackendCode/src/main/resources/application.properties" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -38,7 +42,7 @@
     "Spring Boot.SmartParkingLotApplication.executor": "Run",
     "git-widget-placeholder": "main",
     "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "E:/downloads/SmartParkingLot2/Smart-Parking-Lot",
+    "last_opened_file_path": "E:/downloads/SmartParkingLot/Smart-Parking-Lot",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -50,6 +54,11 @@
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="E:\downloads\SmartParkingLot\Smart-Parking-Lot" />
+    </key>
+  </component>
   <component name="RunManager">
     <configuration name="SmartParkingLotApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot" nameIsGenerated="true">
       <option name="FRAME_DEACTIVATION_UPDATE_POLICY" value="UpdateClassesAndResources" />
@@ -76,10 +85,14 @@
       <workItem from="1715308016521" duration="319000" />
       <workItem from="1715361603862" duration="30000" />
       <workItem from="1715509023912" duration="1225000" />
+      <workItem from="1715511257744" duration="1643000" />
     </task>
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="UnknownFeatures">
+    <option featureType="com.intellij.fileTypeFactory" implementationName=".env" />
   </component>
 </project>

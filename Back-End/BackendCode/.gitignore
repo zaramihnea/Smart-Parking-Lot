@@ -31,3 +31,7 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### Environment Variables ###
+# this needs to be uncommented when the project is ready for deployment
+#  ../../.env
