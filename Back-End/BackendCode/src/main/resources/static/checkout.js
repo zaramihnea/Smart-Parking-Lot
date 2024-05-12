@@ -1,97 +1,75 @@
 const stripe = Stripe("pk_test_51P2f1mFMoAFG0pvpxbY5z2isuPG1wWMlaDGP3Vx21ryOCVO8vNtjM0nKoM9ipyrfWHQa099Xr3Mpa4NJYC23ptyl00YVARcNGn");
 
-const items = [{ id: "Parking Spot" }];
-
 let elements;
-
-initialize();
-checkStatus();
 
 document
     .querySelector("#payment-form")
     .addEventListener("submit", handleSubmit);
 
-// Fetches a payment intent and captures the client secret
-async function initialize() {
-    const paymentDetails = {
-        parkingSpotId: "123", // This should be the actual parking spot ID
-        userMail: "amihaesiisimona5@gmail.com", // The user's email address
-        amount: 1000
-    };
-
-    const response = await fetch("/create-payment-intent", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(paymentDetails),
-    });
-    const { clientSecret } = await response.json();
-
-    const appearance = {
-        theme: 'stripe',
-    };
+// Initialize Stripe elements with the client secret from the paymentResponseDTO
+function initialize(clientSecret) {
+    const appearance = { theme: 'stripe' };
     elements = stripe.elements({ appearance, clientSecret });
-
-    const paymentElementOptions = {
-        layout: "tabs",
-    };
-
+    const paymentElementOptions = { layout: "tabs" };
     const paymentElement = elements.create("payment", paymentElementOptions);
     paymentElement.mount("#payment-element");
 }
 
+async function fetchAndInitialize() {
+    try {
+        const paymentDetails = {
+            userEmail: 'amihaesiisimona5@gmail.com',
+            price: 1000
+        };
+        const response = await fetch('/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(paymentDetails) // Convert the PaymentDetailsDTO object to a JSON string
+        });
+        const paymentResponseDTO = await response.json();
+        if (paymentResponseDTO.clientSecret) {
+            initialize(paymentResponseDTO.clientSecret);
+        } else {
+            console.error('Client secret not found');
+        }
+    } catch (error) {
+        console.error('Error fetching payment intent:', error);
+        showMessage('Error fetching payment intent. Please try again later.');
+    }
+}
+
+document.addEventListener('DOMContentLoaded', (event) => {
+    fetchAndInitialize();
+});
+
+// Handle the form submission and process the payment
 async function handleSubmit(e) {
     e.preventDefault();
     setLoading(true);
 
-    const { error } = await stripe.confirmPayment({
+    let paymentIntentId;
+
+    const { error, paymentIntent } = await stripe.confirmPayment({
         elements,
         confirmParams: {
-            // This should be a server-side endpoint that checks the payment status
-            return_url: "http://localhost:8081/payment-complete",
+            //if payment was successful it redirects here
+            return_url: `http://localhost:8081/after-payment-processing?payment_intent=${paymentIntentId}`,
         },
     });
 
     if (error) {
         showMessage(error.message);
+        setLoading(false);
     } else {
-        const response = await fetch("/payment-complete?payment_intent=" + paymentIntentId);
-        const result = await response.json();
-        if (result.status === "success") {
-            window.location.href = "/payment-success";
-        } else {
-            showMessage(result.message || "An error occurred");
-        }
-    }
-    setLoading(false);
-}
-
-
-// Fetches the payment intent status after payment submission
-async function checkStatus() {
-    const clientSecret = new URLSearchParams(window.location.search).get(
-        "payment_intent_client_secret"
-    );
-
-    if (!clientSecret) {
-        return;
-    }
-    const { paymentIntent } = await stripe.retrievePaymentIntent(clientSecret);
-
-    switch (paymentIntent.status) {
-        case "succeeded":
-            showMessage("Payment succeeded!");
-            break;
-        case "processing":
-            showMessage("Your payment is processing.");
-            break;
-        case "requires_payment_method":
-            showMessage("Your payment was not successful, please try again.");
-            break;
-        default:
-            showMessage("Something went wrong.");
-            break;
+        // If no error, send the payment status and payment intent ID to the backend
+        const paymentIntentId = paymentIntent.id;
+        const response = await fetch(`http://localhost:8081/after-payment-processing?payment_intent=${paymentIntentId}`);
+        setLoading(false);
     }
 }
+
 
 // ------- UI helpers -------
 

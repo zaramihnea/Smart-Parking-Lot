@@ -4,37 +4,30 @@ package com.smartparkinglot.backend.DTO;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class PaymentDetailsDTO {
-    @JsonProperty("parkingSpotId")
-    private String parkingSpotId;
-    @JsonProperty("userMail")
-    private String userMail;
-    @JsonProperty("amount")
-    private long amount;
 
-    public String getParkingSpotId() {
-        return parkingSpotId;
-    }
-    public void setParkingSpotId(String parkingSpotId) {
-        this.parkingSpotId = parkingSpotId;
+    @JsonProperty("userEmail")
+    private String userEmail;
+    @JsonProperty("price")
+    private double price;
+
+    public String getUserEmail() {
+        return userEmail;
     }
 
-    public String getUserMail() {
-        return userMail;
-    }
-    public void setUserMail(String userMail) {
-        this.userMail = userMail;
+    public double getPrice() {
+        return price;
     }
 
-    public long getAmount() {
-        return amount;
-    }
-    public void setAmount(long amount) {
-        this.amount = amount;
+    public PaymentDetailsDTO(String userEmail, double price) {
+        this.userEmail = userEmail;
+        this.price = price;
     }
 
-    public PaymentDetailsDTO(String parkingSpotId, String userMail, long amount) {
-        this.parkingSpotId = parkingSpotId;
-        this.userMail = userMail;
-        this.amount = amount;
+    @Override
+    public String toString() {
+        return "PaymentDetailsDTO{" +
+                "userEmail='" + userEmail + '\'' +
+                ", price=" + price +
+                '}';
     }
 }

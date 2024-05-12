@@ -32,22 +32,37 @@ public class PaymentService {
             Stripe.apiKey = stripeConfig.getApiKey();
 
             validatePaymentDetails(paymentDetailsDTO);
-            Customer customer = getOrCreateCustomer(paymentDetailsDTO.getUserMail());
-            PaymentIntent paymentIntent = createStripePaymentIntent(customer, paymentDetailsDTO.getAmount());
+            Customer customer = getOrCreateCustomer(paymentDetailsDTO.getUserEmail());
+            PaymentIntent paymentIntent = createStripePaymentIntent(customer, paymentDetailsDTO.getPrice());
 
             log.info("Payment intent created: {}", paymentIntent.getId());
-            return new PaymentResponseDTO(paymentIntent.getClientSecret());
+            return new PaymentResponseDTO(paymentIntent.getClientSecret(), paymentIntent.getId());
         } catch (StripeException e) {
             log.error("Error creating payment intent: {}", e.getMessage());
             throw new PaymentException("Error processing payment.");
         }
     }
 
+    public PaymentDetailsDTO getPaymentDetails(String paymentIntentId) {
+        try {
+            Stripe.apiKey = stripeConfig.getApiKey();
+            PaymentIntent paymentIntent = PaymentIntent.retrieve(paymentIntentId);
+            Long longPrice = paymentIntent.getAmount();
+            double doublePrice = longPrice / 100.0;
+            String customerEmail = getCustomerEmail(paymentIntentId);
+
+            return new PaymentDetailsDTO(customerEmail, doublePrice);
+        } catch (StripeException e) {
+            log.error("Error retrieving payment details: {}", e.getMessage());
+            throw new PaymentException("Error retrieving payment details.");
+        }
+    }
+
     private void validatePaymentDetails(PaymentDetailsDTO paymentDetailsDTO) {
-        if (paymentDetailsDTO.getUserMail() == null || paymentDetailsDTO.getUserMail().isEmpty()) {
+        if (paymentDetailsDTO.getUserEmail() == null || paymentDetailsDTO.getUserEmail().isEmpty()) {
             throw new PaymentException("User email is required.");
         }
-        if (paymentDetailsDTO.getAmount() <= 0) {
+        if (paymentDetailsDTO.getPrice() <= 0) {
             throw new PaymentException("Amount must be greater than zero.");
         }
         // Add more validation as needed
@@ -67,9 +82,9 @@ public class PaymentService {
         return customers.get(0);
     }
 
-    private PaymentIntent createStripePaymentIntent(Customer customer, long amount) throws StripeException {
+    private PaymentIntent createStripePaymentIntent(Customer customer, double amount) throws StripeException {
         PaymentIntentCreateParams paymentParams = PaymentIntentCreateParams.builder()
-                .setAmount(amount)
+                .setAmount((long)amount)
                 .setCustomer(customer.getId())
                 .setCurrency("ron")
                 .setReceiptEmail(customer.getEmail())
@@ -85,28 +100,32 @@ public class PaymentService {
     }
 
     public String handlePaymentResult(String paymentIntentId) {
-        //doar afiseaza statusul platii
-        Stripe.apiKey = stripeConfig.getApiKey();
 
         try {
+            Stripe.apiKey = stripeConfig.getApiKey();
             PaymentIntent paymentIntent = PaymentIntent.retrieve(paymentIntentId);
             String paymentStatus = paymentIntent.getStatus();
-            Customer customer = Customer.retrieve(paymentIntent.getCustomer());
-            long amount = paymentIntent.getAmount();
-            logPaymentResult(paymentIntentId, paymentStatus, customer.getEmail(), amount);
 
             return switch (paymentStatus) {
                 case "succeeded" -> {
                     log.info("Payment successful");
                     yield "payment-success";
                 }
-                case "requires_action" -> {
+                case "incomplete" -> {
                     log.info("Payment requires action");
-                    yield "payment-requires-action";
+                    yield "payment-incomplete";
                 }
                 case "failed" -> {
                     log.info("Payment failed");
                     yield "payment-failed";
+                }
+                case "canceled" -> {
+                    log.info("Paymenth canceled");
+                    yield "payment-canceled";
+                }
+                case "uncaptured" -> {
+                    log.info("Payment uncaptured");
+                    yield "payment-uncaptured";
                 }
                 default -> {
                     log.info("Payment status unknown: {}", paymentStatus);
@@ -131,22 +150,7 @@ public class PaymentService {
         }
     }
 
-    public String getErrorMessage(String paymentIntentId) {
-        try {
-            Stripe.apiKey = stripeConfig.getApiKey();
-            PaymentIntent paymentIntent = PaymentIntent.retrieve(paymentIntentId);
-            //Assuming 'last_payment_error' contains the error message you want to retrieve
-            if (paymentIntent.getLastPaymentError() != null) {
-                return paymentIntent.getLastPaymentError().getMessage();
-            }
-            return null;
-        } catch (StripeException e) {
-            log.error("Error retrieving payment intent error message: {}", e.getMessage());
-            throw new PaymentException("Error retrieving payment error message.");
-        }
-    }
-
-    private void logPaymentResult(String paymentIntentId, String paymentStatus, String customerEmail, long amount) {
+    public void logPaymentResult(String paymentIntentId, String paymentStatus, String customerEmail, double amount) {
         log.info("Received Payment Intent ID: {}", paymentIntentId);
         log.info("Payment intent status: {}", paymentStatus);
         log.info("Customer email: {}", customerEmail);
