@@ -6,6 +6,7 @@ export default {
         colors: {
           'sbLight' : "#D9D9D9",
           'sbText' : "#A6A6A6",
+          'navbarBg' : "#474747",
         },
       },
     },

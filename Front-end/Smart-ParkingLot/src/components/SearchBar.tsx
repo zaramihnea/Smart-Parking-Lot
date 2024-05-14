@@ -17,7 +17,7 @@ export default function SearchBar() {
     return(
         <form 
         onSubmit={handleSubmit}
-        className="m-3 h-16 bg-sbLight relative flex items-center rounded-full overflow-hidden drop-shadow-xl">
+        className=" h-16 bg-sbLight relative flex items-center rounded-full overflow-hidden drop-shadow-xl">
             <button type="submit" className="focus:outline-none">
                 <img 
                     src="searchIcon.svg" 
