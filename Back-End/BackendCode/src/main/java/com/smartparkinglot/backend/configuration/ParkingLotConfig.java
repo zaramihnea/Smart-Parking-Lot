@@ -70,7 +70,7 @@ public class ParkingLotConfig {
             long nrOfSpots = rand.nextInt(10, 30);
             long price = rand.nextInt(2, 10);
             if(!parkingLotRepository.existsById(result.name)) {
-                ParkingLot parkingLotToSave = new ParkingLot(result.name, nrOfSpots, price, new BigDecimal(result.geometry.location.lat), new BigDecimal(result.geometry.location.lng));
+                ParkingLot parkingLotToSave = new ParkingLot(Long.getLong(result.name), nrOfSpots, price, new BigDecimal(result.geometry.location.lat), new BigDecimal(result.geometry.location.lng));
                 parkingLotRepository.save(parkingLotToSave);
 
                 for(int i = 0; i < nrOfSpots; i++) {

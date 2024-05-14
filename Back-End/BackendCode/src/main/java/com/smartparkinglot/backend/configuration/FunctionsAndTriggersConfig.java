@@ -7,6 +7,7 @@ import java.util.List;
 
 @Component
 public class FunctionsAndTriggersConfig {
+    /*
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
@@ -217,5 +218,5 @@ public class FunctionsAndTriggersConfig {
         sqlStatements.forEach(sql -> {
             jdbcTemplate.execute(sql);
         });
-    }
+    }*/
 }
