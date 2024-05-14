@@ -7,6 +7,7 @@ import LoginPage from './pages/LoginPage'
 import SignupPage from './pages/SignupPage'
 import ForgotPasswordPage from './pages/ForgotPasswordPage'
 import Map from './components/Map';
+import ProfileAdminPage from './pages/ProfileAdminPage';
 
 const App: React.FC = () => {
   document.title = 'Smart Parking Lot'
@@ -19,7 +20,7 @@ const App: React.FC = () => {
         <Route path="/signup" element={<SignupPage />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/map" element={<Map />} />
-
+        <Route path="/admin" element={<ProfileAdminPage />} />
       </Routes>
     </Router>
   )

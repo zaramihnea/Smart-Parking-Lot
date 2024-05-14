@@ -54,7 +54,7 @@ public class UserController {
     @PostMapping(value = "/register")
     public ResponseEntity<String> registerNewUser(@RequestBody RegisterRequest registerRequest) {
         try {
-            User user = new User(registerRequest.getUsername(), registerRequest.getPassword(), User.UserType.REGULAR, registerRequest.getEmail(), registerRequest.getDob(), registerRequest.getCountry(), registerRequest.getCity(), 0.0);
+            User user = new User(registerRequest.getEmail(), registerRequest.getName(), registerRequest.getPassword(), registerRequest.getDob(), registerRequest.getCountry(), registerRequest.getCity(), 0.0, false, 1);
             userService.register(user);
             return ResponseEntity.ok("User registered successfully");
         } catch (UsernameExistsException | EmailExistsException e) {
@@ -66,10 +66,10 @@ public class UserController {
     }
     @PostMapping(value = "/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
-        if(userService.existsByUsername(loginRequest.getUsername())) {
+        if(userService.existsByUsername(loginRequest.getEmail())) {
 
-            boolean isAuthenticated = userService.authenticateUser(loginRequest.getUsername(), loginRequest.getPassword());
-            User loggedInUser = userService.getUserByName(loginRequest.getUsername());
+            boolean isAuthenticated = userService.authenticateUser(loginRequest.getEmail(), loginRequest.getPassword());
+            User loggedInUser = userService.getUserByName(loginRequest.getEmail());
             String generatedToken = tokenService.generateToken(loggedInUser);
 
             if (isAuthenticated) {
@@ -84,8 +84,8 @@ public class UserController {
     @Getter
     @Setter
     public static class RegisterRequest {
-        private String username;
         private String email;
+        private String name;
         private String password;
         private Date dob;
         private String country;
@@ -94,7 +94,7 @@ public class UserController {
 
     @Setter @Getter
     public static class LoginRequest {
-        private String username;
+        private String email;
         private String password;
 
     }

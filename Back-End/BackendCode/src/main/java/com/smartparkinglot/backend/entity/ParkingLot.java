@@ -10,8 +10,9 @@ import java.math.BigDecimal;
 @Table(name = "parking_lots")
 public class ParkingLot {
     @Id
-    @Column(name = "id", length = 200)
-    private String id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id", length = 11)
+    private Long id;
 
     @Column(name = "nr_spots")
     private Long nrSpots;
@@ -29,7 +30,7 @@ public class ParkingLot {
     public ParkingLot() {
     }
 
-    public ParkingLot(String id, Long nrSpots, Long price, BigDecimal latitude, BigDecimal longitude) {
+    public ParkingLot(Long id, Long nrSpots, Long price, BigDecimal latitude, BigDecimal longitude) {
         this.id = id;
         this.nrSpots = nrSpots;
         this.price = price;
@@ -37,11 +38,11 @@ public class ParkingLot {
         this.longitude = longitude;
     }
 
-    public String getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(Long id) {
         this.id = id;
     }
     public BigDecimal getLatitude() {
