@@ -4,6 +4,7 @@ import com.smartparkinglot.backend.DTO.PaymentDetailsDTO;
 import com.smartparkinglot.backend.DTO.PaymentResponseDTO;
 import com.smartparkinglot.backend.configuration.StripeConfig;
 import com.smartparkinglot.backend.customexceptions.PaymentException;
+import com.smartparkinglot.backend.repository.UserRepository;
 import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
 import com.stripe.model.Customer;
@@ -13,6 +14,7 @@ import com.stripe.param.CustomerListParams;
 import com.stripe.param.PaymentIntentCreateParams;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -21,10 +23,17 @@ import java.util.List;
 public class PaymentService {
 
     private final StripeConfig stripeConfig;
+    private final EmailService emailService;
+
+    @Autowired
+    private UserService userService;
+
     private final Logger log = LoggerFactory.getLogger(PaymentService.class);
 
-    public PaymentService(StripeConfig stripeConfig) {
+    public PaymentService(StripeConfig stripeConfig, UserService userService, EmailService emailService) {
         this.stripeConfig = stripeConfig;
+        this.userService = userService;
+        this.emailService = emailService;
     }
 
     public PaymentResponseDTO createPaymentIntent(PaymentDetailsDTO paymentDetailsDTO) {
@@ -106,9 +115,17 @@ public class PaymentService {
             PaymentIntent paymentIntent = PaymentIntent.retrieve(paymentIntentId);
             String paymentStatus = paymentIntent.getStatus();
 
+
+            String customerEmail = getCustomerEmail(paymentIntentId);
+            Long amount = paymentIntent.getAmount();
+            double amountToAdd = amount / 100.0;
+            logPaymentResult(paymentIntentId, paymentStatus, customerEmail, amountToAdd);
+
             return switch (paymentStatus) {
                 case "succeeded" -> {
                     log.info("Payment successful");
+                    userService.updateUserBalance(customerEmail, amountToAdd);
+                    emailService.sendConfirmationEmail(customerEmail);
                     yield "payment-success";
                 }
                 case "incomplete" -> {
@@ -120,7 +137,7 @@ public class PaymentService {
                     yield "payment-failed";
                 }
                 case "canceled" -> {
-                    log.info("Paymenth canceled");
+                    log.info("Payment canceled");
                     yield "payment-canceled";
                 }
                 case "uncaptured" -> {

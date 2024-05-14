@@ -5,20 +5,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="7ac1f0cb-3d1c-4e60-9342-ce9da21177a5" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Back-End/BackendCode/.env" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/Back-End/BackendCode/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/Back-End/BackendCode/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Back-End/BackendCode/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/Back-End/BackendCode/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Back-End/BackendCode/src/main/java/com/smartparkinglot/backend/DTO/PaymentDetailsDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/Back-End/BackendCode/src/main/java/com/smartparkinglot/backend/DTO/PaymentDetailsDTO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Back-End/BackendCode/src/main/java/com/smartparkinglot/backend/DTO/PaymentResponseDTO.java" beforeDir="false" afterPath="$PROJECT_DIR$/Back-End/BackendCode/src/main/java/com/smartparkinglot/backend/DTO/PaymentResponseDTO.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Back-End/BackendCode/src/main/java/com/smartparkinglot/backend/SmartParkingLotApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/Back-End/BackendCode/src/main/java/com/smartparkinglot/backend/SmartParkingLotApplication.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Back-End/BackendCode/src/main/java/com/smartparkinglot/backend/controller/StripeAPIController.java" beforeDir="false" afterPath="$PROJECT_DIR$/Back-End/BackendCode/src/main/java/com/smartparkinglot/backend/controller/StripeAPIController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Back-End/BackendCode/src/main/java/com/smartparkinglot/backend/controller/StripeWebController.java" beforeDir="false" afterPath="$PROJECT_DIR$/Back-End/BackendCode/src/main/java/com/smartparkinglot/backend/controller/StripeWebController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Back-End/BackendCode/src/main/java/com/smartparkinglot/backend/repository/UserRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/Back-End/BackendCode/src/main/java/com/smartparkinglot/backend/repository/UserRepository.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Back-End/BackendCode/src/main/java/com/smartparkinglot/backend/service/PaymentService.java" beforeDir="false" afterPath="$PROJECT_DIR$/Back-End/BackendCode/src/main/java/com/smartparkinglot/backend/service/PaymentService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Back-End/BackendCode/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/Back-End/BackendCode/src/main/resources/application.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Back-End/BackendCode/src/main/resources/static/checkout.js" beforeDir="false" afterPath="$PROJECT_DIR$/Back-End/BackendCode/src/main/resources/static/checkout.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Back-End/BackendCode/src/main/resources/static/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/Back-End/BackendCode/src/main/resources/static/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Back-End/BackendCode/src/main/resources/static/payment-success.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Back-End/BackendCode/src/main/java/com/smartparkinglot/backend/service/UserService.java" beforeDir="false" afterPath="$PROJECT_DIR$/Back-End/BackendCode/src/main/java/com/smartparkinglot/backend/service/UserService.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -39,29 +33,29 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "RequestMappingsPanelOrder0": "0",
-    "RequestMappingsPanelOrder1": "1",
-    "RequestMappingsPanelWidth0": "75",
-    "RequestMappingsPanelWidth1": "75",
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "Spring Boot.SmartParkingLotApplication.executor": "Run",
-    "git-widget-placeholder": "main",
-    "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "E:/downloads/SmartParkingLot/Smart-Parking-Lot",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "project.structure.last.edited": "Project",
-    "project.structure.proportion": "0.15",
-    "project.structure.side.proportion": "0.2",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RequestMappingsPanelOrder0&quot;: &quot;0&quot;,
+    &quot;RequestMappingsPanelOrder1&quot;: &quot;1&quot;,
+    &quot;RequestMappingsPanelWidth0&quot;: &quot;75&quot;,
+    &quot;RequestMappingsPanelWidth1&quot;: &quot;75&quot;,
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;Spring Boot.SmartParkingLotApplication.executor&quot;: &quot;Run&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;E:/downloads/SmartParkingLot/Smart-Parking-Lot&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Project&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="E:\downloads\SmartParkingLot\Smart-Parking-Lot" />
@@ -93,7 +87,9 @@
       <workItem from="1715308016521" duration="319000" />
       <workItem from="1715361603862" duration="30000" />
       <workItem from="1715509023912" duration="1225000" />
-      <workItem from="1715511257744" duration="20155000" />
+      <workItem from="1715511257744" duration="20735000" />
+      <workItem from="1715603983280" duration="66000" />
+      <workItem from="1715650830539" duration="3338000" />
     </task>
     <servers />
   </component>

@@ -23,7 +23,7 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    public User getUserById(Long id){
+    public User getUserById(String id){
         return userRepository.findById(id).orElse(null);
     }
     public User getUserByName(String username) {
@@ -39,7 +39,7 @@ public class UserService {
         return userRepository.existsByEmail(email);
     }
 
-    public void deleteUserById(Long id){
+    public void deleteUserById(String id){
         userRepository.deleteById(id);
     }
 
@@ -59,6 +59,11 @@ public class UserService {
     // Method to authenticate user using the TryLogin function
     public boolean authenticateUser(String username, String password) {
         return userRepository.tryLogin(username, password);
+    }
+
+
+    public void updateUserBalance(String email, double amount) {
+        userRepository.updateBalanceByEmail(email, amount);
     }
 
 }
