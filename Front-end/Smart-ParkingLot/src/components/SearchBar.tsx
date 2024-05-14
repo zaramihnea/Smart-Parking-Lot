@@ -17,18 +17,22 @@ export default function SearchBar() {
     return (
         <form
         onSubmit={handleSubmit}
-        className=" h-16 bg-sbLight relative flex items-center rounded-full overflow-hidden drop-shadow-xl">
-            <button type="submit" className="focus:outline-none">
-                <img 
-                    src="searchIcon.svg" 
-                    alt="searchIcon" 
-                    className=" top-2 h-[50px] ml-3"/>
-            </button>    
-            <input className=" h-full border-black bg-sbLight flex-1 focus:outline-none p-4 text-2xl text-sbText"
-                type="text"
-                value={input} 
-                onChange={(event) => handleChangeInput(event.target.value)}
-                placeholder="Search for destination"/>
-        </form>
+        className="m-1 h-14 bg-gray-300 dark:bg-gray-700 relative flex items-center rounded-full overflow-hidden shadow-md dark:shadow-none"
+      >
+        <div className="flex items-center pl-4 pr-2">
+          <img
+            src="searchIcon.svg"
+            alt="searchIcon"
+            className="h-6 w-6 text-purple-600"
+          />
+        </div>
+        <input
+          className="h-full bg-gray-300 dark:bg-gray-700 flex-1 focus:outline-none pl-2 pr-4 text-2xl text-gray-900 dark:text-gray-100 placeholder-gray-600 dark:placeholder-gray-400"
+          type="text"
+          value={input}
+          onChange={(event) => handleChangeInput(event.target.value)}
+          placeholder="Search for destination"
+        />
+      </form>
     )
 }
