@@ -33,6 +33,7 @@ const SignupPage: React.FC = () => {
     const [showInvalidPasswordConfirmPopup, setShowInvalidPasswordConfirmPopup] = useState(false);
     const [showNamePopup, setShowNamePopup] = useState(false);
     const [showUsernamePopup, setShowUsernamePopup] = useState(false);
+    const [UIErrorMessage, setUIErrorMessage] = useState('');
 
     const handleNext = () => {
         if (isValidEmail(email)) {
@@ -64,15 +65,46 @@ const SignupPage: React.FC = () => {
         }
     };
 
-    const handleSignup = () => {
+    // login (backend documentation item nr.4)
+    const handleSignup = async () => {
         if (fname && lname && dob && country && city) {
             console.log("Sending data to backend:", tempEmail, tempPassword, tempUsername, fname, lname, dob, country, city);
-            setShowNamePopup(false);
-            navigate('/home');
+    
+            try {
+                const response = await fetch('http://localhost:8081/user/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        email: tempEmail,
+                        password: tempPassword,
+                        username: tempUsername,
+                        dob: formatDate(dob),
+                        country: country,
+                        city: city,
+                    }),
+                });
+    
+                if (response.ok) {
+                    const data = await response.text();
+                    console.log("Registration successful:", data);
+                    navigate('/home');
+                } else {
+                    const errorData = await response.text();
+                    console.error("Registration failed:", errorData);
+                    setUIErrorMessage(errorData);
+                }
+            } catch (error) {
+                console.error("Error during registration:", error);
+                setUIErrorMessage('An unexpected error occurred. Please try again.');
+            }
+    
         } else {
             setShowNamePopup(true);
         }
     };
+    
 
     const handleBackToFirstStep = () => {
         setStep(1);
@@ -81,6 +113,12 @@ const SignupPage: React.FC = () => {
         if (passwordConfirmInputRef.current) passwordConfirmInputRef.current.value = '';
         setShowInvalidEmailPopup(false);
         setShowInvalidPasswordConfirmPopup(false);
+    };
+
+    const formatDate = (dateString: string): string => {
+        const [year, month, day] = dateString.split('-');
+        const formattedDate = `${parseInt(day)}-${parseInt(month)}-${year}`;
+        return formattedDate;
     };
 
     const isValidEmail = (email: string) => {
@@ -197,6 +235,7 @@ const SignupPage: React.FC = () => {
                                 className="w-full max-w-xs px-4 py-2 mb-4 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:border-purple-500"
                             />
                             {showNamePopup && <div className="text-red-500 text-sm mb-4">All data is required!</div>}
+                            {UIErrorMessage && <div className="text-red-500 mt-4">{UIErrorMessage}</div>} {/* Display the error message */}
                             <button
                                 onClick={handleSignup}
                                 className="w-full max-w-xs px-4 py-2 mb-4 bg-purple-600 text-white font-bold rounded-lg shadow-md hover:bg-purple-700 transition duration-300"

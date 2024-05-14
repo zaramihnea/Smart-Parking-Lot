@@ -9,14 +9,42 @@ const LoginPage: React.FC = () => {
 
   const [loginErrorPopup, setloginErrorPopup] = useState(false);
   const [emailErrorPopup, setemailErrorPopup] = useState(false);
+  const [UIErrorMessage, setUIErrorMessage] = useState('');
 
-  const handleLogin = () => {
+  // login (backend documentation item nr.4)
+  const handleLogin = async () => {
     if (isValidEmail(email)) {
       if (password) {
         console.log("Sending data to backend for login:", email, password);
-        setloginErrorPopup(false);
-        setemailErrorPopup(false);
-        navigate('/home');
+        try {
+          const response = await fetch('http://localhost:8081/user/login', {
+              method: 'POST',
+              headers: {
+                  'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                  email: email,
+                  password: password
+              }),
+          });
+
+          if (response.ok) {
+              const data = await response.json();
+              console.log("Login successful:", data);
+
+              // Set the cookie using document.cookie
+              document.cookie = `authToken=${data.token}; path=/; max-age=3600 * 10;`; // Expires in 10 hours
+
+              navigate('/home');
+          } else {
+              const errorData = await response.text();
+              console.error("Login failed:", errorData);
+              setUIErrorMessage(errorData);
+          }
+      } catch (error) {
+          console.error("Error during Login:", error);
+          setUIErrorMessage('An unexpected error occurred. Please try again.');
+      }
       } else {
         setloginErrorPopup(true);
       }
@@ -25,6 +53,8 @@ const LoginPage: React.FC = () => {
     }
 
   };
+
+  
 
   const isValidEmail = (email: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -54,6 +84,7 @@ const LoginPage: React.FC = () => {
             className="w-full max-w-xs px-4 py-2 mb-4 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:border-purple-500"
           />
           {loginErrorPopup && <p className="text-red-500 text-sm mb-4">Please fill in all fields</p>}
+          {UIErrorMessage && <div className="text-red-500 mt-4">{UIErrorMessage}</div>} {}
           <button
             onClick={handleLogin}
             className="w-full max-w-xs px-4 py-2 mb-4 bg-purple-600 text-white font-bold rounded-lg shadow-md hover:bg-purple-700 transition duration-300"
