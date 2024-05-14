@@ -1,9 +1,12 @@
-import React from 'react';
+import React from 'react'
+import Map from './components/Map'
+import SearchBar from './components/SearchBar'
 
 const Homepage: React.FC = () => {
   return (
     <div>
-      <h1>Welcome to the Homepage</h1>
+      <SearchBar />
+      <Map />
     </div>
   );
 };
