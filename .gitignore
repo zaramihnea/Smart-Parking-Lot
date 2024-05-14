@@ -22,3 +22,7 @@
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
 replay_pid*
+
+### Environment Variables ###
+# this needs to be uncommented when the project is ready for deployment
+#  ../../.env

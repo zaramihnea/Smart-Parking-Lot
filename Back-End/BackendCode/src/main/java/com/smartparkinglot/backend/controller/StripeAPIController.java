@@ -2,7 +2,6 @@ package com.smartparkinglot.backend.controller;
 
 import com.smartparkinglot.backend.DTO.PaymentDetailsDTO;
 import com.smartparkinglot.backend.DTO.PaymentResponseDTO;
-import com.smartparkinglot.backend.service.EmailService;
 import com.smartparkinglot.backend.service.PaymentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
@@ -12,12 +11,10 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 public class StripeAPIController {
     private final PaymentService paymentService;
-    private final EmailService emailService;
 
     @Autowired
-    public StripeAPIController(PaymentService paymentService, EmailService emailService) {
+    public StripeAPIController(PaymentService paymentService) {
         this.paymentService = paymentService;
-        this.emailService = emailService;
     }
 
 
@@ -29,15 +26,11 @@ public class StripeAPIController {
 
     @GetMapping("/after-payment-processing")
     public ResponseEntity<?> handlePaymentStatus(@RequestParam("payment_intent") String paymentIntentId) {
-        PaymentDetailsDTO paymentDetailsDTO = paymentService.getPaymentDetails(paymentIntentId);
-        String customerEmail = paymentDetailsDTO.getUserEmail();
         String result = paymentService.handlePaymentResult(paymentIntentId);
-        paymentService.logPaymentResult(paymentIntentId, result, customerEmail, paymentDetailsDTO.getPrice());
 
         switch (result) {
             case "payment-success":
                 //Update the user's balance in the database using the email
-                emailService.sendConfirmationEmail(customerEmail);
                 return ResponseEntity.ok("Payment succeeded!");
             case "payment-incomplete":
                 //
