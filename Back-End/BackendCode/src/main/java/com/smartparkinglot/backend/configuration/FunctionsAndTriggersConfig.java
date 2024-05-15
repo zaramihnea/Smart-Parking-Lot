@@ -11,14 +11,14 @@ public class FunctionsAndTriggersConfig {
     private JdbcTemplate jdbcTemplate;
 
     @PostConstruct
-    public void init() {/*
+    public void init() {
         List<String> sqlStatements = List.of(
                 "CREATE EXTENSION IF NOT EXISTS cube;",
                 "CREATE EXTENSION IF NOT EXISTS earthdistance CASCADE;",
                 "CREATE EXTENSION IF NOT EXISTS pgcrypto",
 
                 "CREATE OR REPLACE FUNCTION TryLogin(\n" +
-                        "    p_username users.username%TYPE,\n" +
+                        "    p_email users.email%TYPE,\n" +
                         "    p_password users.password%TYPE\n" +
                         ") RETURNS BOOLEAN AS $$\n" +
                         "DECLARE\n" +
@@ -28,7 +28,7 @@ public class FunctionsAndTriggersConfig {
                         "    -- Retrieve the stored hash from the database for the given username\n" +
                         "    SELECT password INTO stored_hash\n" +
                         "    FROM users\n" +
-                        "    WHERE username = p_username;\n" +
+                        "    WHERE email = p_email;\n" +
                         "\n" +
                         "    -- Check if the user exists and the password matches\n" +
                         "    IF stored_hash IS NOT NULL THEN\n" +
@@ -217,6 +217,6 @@ public class FunctionsAndTriggersConfig {
 
         sqlStatements.forEach(sql -> {
             jdbcTemplate.execute(sql);
-        });*/
+        });
     }
 }
