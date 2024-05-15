@@ -51,12 +51,13 @@ public class ParkingLotConfig {
                     // Process first page of results
                     addToDatabase(response, parkingLotRepository, parkingSpotRepository);
 
-                    // Handling pagination
-                    while (response.nextPageToken != null && !response.nextPageToken.isEmpty()) {
-                        Thread.sleep(2000); // Pause to ensure the token is valid; Google recommends this delay
-                        response = PlacesApi.nearbySearchNextPage(context, response.nextPageToken).await();
-                        addToDatabase(response, parkingLotRepository, parkingSpotRepository);
-                    }
+                    // UNCOMMENT IN PRODUCTION
+//                    // Handling pagination
+//                    while (response.nextPageToken != null && !response.nextPageToken.isEmpty()) {
+//                        Thread.sleep(2000); // Pause to ensure the token is valid; Google recommends this delay
+//                        response = PlacesApi.nearbySearchNextPage(context, response.nextPageToken).await();
+//                        addToDatabase(response, parkingLotRepository, parkingSpotRepository);
+//                    }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
