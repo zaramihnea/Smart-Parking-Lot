@@ -54,7 +54,7 @@ public class ReservationController {
         String token = authorizationHeader.substring(7);// Assuming the scheme is "Bearer "
         if(tokenService.validateToken(token)) {
             User userAuthorized = tokenService.getUserByToken(token);
-            if(userAuthorized.getType().equals(User.UserType.ADMIN)) {
+            if(userAuthorized.getType() == 2 ) {
                 if(!userService.existsByEmail(userEmail)) {
                     return ResponseEntity.badRequest().body("User for which data is requested does not exist");
                 }

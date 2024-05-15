@@ -10,15 +10,16 @@ import java.math.BigDecimal;
 @Table(name = "parking_lots")
 public class ParkingLot {
     @Id
-    @Column(name = "id", length = 200)
-    private String id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
+    private Long id;
 
     @Column(name = "nr_spots")
-    private Long nrSpots;
+    private Integer nrSpots;
 
     @Getter @Setter
     @Column(name = "price")
-    private Long price;
+    private Float price;
 
     @Column(name = "latitude", precision=10, scale=8)
     private BigDecimal latitude;
@@ -29,7 +30,7 @@ public class ParkingLot {
     public ParkingLot() {
     }
 
-    public ParkingLot(String id, Long nrSpots, Long price, BigDecimal latitude, BigDecimal longitude) {
+    public ParkingLot(Long id, int nrSpots, float price, BigDecimal latitude, BigDecimal longitude) {
         this.id = id;
         this.nrSpots = nrSpots;
         this.price = price;
@@ -37,22 +38,22 @@ public class ParkingLot {
         this.longitude = longitude;
     }
 
-    public String getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(Long id) {
         this.id = id;
     }
     public BigDecimal getLatitude() {
         return latitude;
     }
 
-    public Long getNrSpots() {
+    public int getNrSpots() {
         return nrSpots;
     }
 
-    public void setNrSpots(Long nrSpots) {
+    public void setNrSpots(int nrSpots) {
         this.nrSpots = nrSpots;
     }
 

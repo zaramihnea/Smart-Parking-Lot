@@ -65,11 +65,13 @@ public class ParkingLotConfig {
         };
     }
 
+
     private static void addToDatabase(PlacesSearchResponse response, ParkingLotRepository parkingLotRepository, ParkingSpotRepository parkingSpotRepository) {
         for (PlacesSearchResult result : response.results) {
             Random rand = new Random();
             long nrOfSpots = rand.nextInt(10, 30);
             long price = rand.nextInt(2, 10);
+            /*
             if(!parkingLotRepository.existsById(result.name)) {
                 ParkingLot parkingLotToSave = new ParkingLot(result.name, nrOfSpots, price, new BigDecimal(result.geometry.location.lat), new BigDecimal(result.geometry.location.lng));
                 parkingLotRepository.save(parkingLotToSave);
@@ -78,7 +80,7 @@ public class ParkingLotConfig {
                     ParkingSpot spotForThisParkingLot = new ParkingSpot(parkingLotToSave);
                     parkingSpotRepository.save(spotForThisParkingLot);
                 }
-            }
+            }*/
         }
     }
 }

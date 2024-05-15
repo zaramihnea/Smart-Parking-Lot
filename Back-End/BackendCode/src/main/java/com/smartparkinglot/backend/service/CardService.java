@@ -23,8 +23,8 @@ public class CardService {
     }
 
     public void addNewCard(Card card) {
-        if (cardRepository.existsById(card.getId())) {
-            throw new IllegalStateException("Card with ID " + card.getId() + " already exists");
+        if (cardRepository.existsById(card.getCardNumber())) {
+            throw new IllegalStateException("Card:  " + card.getCardNumber() + " already exists");
         }
         cardRepository.save(card);
     }
