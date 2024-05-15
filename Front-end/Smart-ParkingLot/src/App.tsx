@@ -14,6 +14,7 @@ import Profiles from './pages/Profiles';
 import Details from './pages/Details'; 
 import Cars from './pages/Cars'; 
 import Messages from './pages/Messages';
+import SettingsPage from './pages/SettingsPage'
 
 const App: React.FC = () => {
   document.title = 'Smart Parking Lot'
@@ -33,6 +34,7 @@ const App: React.FC = () => {
         <Route path="/messages" element={<Messages />} />
         <Route path="/cars" element={<Cars />} />
         <Route path="/details" element={<Details />} />
+        <Route path="/settings" element={<SettingsPage />} />
       </Routes>
     </Router>
   )
