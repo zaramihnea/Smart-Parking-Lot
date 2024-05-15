@@ -16,10 +16,10 @@ public class User {
     @Column(nullable = false, unique = true)
     private String email;
 
-    @Getter
     @Setter
-    @Column(nullable = false, unique = true)
-    private String username;
+    @Getter
+    @Column
+    private String name;
 
     @Setter
     @Getter
@@ -28,15 +28,9 @@ public class User {
 
     @Setter
     @Getter
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private UserType type;
-
-
-    @Setter
-    @Getter
     @Column
     private Date dob;
+
     @Setter
     @Getter
     @Column
@@ -51,17 +45,23 @@ public class User {
     @Getter
     @Column
     private Double balance;
-    public enum UserType {
-        ADMIN,
-        REGULAR
-    }
+
+    @Setter
+    @Getter
+    @Column(nullable = false)
+    private int type;
+
+    @Setter
+    @Getter
+    @Column
+    private Boolean isBanned;
+
 
     public User() {
     }
 
     //constructor
-    public User(String username, String password, UserType type, String email, Date dob, String country, String city, Double balance) {
-        this.username = username;
+    public User(String email, String name, String password, Date dob, String country, String city, Double balance, Boolean isBanned, int type) {
         this.password = password;
         this.type = type;
         this.email = email;
@@ -69,6 +69,8 @@ public class User {
         this.country = country;
         this.city = city;
         this.balance = balance;
+        this.name = name;
+        this.isBanned = isBanned;
     }
 
 }

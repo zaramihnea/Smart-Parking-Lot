@@ -17,9 +17,9 @@ public class CardConfig {
     CommandLineRunner cardCommandLineRunner(CardRepository cardRepository, UserRepository userRepository) {
         return args -> {
             User user1 = userRepository.
-                    findByUsername("cosmina_baciu").orElse(null);
+                    findByEmail("cosmina_baciu@gmail.com").orElse(null);
             User user2 = userRepository.
-                    findByUsername("baciu_elena").orElse(null);
+                    findByEmail("baciu_elena@gmail.com").orElse(null);
 
             Card card1 = new Card("9375310191321441", user1);
             Card card2 = new Card("1121783382244824", user2);

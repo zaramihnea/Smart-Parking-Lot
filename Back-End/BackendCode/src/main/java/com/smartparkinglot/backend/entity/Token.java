@@ -19,6 +19,7 @@ public class Token {
     @JoinColumn(name = "email", referencedColumnName = "email", foreignKey = @ForeignKey(name = "fk_tokens_users"))
     private User user;
 
+
     @Getter @Setter
     @Column(nullable = false)
     private Timestamp creationDate; // Changed to Timestamp for date and time
@@ -30,10 +31,8 @@ public class Token {
     public Token() {
     }
 
-    public Token(String token, User user, Timestamp creationDate, Timestamp expirationDate) {
+    public Token(String token, User user) {
         this.token = token;
         this.user = user;
-        this.creationDate = creationDate;
-        this.expirationDate = expirationDate;
     }
 }

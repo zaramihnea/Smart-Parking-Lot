@@ -34,10 +34,10 @@ public class ParkingLotService {
 
     // Transactional <=> no need of verification queries
     @Transactional
-    public void updateParkingLot(String parkingLotId, Long nrSpots, BigDecimal latitude, BigDecimal longitude){
+    public void updateParkingLot(Long parkingLotId, int nrSpots, BigDecimal latitude, BigDecimal longitude){
         ParkingLot parkingLot = parkingLotRepository.findById(parkingLotId)
                 .orElseThrow(() -> new IllegalStateException("Parking lot id " + parkingLotId + " doesn't exist in parking_lots"));
-        if(nrSpots != null && !nrSpots.equals(parkingLot.getNrSpots())){
+        if( nrSpots != parkingLot.getNrSpots()){
             parkingLot.setNrSpots(nrSpots);
         }
         if(latitude != null && !latitude.equals(parkingLot.getLatitude())){

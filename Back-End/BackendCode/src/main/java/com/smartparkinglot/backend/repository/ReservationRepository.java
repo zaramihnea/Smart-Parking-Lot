@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface ReservationRepository extends JpaRepository<Reservation, String> {
+public interface ReservationRepository extends JpaRepository<Reservation, Long> {
     @Query(value = "SELECT * FROM GetUsersActiveReservations(:userEmail)", nativeQuery = true)
     public Optional<List<Reservation>> getOwnActiveReservations(@Param("userEmail") String userEmail);
 
