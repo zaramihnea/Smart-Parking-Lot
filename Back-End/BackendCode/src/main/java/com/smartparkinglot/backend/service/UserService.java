@@ -61,9 +61,15 @@ public class UserService {
         return userRepository.tryLogin(username, password);
     }
 
+    public User getUserByEmail(String email){ return userRepository.findByEmail(email).orElse(null);}
 
     public void updateUserBalance(String email, double amount) {
         userRepository.updateBalanceByEmail(email, amount);
+    }
+
+    public void changePassword(User user, String password){
+        user.setPassword(password);
+        userRepository.save(user);
     }
 
 }

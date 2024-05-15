@@ -31,4 +31,17 @@ public class EmailService {
         }
     }
 
+    public  void sendResetPasswordEmail(String userEmail, String link){
+        try {
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setFrom("contact.smartparkinglot@gmail.com");
+            message.setTo(userEmail);
+            message.setSubject("Password Reset");
+            message.setText("To reset your password, access this link: " + link);
+            mailSender.send(message);
+        } catch (MailException e) {
+            log.error("Error sending email: " + e.getMessage());
+        }
+    }
+
 }
