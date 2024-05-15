@@ -20,11 +20,13 @@ import java.util.List;
 public class UserController {
     private final UserService userService;
     private final TokenService tokenService;
+    private final EmailService emailService;
 
     @Autowired
-    public UserController(UserService userService, TokenService tokenService) {
+    public UserController(UserService userService, TokenService tokenService, EmailService emailService) {
         this.userService = userService;
         this.tokenService = tokenService;
+        this.emailService = emailService;
     }
     @GetMapping(value = "/email")
     public ResponseEntity<?> getUserID(@RequestHeader("Authorization") String authorizationHeader) {
@@ -81,6 +83,36 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Login Failed");
     }
 
+    @PostMapping(value = "/reset-password-request")
+    public ResponseEntity<String> resetPasswordRequest(@RequestBody ResetPasswordRequest resetPasswordRequest){
+        if(userService.existsByEmail(resetPasswordRequest.getEmail())){
+            //determin user-ul si generez un token unic pentru acesta
+            User user = userService.getUserByEmail(resetPasswordRequest.getEmail());
+            String generatedToken = tokenService.generateToken(user);
+
+            //construiesc linkul care va fi trimis prim email utilizatorului
+            String resetPasswordLink = "https://localhost:8081/reset_password?token=" + generatedToken;
+
+            emailService.sendResetPasswordEmail(user.getEmail(), resetPasswordLink);
+
+            return ResponseEntity.ok("Email send");
+
+        }
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Email not found");
+    }
+
+    @PostMapping(value = "/after-reset-password-request")
+    public ResponseEntity<?> afterResetPasswordRequest(@RequestBody AfterResetPasswordRequest afterResetPasswordRequest){
+        String token = afterResetPasswordRequest.getToken();
+        String password = afterResetPasswordRequest.getPassword();
+        if(tokenService.validateToken(token)){
+            User user = tokenService.getUserByToken(token); // Obtinem user-ul in functie de token
+            userService.changePassword(user, password);
+            return ResponseEntity.ok("Password reseted successfully");
+        }
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid or expired token");
+    }
+
     @Getter
     @Setter
     public static class RegisterRequest {
@@ -97,6 +129,17 @@ public class UserController {
         private String username;
         private String password;
 
+    }
+
+    @Getter @Setter
+    public static class ResetPasswordRequest{
+        private String email;
+    }
+
+    @Getter @Setter
+    public static class AfterResetPasswordRequest{
+        private String token;
+        private String password;
     }
 
     @Getter
