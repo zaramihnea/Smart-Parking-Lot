@@ -12,10 +12,10 @@ import java.util.Optional;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, String> {
-
+    boolean existsByUsername(String username);
     boolean existsByEmail(String email);
 
-    Optional<User> findByEmail(String email);
+    Optional<User> findByUsername(String username);
 
     @Query(value = "SELECT TryLogin(:username, :password)", nativeQuery = true)
     boolean tryLogin(String username, String password);

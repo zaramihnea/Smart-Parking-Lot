@@ -17,9 +17,9 @@ public class CarConfig {
     CommandLineRunner carCommandLineRunner(CarRepository carRepository, UserRepository userRepository) {
         return args -> {
             User user1 = userRepository.
-                    findByEmail("cosmina_baciu@gmail.com").orElse(null);
+                    findByUsername("cosmina_baciu").orElse(null);
             User user2 = userRepository.
-                    findByEmail("baciu_elena@gmail.com").orElse(null);
+                    findByUsername("baciu_elena").orElse(null);
 
             Car car1 = new Car("B201ABC", 201, "regular", user1);
             Car car2 = new Car("IS21DEF", 402, "regular", user2);

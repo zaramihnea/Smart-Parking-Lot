@@ -41,7 +41,7 @@ public class TokenService {
         Timestamp expiryDate = new Timestamp(now.getTime() + 1000 * 60 * 60 * 10); // 10 hours validity
 
         String token = Jwts.builder()
-                .setSubject(user.getEmail())
+                .setSubject(user.getUsername())
                 .setIssuedAt(now)
                 .setExpiration(expiryDate)
                 .signWith(SignatureAlgorithm.HS256, secretKey)

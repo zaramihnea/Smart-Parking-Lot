@@ -19,32 +19,30 @@ public class UserConfig {
     CommandLineRunner commandLineRunner(UserRepository userRepository){
         return args -> {
             User user1 = new User(
+                   "cosmina_baciu",
+                   "84732saf",
+                   User.UserType.ADMIN,
                     "cosmina_baciu@gmail.com",
-                    "cosmina_baciu",
-                    "84732saf",
                     new Date(1999, 11, 10),
                     "Romania",
                     "Iasi",
-                    57.00,
-                    false,
-                    1
+                    57.00
             );
 
             User user2 = new User(
-                    "baciu_elena@gmail.com",
                     "baciu_elena",
-                    "84732saf",
-                    new Date(1999, 11, 10),
+                    "fd8473fs2saf",
+                    User.UserType.ADMIN,
+                    "baciu33@gmail.com",
+                    new Date(1994, 9, 30),
                     "Romania",
                     "Iasi",
-                    57.00,
-                    false,
-                    2
+                    517.00
             );
-            if(!userRepository.existsByEmail(user1.getEmail())) {
+            if(!userRepository.existsByUsername(user1.getUsername())) {
                 userRepository.save(user1);
             }
-            if(!userRepository.existsByEmail(user2.getEmail())) {
+            if(!userRepository.existsByUsername(user2.getUsername())) {
                 userRepository.save(user2);
             }
         };

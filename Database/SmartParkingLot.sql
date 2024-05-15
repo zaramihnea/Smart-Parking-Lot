@@ -10,24 +10,23 @@ drop table users;
 
 
 CREATE TABLE users (
-    email VARCHAR(50) PRIMARY KEY,
+    email VARCHAR(35) PRIMARY KEY,
 	name VARCHAR(100),
     password VARCHAR(100) NOT NULL,
     dob DATE,
-    country VARCHAR(50),
-    city VARCHAR(50),
-    balance NUMERIC(10, 2) DEFAULT 0,
-	type INTEGER DEFAULT 1,
-	is_banned BOOLEAN DEFAULT FALSE
+    country VARCHAR(35),
+    city VARCHAR(35),
+    balance NUMERIC(5, 2) DEFAULT 0,
+	is_admin BOOLEAN
 );
 
 CREATE TABLE messages (
-	message_id BIGSERIAL PRIMARY KEY,
-	sender_email VARCHAR(50) REFERENCES users(email) ON DELETE SET NULL,
-	receiver_email VARCHAR(50) REFERENCES users(email) ON DELETE SET NULL,
+	message_id SERIAL PRIMARY KEY,
+	sender_email VARCHAR(35) REFERENCES users(email) ON DELETE SET NULL, 
+	receiver_email VARCHAR(35) REFERENCES users(email) ON DELETE SET NULL,
 	message_content VARCHAR(256),
 	timestamp TIMESTAMP,
-	status BOOLEAN DEFAULT FALSE-- true = seen
+	status BOOLEAN -- true = seen
 );
 
 CREATE TABLE cars (
@@ -49,7 +48,7 @@ CREATE TABLE tokens (
 
 
 CREATE TABLE parking_lots (
-    id BIGSERIAL PRIMARY KEY,
+    id VARCHAR(11) PRIMARY KEY,
     nr_spots INTEGER,
 	price NUMERIC,
     latitude NUMERIC,
@@ -57,14 +56,14 @@ CREATE TABLE parking_lots (
 );
 
 CREATE TABLE parking_spots (
-    id BIGSERIAL PRIMARY KEY,
-    parking_lot_id BIGINT REFERENCES parking_lots(id) ON DELETE CASCADE
+    id VARCHAR(11) PRIMARY KEY,
+    parking_lot_id VARCHAR(11) REFERENCES parking_lots(id) ON DELETE CASCADE
 );
 
 CREATE TABLE reservations (
-    id BIGSERIAL PRIMARY KEY,
+    id VARCHAR(35) PRIMARY KEY,
     plate VARCHAR(7),
-    parking_spot_id BIGINT,
+    parking_spot_id VARCHAR(11),
     start_time TIMESTAMP,
     stop_time TIMESTAMP,
     status VARCHAR(15) DEFAULT 'active', -- 'active' / 'cancelled' / 'inactive'
@@ -79,7 +78,7 @@ CREATE INDEX idx_fk_plate ON reservations (plate);
 CREATE INDEX idx_fk_parking_spot ON reservations (parking_spot_id);
 
 
--- Users table functions and triggers --
+-- Users table functions and triggers -- 
 
 
 CREATE OR REPLACE FUNCTION AddNewUser(
@@ -90,7 +89,7 @@ CREATE OR REPLACE FUNCTION AddNewUser(
     p_country users.country%TYPE,
     p_city users.city%TYPE,
     p_balance users.balance%TYPE DEFAULT 0,
-	p_type users.type%TYPE DEFAULT 1
+	p_is_admin users.is_admin%TYPE DEFAULT FALSE
 ) RETURNS VOID AS $$
 DECLARE
     user_count INTEGER;
@@ -98,18 +97,14 @@ BEGIN
     SELECT COUNT(*) INTO user_count FROM users WHERE email = p_email;
 
     IF user_count > 0 THEN
-		SELECT COUNT(*) INTO user_count FROM users WHERE email = p_email AND is_banned = TRUE;
-		IF user_count > 0 THEN
-			RAISE EXCEPTION 'User is banned';
-		ELSE
-			RAISE EXCEPTION 'User already exists';
-		END IF;
+        RAISE EXCEPTION 'User already exists';
     END IF;
 
-    INSERT INTO users (email, name, password, dob, country, city, balance, type)
-    VALUES (p_mail, p_name, p_password, p_dob, p_country, p_city, p_balance, p_type);
-
+    INSERT INTO users (email, name, password, dob, country, city, balance, is_admin)
+    VALUES (p_mail, p_name, p_password, p_dob, p_country, p_city, p_balance, p_is_admin);
+	
 END;
+			
 $$ LANGUAGE plpgsql;
 
 
@@ -121,14 +116,7 @@ CREATE OR REPLACE FUNCTION TryLogin(
 DECLARE
     stored_hash TEXT;
     valid_user BOOLEAN;
-	v_count INTEGER;
 BEGIN
-
-	SELECT COUNT(*) INTO v_count FROM users WHERE email = p_email AND is_banned = TRUE;
-		IF v_count > 0 THEN
-			RAISE EXCEPTION 'User is banned';
-		END IF;
-
     -- Retrieve the stored hash from the database for the given username
     SELECT password INTO stored_hash
     FROM users
@@ -171,7 +159,7 @@ DECLARE
     user_balance NUMERIC;
 BEGIN
     SELECT balance INTO user_balance FROM users WHERE email = p_email;
-
+    
     RETURN user_balance >= p_required_balance;
 END;
 $$ LANGUAGE plpgsql;
@@ -235,14 +223,14 @@ RETURNS TRIGGER AS $$
 DECLARE
     lot_count INTEGER;
 BEGIN
-    SELECT COUNT(*) INTO lot_count
-    FROM parking_lots
+    SELECT COUNT(*) INTO lot_count 
+    FROM parking_lots 
     WHERE latitude = NEW.latitude AND longitude = NEW.longitude;
-
+	
 	IF lot_count > 0 THEN
         RAISE EXCEPTION 'Lot already exists';
     END IF;
-
+	
 	RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -253,14 +241,13 @@ FOR EACH ROW
 EXECUTE FUNCTION VerifyUniqueLotCoordinates();
 
 
-
 CREATE OR REPLACE FUNCTION GetAvailableParkingSpots(
-	p_start_time TIMESTAMP,
+	p_start_time TIMESTAMP, 
 	p_stop_time TIMESTAMP
 )
-RETURNS TABLE(id BIGINT, parking_lot_id BIGINT) AS $$
+RETURNS TABLE(id VARCHAR, parking_lot_id VARCHAR) AS $$
 BEGIN
-    RETURN QUERY
+    RETURN QUERY 
     SELECT ps.id, ps.parking_lot_id
     FROM parking_spots ps
     WHERE NOT EXISTS (
@@ -277,10 +264,12 @@ $$ LANGUAGE plpgsql;
 
 
 CREATE OR REPLACE FUNCTION GetMostVisitedParkingLot()
-RETURNS BIGINT AS $$
+RETURNS VARCHAR AS $$
 DECLARE
-    most_visited_lot BIGINT;
+    most_visited_lot VARCHAR;
 BEGIN
+    -- Initialize variables
+    most_visited_lot := '';
 
     -- Query to find the most visited parking lot
     SELECT INTO most_visited_lot
@@ -314,21 +303,23 @@ $$ LANGUAGE plpgsql;
 CREATE OR REPLACE FUNCTION GetUsersFavoriteParkingLot(
     p_email users.email%TYPE
 )
-RETURNS BIGINT AS $$
+RETURNS VARCHAR AS $$
 DECLARE
-    most_visited_lot BIGINT;
-    lot BIGINT;
+    most_visited_lot VARCHAR;
+    lot VARCHAR;
     max_count INT := 0;
     count INT;
     rec_row RECORD;
     car_cursor CURSOR FOR SELECT plate FROM cars WHERE email = p_email;
 BEGIN
+    -- Initialize variables
+    most_visited_lot := '';
 
     OPEN car_cursor;
     LOOP
         FETCH car_cursor INTO rec_row;
         EXIT WHEN NOT FOUND;
-
+        
         SELECT INTO lot, count
             id, num_reservations
         FROM (
@@ -351,7 +342,7 @@ BEGIN
                 num_reservations DESC
             LIMIT 1
         ) AS subquery;
-
+        
         IF count > max_count THEN
             max_count := count;
             most_visited_lot := lot;
@@ -377,7 +368,7 @@ BEGIN
     IF NEW.status NOT IN ('active', 'cancelled', 'inactive') THEN
         RAISE EXCEPTION 'Invalid status';
     END IF;
-
+	
 	RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -390,19 +381,20 @@ EXECUTE FUNCTION VerifyStatus();
 
 
 
+
 CREATE OR REPLACE FUNCTION GetUsersActiveReservations(
 	p_email users.email%TYPE
 )
 RETURNS TABLE(
-	id BIGINT,
+	id VARCHAR,
     plate VARCHAR,
-    parking_spot_id BIGINT,
+    parking_spot_id VARCHAR,
     start_time TIMESTAMP,
     stop_time TIMESTAMP,
     status VARCHAR
 ) AS $$
 BEGIN
-    RETURN QUERY
+    RETURN QUERY 
     SELECT r.id, r.plate, r.parking_spot_id, r.start_time, r.stop_time, r.status
     FROM cars c
 	JOIN reservations r
@@ -418,15 +410,15 @@ CREATE OR REPLACE FUNCTION GetUsersReservations(
 	p_email users.email%TYPE
 )
 RETURNS TABLE(
-	id BIGINT,
+	id VARCHAR,
     plate VARCHAR,
-    parking_spot_id BIGINT,
+    parking_spot_id VARCHAR,
     start_time TIMESTAMP,
     stop_time TIMESTAMP,
     status VARCHAR
 ) AS $$
 BEGIN
-    RETURN QUERY
+    RETURN QUERY 
     SELECT r.id, r.plate, r.parking_spot_id, r.start_time, r.stop_time, r.status
     FROM cars c
 	JOIN reservations r
@@ -449,13 +441,13 @@ RETURNS TABLE(
 	plate VARCHAR
 ) AS $$
 BEGIN
-    RETURN QUERY
+    RETURN QUERY 
     SELECT c.plate
     FROM reservations r
 	JOIN cars c
 	ON c.plate = r.plate
 	AND p_email = c.email
-	WHERE (p_start_time >= r.stop_time OR p_stop_time <= r.start_time)
+	WHERE (p_start_time >= r.stop_time OR p_stop_time <= r.start_time) 
 	OR r.status <> 'active';
 END;
 $$ LANGUAGE plpgsql;
@@ -477,6 +469,7 @@ WHERE nspname = 'public'
 )
 AND proname IN ('AddNewUser', 'CalculateReservationCost', 'CheckParkingSpotAvailability', 'CheckAvailableBalance', 'TryLogin', 'VerifyUniqueSpotCoordinates', 'EncryptPasswordFunction')
 AND prokind = 'f';
+
 
 
 

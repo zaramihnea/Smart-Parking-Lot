@@ -26,7 +26,7 @@ public class ParkingLotService {
     }
 
     public void addNewParkingLot(ParkingLot parkingLot) {
-        if (parkingLotRepository.existsById(parkingLot.getId().toString())) {
+        if (parkingLotRepository.existsById(parkingLot.getId())) {
             throw new IllegalStateException("Parking lot with ID " + parkingLot.getId() + " already exists");
         }
         parkingLotRepository.save(parkingLot);
