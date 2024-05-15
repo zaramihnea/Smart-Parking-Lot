@@ -9,20 +9,58 @@ const LoginPage: React.FC = () => {
 
   const [loginErrorPopup, setloginErrorPopup] = useState(false);
   const [emailErrorPopup, setemailErrorPopup] = useState(false);
+  const [errorMessage, setUIErrorMessage] = useState('');
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     if (isValidEmail(email)) {
       if (password) {
-        console.log("Sending data to backend for login:", email, password);
-        setloginErrorPopup(false);
-        setemailErrorPopup(false);
-        navigate('/home');
+          console.log("Sending data to backend for login:", email, password);
+          try {
+              const response = await fetch('http://localhost:8081/user/login', {
+                  method: 'POST',
+                  headers: {
+                      'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify({
+                      email: email,
+                      password: password
+                  }),
+              });
+
+              console.log(JSON.stringify({
+                  email: email,
+                  password: password
+              }));
+
+              if (response.ok) {
+                  const data = await response.json(); // Assuming the response contains JSON data
+                  console.log("Login successful:", data);
+
+                  // Assuming the response contains a token
+                  const { token } = data;
+                  
+                  // Set the cookie using document.cookie
+                  document.cookie = `authToken=${token}; path=/; max-age=3600; SameSite=Strict; Secure`;
+
+                  // Or set the cookie using js-cookie
+                  // Cookies.set('authToken', token, { expires: 1, path: '/', sameSite: 'Strict', secure: true }); // Expires in 1 day
+
+                  navigate('/home');
+              } else {
+                  const errorData = await response.text();
+                  console.error("Login failed:", errorData);
+                  setUIErrorMessage(errorData);
+              }
+          } catch (error) {
+              console.error("Error during Login:", error);
+              setUIErrorMessage('An unexpected error occurred. Please try again.');
+          }
       } else {
-        setloginErrorPopup(true);
+          setloginErrorPopup(true);
       }
-    } else {
+  } else {
       setemailErrorPopup(true);
-    }
+  }
 
   };
 
@@ -54,6 +92,7 @@ const LoginPage: React.FC = () => {
             className="w-full max-w-xs px-4 py-2 mb-4 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:border-purple-500"
           />
           {loginErrorPopup && <p className="text-red-500 text-sm mb-4">Please fill in all fields</p>}
+          {errorMessage && <div className="text-red-500 mt-4">{errorMessage}</div>} {/* Display the error message */}
           <button
             onClick={handleLogin}
             className="w-full max-w-xs px-4 py-2 mb-4 bg-purple-600 text-white font-bold rounded-lg shadow-md hover:bg-purple-700 transition duration-300"

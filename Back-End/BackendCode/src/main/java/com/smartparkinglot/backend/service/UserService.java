@@ -54,8 +54,8 @@ public class UserService {
         userRepository.save(user);
     }
     // Method to authenticate user using the TryLogin function
-    public boolean authenticateUser(String username, String password) {
-        return userRepository.tryLogin(username, password);
+    public boolean authenticateUser(String email, String password) {
+        return userRepository.tryLogin(email, password);
     }
 
     public void updateUserBalance(String email, double amount) {

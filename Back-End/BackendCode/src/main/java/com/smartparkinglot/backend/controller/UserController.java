@@ -56,7 +56,7 @@ public class UserController {
     @PostMapping(value = "/register")
     public ResponseEntity<String> registerNewUser(@RequestBody RegisterRequest registerRequest) {
         try {
-            User user = new User(registerRequest.getEmail(), registerRequest.getName(), registerRequest.getPassword(), registerRequest.getDob(), registerRequest.getCountry(), registerRequest.getCity(), 0.0, false, registerRequest.getType());
+            User user = new User(registerRequest.getEmail(), registerRequest.getName(), registerRequest.getPassword(), registerRequest.getDob(), registerRequest.getCountry(), registerRequest.getCity(), 0.0, false);
             userService.register(user);
             return ResponseEntity.ok("User registered successfully");
         } catch (UsernameExistsException | EmailExistsException e) {
@@ -122,7 +122,6 @@ public class UserController {
         private Date dob;
         private String country;
         private String city;
-        private int type;
     }
 
     @Setter @Getter
