@@ -1,5 +1,6 @@
-import React from 'react'
-import SearchBar from './components/SearchBar'
+import React from 'react';
+import SearchBar from './components/SearchBar';
+import Navbar from './components/Navbar';
 
 const Homepage: React.FC = () => {
   const savedCars = [
@@ -8,7 +9,7 @@ const Homepage: React.FC = () => {
   ];
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 p-4">
+    <div className="min-h-screen flex flex-col bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 p-4 pb-16">
       <div className="sticky top-0 z-50 bg-gray-100 dark:bg-gray-900">
         <SearchBar />
       </div>
@@ -33,6 +34,7 @@ const Homepage: React.FC = () => {
           ))}
         </div>
       </div>
+      <Navbar />
     </div>
   );
 };

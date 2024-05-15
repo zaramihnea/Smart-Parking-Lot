@@ -9,6 +9,7 @@ import ForgotPasswordPage from './pages/ForgotPasswordPage'
 import Map from './components/Map';
 import ProfileAdminPage from './pages/ProfileAdminPage';
 import AdminParkingPage from './pages/AdminParkingPage';
+import AccountBalance from './pages/AccountBalance';
 
 const App: React.FC = () => {
   document.title = 'Smart Parking Lot'
@@ -23,6 +24,7 @@ const App: React.FC = () => {
         <Route path="/map" element={<Map />} />
         <Route path="/admin" element={<ProfileAdminPage />} />
         <Route path="/admin-parking" element={<AdminParkingPage />} />
+        <Route path='/balance' element={<AccountBalance />} />
       </Routes>
     </Router>
   )
