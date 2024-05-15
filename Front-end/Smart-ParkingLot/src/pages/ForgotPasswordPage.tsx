@@ -31,7 +31,7 @@ const ForgotPasswordPage: React.FC = () => {
           <h1 className="text-2xl font-bold text-purple-600 dark:text-purple-400 mb-8 text-center">Forgot password</h1>
           <input
             type="text"
-            placeholder="Email/Username"
+            placeholder="Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             className="w-full max-w-xs px-4 py-2 mb-4 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:border-purple-500"

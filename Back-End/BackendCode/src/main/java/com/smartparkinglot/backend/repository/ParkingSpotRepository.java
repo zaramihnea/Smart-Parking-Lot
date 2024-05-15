@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface ParkingSpotRepository extends JpaRepository<ParkingSpot, String> {
+public interface ParkingSpotRepository extends JpaRepository<ParkingSpot, Long> {
     public boolean existsById(Long id);
     public Optional<List<ParkingSpot>> findByParkingLot(ParkingLot parkingLot);
     public Optional<ParkingSpot> getParkingSpotById(Long id);

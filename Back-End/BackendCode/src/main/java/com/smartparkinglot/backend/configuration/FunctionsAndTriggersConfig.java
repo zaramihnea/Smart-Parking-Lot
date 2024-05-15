@@ -11,7 +11,7 @@ public class FunctionsAndTriggersConfig {
     private JdbcTemplate jdbcTemplate;
 
     @PostConstruct
-    public void init() {
+    public void init() {/*
         List<String> sqlStatements = List.of(
                 "CREATE EXTENSION IF NOT EXISTS cube;",
                 "CREATE EXTENSION IF NOT EXISTS earthdistance CASCADE;",
@@ -217,6 +217,6 @@ public class FunctionsAndTriggersConfig {
 
         sqlStatements.forEach(sql -> {
             jdbcTemplate.execute(sql);
-        });
+        });*/
     }
 }

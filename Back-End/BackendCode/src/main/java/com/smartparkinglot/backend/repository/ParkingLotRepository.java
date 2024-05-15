@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface ParkingLotRepository extends JpaRepository<ParkingLot, String> {
+public interface ParkingLotRepository extends JpaRepository<ParkingLot, Long> {
 
    // Function 'earth_distance' calculates the distance in meters between two points
    // given their coordinates

@@ -26,14 +26,11 @@ public class UserService {
     public User getUserById(String id){
         return userRepository.findById(id).orElse(null);
     }
-    public User getUserByName(String username) {
-        return userRepository.findByUsername(username).orElse(null);
+    public User getUserByEmail(String email) {
+        return userRepository.findByEmail(email).orElse(null);
     }
     public List<User> getAllUsers(){
         return userRepository.findAll();
-    }
-    public boolean existsByUsername(String username) {
-        return userRepository.existsByUsername(username);
     }
     public boolean existsByEmail(String email) {
         return userRepository.existsByEmail(email);
@@ -45,7 +42,7 @@ public class UserService {
 
 
     public void register(User user) throws UsernameExistsException, EmailExistsException {
-        boolean usernameExists = userRepository.existsByUsername(user.getUsername());
+        boolean usernameExists = userRepository.existsByEmail(user.getEmail());
         boolean emailExists = userRepository.existsByEmail(user.getEmail());
 
         if (usernameExists) {
@@ -60,8 +57,6 @@ public class UserService {
     public boolean authenticateUser(String username, String password) {
         return userRepository.tryLogin(username, password);
     }
-
-    public User getUserByEmail(String email){ return userRepository.findByEmail(email).orElse(null);}
 
     public void updateUserBalance(String email, double amount) {
         userRepository.updateBalanceByEmail(email, amount);

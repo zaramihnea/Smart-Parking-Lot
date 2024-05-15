@@ -5,10 +5,8 @@ import jakarta.persistence.*;
 @Entity
 @Table(name = "cards")
 public class Card {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
 
+    @Id
     @Column(name = "card", length = 16)
     private String cardNumber;
 
@@ -22,14 +20,6 @@ public class Card {
     public Card(String cardNumber, User user) {
         this.cardNumber = cardNumber;
         this.user = user;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public String getCardNumber() {

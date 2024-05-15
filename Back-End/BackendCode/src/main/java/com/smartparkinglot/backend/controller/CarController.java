@@ -34,7 +34,7 @@ public class CarController {
             User userAuthorized = tokenService.getUserByToken(token);
 
             return ResponseEntity.ok().body(carService.getCarsByUser(userAuthorized).stream().map(car -> {
-                return new CarDetails(car.getPlate(), car.getCapacity(), car.getType(), car.getUser().getUsername());
+                return new CarDetails(car.getPlate(), car.getCapacity(), car.getType(), car.getUser().getEmail());
             }));
         }
         else {
