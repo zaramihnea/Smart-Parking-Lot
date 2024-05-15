@@ -478,5 +478,3 @@ WHERE nspname = 'public'
 AND proname IN ('AddNewUser', 'CalculateReservationCost', 'CheckParkingSpotAvailability', 'CheckAvailableBalance', 'TryLogin', 'VerifyUniqueSpotCoordinates', 'EncryptPasswordFunction')
 AND prokind = 'f';
 
-
-
