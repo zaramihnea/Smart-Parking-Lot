@@ -20,14 +20,14 @@ export default function Navbar() {
           )}
         </NavLink>
         <NavLink 
-          to="/profile" 
+          to="/profiles" 
           className={({ isActive }) => 
-            `flex flex-col items-center justify-center ${isActive || location.pathname === '/profile' ? 'text-[#7167EE]' : 'text-gray-900 dark:text-gray-100'}`
+            `flex flex-col items-center justify-center ${isActive || location.pathname.startsWith('/profiles') ? 'text-[#7167EE]' : 'text-gray-900 dark:text-gray-100'}`
           }
         >
           {({ isActive }) => (
             <>
-              <img src={isActive || location.pathname === '/profile' ? "/navbar/ProfileIconActive.svg" : "/navbar/ProfileIcon.svg"} alt="profile" className="h-6 w-6 mb-1" />
+              <img src={isActive || location.pathname.startsWith('/profiles') ? "/navbar/ProfileIconActive.svg" : "/navbar/ProfileIcon.svg"} alt="profile" className="h-6 w-6 mb-1" />
               <span className="text-sm">Profile</span>
             </>
           )}
@@ -35,12 +35,12 @@ export default function Navbar() {
         <NavLink 
           to="/balance" 
           className={({ isActive }) => 
-            `flex flex-col items-center justify-center ${isActive || location.pathname === '/wallet' ? 'text-[#7167EE]' : 'text-gray-900 dark:text-gray-100'}`
+            `flex flex-col items-center justify-center ${isActive || location.pathname.startsWith('/wallet') ? 'text-[#7167EE]' : 'text-gray-900 dark:text-gray-100'}`
           }
         >
           {({ isActive }) => (
             <>
-              <img src={isActive || location.pathname === '/wallet' ? "/navbar/WalletIconActive.svg" : "/navbar/WalletIcon.svg"} alt="wallet" className="h-6 w-6 mb-1" />
+              <img src={isActive || location.pathname.startsWith('/balance') ? "/navbar/WalletIconActive.svg" : "/navbar/WalletIcon.svg"} alt="wallet" className="h-6 w-6 mb-1" />
               <span className="text-sm">Wallet</span>
             </>
           )}
@@ -66,7 +66,7 @@ export default function Navbar() {
         >
           {({ isActive }) => (
             <>
-              <img src={isActive || location.pathname === '/help' ? "/navbar/HeartIconActive.svg" : "/navbar/HeartIcon.svg"} alt="help" className="h-6 w-6 mb-1" />
+              <img src={isActive || location.pathname.startsWith('/help') ? "/navbar/HeartIconActive.svg" : "/navbar/HeartIcon.svg"} alt="help" className="h-6 w-6 mb-1" />
               <span className="text-sm">Help</span>
             </>
           )}

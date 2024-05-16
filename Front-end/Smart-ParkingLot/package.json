@@ -15,6 +15,7 @@
     "react-dom": "^18.2.0",
     "react-leaflet": "^4.2.1",
     "react-router-dom": "^6.23.1",
+    "react-time-picker": "^7.0.0",
     "use-immer": "^0.9.0"
   },
   "devDependencies": {

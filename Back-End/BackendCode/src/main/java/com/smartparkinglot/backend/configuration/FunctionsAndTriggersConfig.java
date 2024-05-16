@@ -18,7 +18,7 @@ public class FunctionsAndTriggersConfig {
                 "CREATE EXTENSION IF NOT EXISTS pgcrypto",
 
                 "CREATE OR REPLACE FUNCTION TryLogin(\n" +
-                        "    p_username users.username%TYPE,\n" +
+                        "    p_email users.email%TYPE,\n" +
                         "    p_password users.password%TYPE\n" +
                         ") RETURNS BOOLEAN AS $$\n" +
                         "DECLARE\n" +
@@ -28,7 +28,7 @@ public class FunctionsAndTriggersConfig {
                         "    -- Retrieve the stored hash from the database for the given username\n" +
                         "    SELECT password INTO stored_hash\n" +
                         "    FROM users\n" +
-                        "    WHERE username = p_username;\n" +
+                        "    WHERE email = p_email;\n" +
                         "\n" +
                         "    -- Check if the user exists and the password matches\n" +
                         "    IF stored_hash IS NOT NULL THEN\n" +
@@ -40,6 +40,27 @@ public class FunctionsAndTriggersConfig {
                         "    RETURN valid_user;\n" +
                         "END;\n" +
                         "$$ LANGUAGE plpgsql;",
+
+                "CREATE OR REPLACE FUNCTION IsBanned(\n" +
+                    "    p_email users.email%TYPE\n" +
+                    ") RETURNS BOOLEAN AS $$\n" +
+                    "DECLARE\n" +
+                    "    v_count INTEGER;\n" +
+                    "BEGIN\n" +
+
+                        "SELECT COUNT(*) INTO v_count\n" +
+                        "FROM banned_users\n" +
+                        "WHERE email = p_email;\n" +
+
+
+                        "IF v_count = 1 THEN\n" +
+                        "   return TRUE;\n" +
+                        "ELSE\n" +
+                        "    return FALSE;\n" +
+                        "END IF;\n" +
+
+                    "END;\n" +
+                    "$$ LANGUAGE plpgsql;",
 
 
                 "CREATE OR REPLACE FUNCTION EncryptPasswordFunction()\n" +
@@ -176,7 +197,7 @@ public class FunctionsAndTriggersConfig {
                         ")\n" +
                         "RETURNS TABLE(\n" +
                         "\tid BIGINT,\n" +
-                        "    plate VARCHAR,\n" +
+                        "    car_id BIGINT,\n" +
                         "    parking_spot_id BIGINT,\n" +
                         "    start_time TIMESTAMP,\n" +
                         "    stop_time TIMESTAMP,\n" +
@@ -184,10 +205,10 @@ public class FunctionsAndTriggersConfig {
                         ") AS $$\n" +
                         "BEGIN\n" +
                         "    RETURN QUERY \n" +
-                        "    SELECT r.id, r.plate, r.parking_spot_id, r.start_time, r.stop_time, r.status\n" +
+                        "    SELECT r.id, r.car_id, r.parking_spot_id, r.start_time, r.stop_time, r.status\n" +
                         "    FROM cars c\n" +
                         "\tJOIN reservations r\n" +
-                        "\tON c.plate = r.plate\n" +
+                        "\tON c.id = r.car_id\n" +
                         "\tAND c.email = p_email\n" +
                         "\tWHERE r.status = 'active';\n" +
                         "END;\n" +
@@ -198,7 +219,7 @@ public class FunctionsAndTriggersConfig {
                         ")\n" +
                         "RETURNS TABLE(\n" +
                         "\tid BIGINT,\n" +
-                        "    plate VARCHAR,\n" +
+                        "    car_id BIGINT,\n" +
                         "    parking_spot_id BIGINT,\n" +
                         "    start_time TIMESTAMP,\n" +
                         "    stop_time TIMESTAMP,\n" +
@@ -206,10 +227,10 @@ public class FunctionsAndTriggersConfig {
                         ") AS $$\n" +
                         "BEGIN\n" +
                         "    RETURN QUERY \n" +
-                        "    SELECT r.id, r.plate, r.parking_spot_id, r.start_time, r.stop_time, r.status\n" +
+                        "    SELECT r.id, r.car_id, r.parking_spot_id, r.start_time, r.stop_time, r.status\n" +
                         "    FROM cars c\n" +
                         "\tJOIN reservations r\n" +
-                        "\tON c.plate = r.plate\n" +
+                        "\tON c.id = r.car_id\n" +
                         "\tAND c.email = p_email;\n" +
                         "END;\n" +
                         "$$ LANGUAGE plpgsql;"

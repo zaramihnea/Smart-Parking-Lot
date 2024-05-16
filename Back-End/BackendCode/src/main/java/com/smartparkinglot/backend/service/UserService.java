@@ -1,6 +1,7 @@
 package com.smartparkinglot.backend.service;
 
 import com.smartparkinglot.backend.customexceptions.EmailExistsException;
+import com.smartparkinglot.backend.customexceptions.UserIsBannedException;
 import com.smartparkinglot.backend.customexceptions.UsernameExistsException;
 import com.smartparkinglot.backend.entity.User;
 import com.smartparkinglot.backend.repository.UserRepository;
@@ -41,7 +42,12 @@ public class UserService {
     }
 
 
-    public void register(User user) throws UsernameExistsException, EmailExistsException {
+    public void register(User user) throws UsernameExistsException, EmailExistsException, UserIsBannedException {
+
+        if( userRepository.isBanned(user.getEmail()) ){
+            throw new UserIsBannedException("User is banned");
+        }
+
         boolean usernameExists = userRepository.existsByEmail(user.getEmail());
         boolean emailExists = userRepository.existsByEmail(user.getEmail());
 
@@ -54,8 +60,8 @@ public class UserService {
         userRepository.save(user);
     }
     // Method to authenticate user using the TryLogin function
-    public boolean authenticateUser(String username, String password) {
-        return userRepository.tryLogin(username, password);
+    public boolean authenticateUser(String email, String password) {
+        return userRepository.tryLogin(email, password);
     }
 
     public void updateUserBalance(String email, double amount) {

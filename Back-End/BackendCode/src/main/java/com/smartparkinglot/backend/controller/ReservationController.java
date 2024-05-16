@@ -42,7 +42,7 @@ public class ReservationController {
             User userAuthorized = tokenService.getUserByToken(token);
 
             return ResponseEntity.ok().body(reservationService.getOwnActiveReservations(userAuthorized.getEmail()).stream().map(reservation -> {
-                return new ReservationDetails(reservation.getId(), reservation.getPlate().getPlate(), reservation.getParkingSpot().getId(), reservation.getStartTime(), reservation.getStopTime(), reservation.getStatus());
+                return new ReservationDetails(reservation.getId(), reservation.getCar_id().getId(), reservation.getParkingSpot().getId(), reservation.getStartTime(), reservation.getStopTime(), reservation.getStatus());
             }));
         }
         else {
@@ -59,7 +59,7 @@ public class ReservationController {
                     return ResponseEntity.badRequest().body("User for which data is requested does not exist");
                 }
                 return ResponseEntity.ok().body(reservationService.getUsersReservations(userEmail).stream().map(reservation -> {
-                    return new ReservationDetails(reservation.getId(), reservation.getPlate().getPlate(), reservation.getParkingSpot().getId(), reservation.getStartTime(), reservation.getStopTime(), reservation.getStatus());
+                    return new ReservationDetails(reservation.getId(), reservation.getCar_id().getId(), reservation.getParkingSpot().getId(), reservation.getStartTime(), reservation.getStopTime(), reservation.getStatus());
                 }));
             }
             else {
@@ -84,7 +84,7 @@ public class ReservationController {
             if(parkingSpotService.checkParkingSpotAvailability(reservationRequest.spotID, startTimestamp, endTimestamp)) {
                 int reservationCost = parkingSpotService.calculateReservationCost(startTimestamp, endTimestamp, reservationRequest.spotID);
                 if(reservationCost < userAuthorized.getBalance()) {
-                    Car userCar = new Car(reservationRequest.carPlate, reservationRequest.carCapacity, reservationRequest.carType, userAuthorized);
+                    Car userCar = new Car(reservationRequest.carId, carService.getPlateById(reservationRequest.carId), reservationRequest.carCapacity, reservationRequest.carType, userAuthorized);
                     carService.addNewCar(userCar);
                     return reservationService.createReservation(userAuthorized, reservationRequest.spotID, startTimestamp, endTimestamp, reservationCost, userCar);
                 }
@@ -108,7 +108,7 @@ public class ReservationController {
         private Long spotID;
         private String startTime;
         private String endTime;
-        private String carPlate;
+        private Long carId;
         private int carCapacity;
         private String carType;
     }
@@ -117,7 +117,7 @@ public class ReservationController {
     @AllArgsConstructor
     public static class ReservationDetails {
         private Long id;
-        private String plate;
+        private Long car_id;
         private Long parking_spot_id;
         private Timestamp start_time;
         private Timestamp stop_time;

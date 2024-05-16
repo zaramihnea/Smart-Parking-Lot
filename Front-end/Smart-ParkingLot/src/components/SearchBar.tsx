@@ -21,7 +21,7 @@ export default function SearchBar() {
       >
         <div className="flex items-center pl-4 pr-2">
           <img
-            src="searchIcon.svg"
+            src="/searchIcon.svg"
             alt="searchIcon"
             className="h-6 w-6 text-purple-600"
           />
