@@ -14,6 +14,7 @@ import Profiles from './pages/Profiles';
 import Details from './pages/Details'; 
 import Cars from './pages/Cars'; 
 import Messages from './pages/Messages';
+import SettingsPage from './pages/SettingsPage'
 import Reserve1 from './pages/reserve1';
 
 const App: React.FC = () => {
@@ -31,6 +32,10 @@ const App: React.FC = () => {
         <Route path="/admin-parking" element={<AdminParkingPage />} />
         <Route path='/balance' element={<AccountBalance />} />
          <Route path="/profiles" element={<Profiles />} />
+        <Route path="/messages" element={<Messages />} />
+        <Route path="/cars" element={<Cars />} />
+        <Route path="/details" element={<Details />} />
+        <Route path="/settings" element={<SettingsPage />} />
         <Route path="/profiles/messages" element={<Messages />} />
         <Route path="/profiles/cars" element={<Cars />} />
         <Route path="/profiles/details" element={<Details />} />
