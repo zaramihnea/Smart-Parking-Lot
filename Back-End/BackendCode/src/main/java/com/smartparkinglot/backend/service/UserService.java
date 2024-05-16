@@ -44,9 +44,9 @@ public class UserService {
 
     public void register(User user) throws UsernameExistsException, EmailExistsException, UserIsBannedException {
 
-        if( userRepository.isBanned(user.getEmail()) ){
-            throw new UserIsBannedException("User is banned");
-        }
+//        if( userRepository.isBanned(user.getEmail()) ){
+//            throw new UserIsBannedException("User is banned");
+//        }
 
         boolean usernameExists = userRepository.existsByEmail(user.getEmail());
         boolean emailExists = userRepository.existsByEmail(user.getEmail());
