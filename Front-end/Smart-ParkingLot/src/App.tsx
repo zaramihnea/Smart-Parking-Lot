@@ -7,6 +7,7 @@ import LoginPage from './pages/LoginPage'
 import SignupPage from './pages/SignupPage'
 import ForgotPasswordPage from './pages/ForgotPasswordPage'
 import Map from './components/Map';
+import MapPage from './pages/MapPage';
 import ProfileAdminPage from './pages/ProfileAdminPage';
 import AdminParkingPage from './pages/AdminParkingPage';
 import AccountBalance from './pages/AccountBalance';
@@ -27,7 +28,7 @@ const App: React.FC = () => {
         <Route path="/home" element={<Homepage />} />
         <Route path="/signup" element={<SignupPage />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-        <Route path="/map" element={<Map />} />
+        <Route path="/map" element={<MapPage />} />
         <Route path="/admin" element={<ProfileAdminPage />} />
         <Route path="/admin-parking" element={<AdminParkingPage />} />
         <Route path='/balance' element={<AccountBalance />} />
