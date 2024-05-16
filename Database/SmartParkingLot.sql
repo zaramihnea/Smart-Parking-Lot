@@ -6,7 +6,7 @@ drop table parking_spots;
 drop table parking_lots;
 drop table messages;
 drop table users;
-
+drop table banned_users;
 
 
 CREATE TABLE users (
@@ -17,9 +17,18 @@ CREATE TABLE users (
     country VARCHAR(50),
     city VARCHAR(50),
     balance NUMERIC(10, 2) DEFAULT 0,
-	type INTEGER DEFAULT 1,
-	is_banned BOOLEAN DEFAULT FALSE
+	------------------------ new -----------------------------------
+	type INTEGER DEFAULT 1
+	----------------------------------------------------------------
 );
+
+
+---------------------------- new -----------------------------------
+
+CREATE TABLE banned_users (
+	email VARCHAR(50) PRIMARY KEY
+);
+
 
 CREATE TABLE messages (
 	message_id BIGSERIAL PRIMARY KEY,
@@ -30,16 +39,22 @@ CREATE TABLE messages (
 	status BOOLEAN DEFAULT FALSE-- true = seen
 );
 
+--------------------------------------------------------------------
+
 CREATE TABLE cars (
-    plate VARCHAR(7) PRIMARY KEY,
+	id BIGSERIAL PRIMARY KEY,
+    plate VARCHAR(7),
 	capacity INT,
 	type VARCHAR(35),
-    email VARCHAR(50) REFERENCES users(email) ON DELETE CASCADE
+    email VARCHAR(50) REFERENCES users(email) ON DELETE CASCADE,
+	UNIQUE (email, plate)
 );
 
 CREATE TABLE cards (
+	id BIGSERIAL PRIMARY KEY,
     email VARCHAR(50) REFERENCES users(email) ON DELETE CASCADE,
-    card VARCHAR(16)
+    card VARCHAR(16),
+	UNIQUE (email, card)
 );
 
 CREATE TABLE tokens (
@@ -63,20 +78,44 @@ CREATE TABLE parking_spots (
 
 CREATE TABLE reservations (
     id BIGSERIAL PRIMARY KEY,
-    plate VARCHAR(7),
+    car_id BIGINT,
     parking_spot_id BIGINT,
     start_time TIMESTAMP,
     stop_time TIMESTAMP,
     status VARCHAR(15) DEFAULT 'active', -- 'active' / 'cancelled' / 'inactive'
-    CONSTRAINT fk_plate FOREIGN KEY (plate) REFERENCES cars(plate) ON DELETE SET NULL,
+    CONSTRAINT fk_car FOREIGN KEY (car_id) REFERENCES cars(id) ON DELETE SET NULL,
     CONSTRAINT fk_parking_spot FOREIGN KEY (parking_spot_id) REFERENCES parking_spots(id) ON DELETE SET NULL
 );
 
 
 -- Indexes --
 
-CREATE INDEX idx_fk_plate ON reservations (plate);
+CREATE INDEX idx_fk_car ON reservations (car_id);
 CREATE INDEX idx_fk_parking_spot ON reservations (parking_spot_id);
+
+
+-- Banned users functions 
+
+CREATE OR REPLACE FUNCTION IsBanned(
+    p_email users.email%TYPE
+) RETURNS BOOLEAN AS $$
+DECLARE
+	v_count INTEGER;
+BEGIN
+
+    SELECT COUNT(*) INTO v_count
+    FROM banned_users
+    WHERE email = p_email;
+
+    -- Check if the user exists and the password matches
+    IF v_count = 1 THEN
+        return TRUE;
+    ELSE
+        return FALSE;
+    END IF;
+	
+END;
+$$ LANGUAGE plpgsql;
 
 
 -- Users table functions and triggers --
@@ -98,16 +137,11 @@ BEGIN
     SELECT COUNT(*) INTO user_count FROM users WHERE email = p_email;
 
     IF user_count > 0 THEN
-		SELECT COUNT(*) INTO user_count FROM users WHERE email = p_email AND is_banned = TRUE;
-		IF user_count > 0 THEN
-			RAISE EXCEPTION 'User is banned';
-		ELSE
-			RAISE EXCEPTION 'User already exists';
-		END IF;
+		RAISE EXCEPTION 'User already exists';
     END IF;
 
     INSERT INTO users (email, name, password, dob, country, city, balance, type)
-    VALUES (p_mail, p_name, p_password, p_dob, p_country, p_city, p_balance, p_type);
+    VALUES (p_email, p_name, p_password, p_dob, p_country, p_city, p_balance, p_type);
 
 END;
 $$ LANGUAGE plpgsql;
@@ -123,11 +157,6 @@ DECLARE
     valid_user BOOLEAN;
 	v_count INTEGER;
 BEGIN
-
-	SELECT COUNT(*) INTO v_count FROM users WHERE email = p_email AND is_banned = TRUE;
-		IF v_count > 0 THEN
-			RAISE EXCEPTION 'User is banned';
-		END IF;
 
     -- Retrieve the stored hash from the database for the given username
     SELECT password INTO stored_hash
@@ -276,6 +305,7 @@ $$ LANGUAGE plpgsql;
 
 
 
+--------------------------------- new ---------------------------------------
 CREATE OR REPLACE FUNCTION GetMostVisitedParkingLot()
 RETURNS BIGINT AS $$
 DECLARE
@@ -310,7 +340,6 @@ $$ LANGUAGE plpgsql;
 
 
 
-
 CREATE OR REPLACE FUNCTION GetUsersFavoriteParkingLot(
     p_email users.email%TYPE
 )
@@ -321,7 +350,7 @@ DECLARE
     max_count INT := 0;
     count INT;
     rec_row RECORD;
-    car_cursor CURSOR FOR SELECT plate FROM cars WHERE email = p_email;
+    car_cursor CURSOR FOR SELECT id FROM cars WHERE email = p_email;
 BEGIN
 
     OPEN car_cursor;
@@ -344,7 +373,7 @@ BEGIN
             WHERE
                 r.stop_time >= CURRENT_TIMESTAMP - INTERVAL '30 days'
                 AND
-                r.plate = rec_row.plate
+                r.car_id = rec_row.id
             GROUP BY
                 p.id
             ORDER BY
@@ -363,7 +392,6 @@ BEGIN
     RETURN most_visited_lot;
 END;
 $$ LANGUAGE plpgsql;
-
 
 
 
@@ -395,7 +423,7 @@ CREATE OR REPLACE FUNCTION GetUsersActiveReservations(
 )
 RETURNS TABLE(
 	id BIGINT,
-    plate VARCHAR,
+    car_id BIGINT,
     parking_spot_id BIGINT,
     start_time TIMESTAMP,
     stop_time TIMESTAMP,
@@ -403,10 +431,10 @@ RETURNS TABLE(
 ) AS $$
 BEGIN
     RETURN QUERY
-    SELECT r.id, r.plate, r.parking_spot_id, r.start_time, r.stop_time, r.status
+    SELECT r.id, r.car_id, r.parking_spot_id, r.start_time, r.stop_time, r.status
     FROM cars c
 	JOIN reservations r
-	ON c.plate = r.plate
+	ON c.id = r.car_id
 	AND c.email = p_email
 	WHERE r.status = 'active';
 END;
@@ -419,7 +447,7 @@ CREATE OR REPLACE FUNCTION GetUsersReservations(
 )
 RETURNS TABLE(
 	id BIGINT,
-    plate VARCHAR,
+    car_id BIGINT,
     parking_spot_id BIGINT,
     start_time TIMESTAMP,
     stop_time TIMESTAMP,
@@ -427,10 +455,10 @@ RETURNS TABLE(
 ) AS $$
 BEGIN
     RETURN QUERY
-    SELECT r.id, r.plate, r.parking_spot_id, r.start_time, r.stop_time, r.status
+    SELECT r.id, r.car_id, r.parking_spot_id, r.start_time, r.stop_time, r.status
     FROM cars c
 	JOIN reservations r
-	ON c.plate = r.plate
+	ON c.id = r.car_id
 	AND c.email = p_email;
 END;
 $$ LANGUAGE plpgsql;
@@ -453,13 +481,14 @@ BEGIN
     SELECT c.plate
     FROM reservations r
 	JOIN cars c
-	ON c.plate = r.plate
+	ON c.id = r.car_id
 	AND p_email = c.email
 	WHERE (p_start_time >= r.stop_time OR p_stop_time <= r.start_time)
 	OR r.status <> 'active';
 END;
 $$ LANGUAGE plpgsql;
 
+------------------------------------------------------------------------
 
 
 -- Checking the recently created triggers and functions

@@ -5,7 +5,12 @@ import jakarta.persistence.*;
 @Entity
 @Table(name = "cars")
 public class Car {
+
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
+    private Long id;
+
     @Column(name = "plate", length = 7)
     private String plate;
 
@@ -22,11 +27,20 @@ public class Car {
     public Car() {
     }
 
-    public Car(String plate, int capacity, String type, User user) {
+    public Car(Long id, String plate, int capacity, String type, User user) {
+        this.id = id;
         this.plate = plate;
         this.capacity = capacity;
         this.type = type;
         this.user = user;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getPlate() {
