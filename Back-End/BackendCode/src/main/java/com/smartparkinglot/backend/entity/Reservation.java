@@ -20,8 +20,8 @@ public class Reservation {
 
     @ManyToOne
     @OnDelete(action = OnDeleteAction.SET_NULL)
-    @JoinColumn(name = "plate", referencedColumnName = "plate", foreignKey = @ForeignKey(name = "fk_plate"))
-    private Car plate;
+    @JoinColumn(name = "car_id", referencedColumnName = "id", foreignKey = @ForeignKey(name = "fk_car"))
+    private Car car_id;
 
     @ManyToOne
     @OnDelete(action = OnDeleteAction.SET_NULL)
@@ -41,7 +41,7 @@ public class Reservation {
     }
 
     public Reservation(Car car, ParkingSpot parkingSpot, Timestamp startTime, Timestamp stopTime, String status) {
-        this.plate = car;
+        this.car_id = car;
         this.parkingSpot = parkingSpot;
         this.startTime = startTime;
         this.stopTime = stopTime;
