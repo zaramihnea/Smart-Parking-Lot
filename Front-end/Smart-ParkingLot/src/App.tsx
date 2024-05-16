@@ -16,6 +16,7 @@ import Cars from './pages/Cars';
 import Messages from './pages/Messages';
 import SettingsPage from './pages/SettingsPage'
 import Reserve1 from './pages/reserve1';
+import MapPage from './pages/reserve2';
 import './App.css';
 
 const App: React.FC = () => {
@@ -38,8 +39,9 @@ const App: React.FC = () => {
         <Route path="/profiles/cars" element={<Cars />} />
         <Route path="/profiles/details" element={<Details />} />
         <Route path="/profiles/reserve" element={<Reserve1 />} />
-        <Route path="/home/reserve1" element={<Reserve1 />} />
         <Route path="/profile/reserve" element={<Reserve1 />} />
+        <Route path="/home/reserve1" element={<Reserve1 />} />
+        <Route path="/home/reserve1/reserve2" element={<MapPage />} />
       </Routes>
     </Router>
   )

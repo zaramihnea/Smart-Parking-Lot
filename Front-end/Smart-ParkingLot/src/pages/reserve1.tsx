@@ -12,6 +12,7 @@ const Reserve1: React.FC = () => {
   const handleReserve = () => {
     console.log('Start Time:', startTime);
     console.log('End Time:', endTime);
+    navigate('/home/reserve1/reserve2');
   };
 
   return (
