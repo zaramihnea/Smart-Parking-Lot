@@ -21,11 +21,9 @@ public class Token {
 
 
     @Getter @Setter
-    @Column(nullable = false)
     private Timestamp creationDate; // Changed to Timestamp for date and time
 
     @Getter @Setter
-    @Column(nullable = false)
     private Timestamp expirationDate; // Changed to Timestamp for date and time
 
     public Token() {

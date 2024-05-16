@@ -21,8 +21,8 @@ public class CardConfig {
             User user2 = userRepository.
                     findByEmail("baciu_elena@gmail.com").orElse(null);
 
-            Card card1 = new Card("9375310191321441", user1);
-            Card card2 = new Card("1121783382244824", user2);
+            Card card1 = new Card(1L, "9375310191321441", user1);
+            Card card2 = new Card(2L, "1121783382244824", user2);
 
             if(!cardRepository.exists(Example.of(card1)))cardRepository.save(card1);
             if(!cardRepository.exists(Example.of(card2)))cardRepository.save(card2);
