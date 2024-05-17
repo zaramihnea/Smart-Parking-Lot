@@ -24,9 +24,7 @@ public class CarService {
     }
 
     public void addNewCar(Car car) {
-        if (!carRepository.existsById(car.getId())) {
-            carRepository.save(car);
-        }
+        carRepository.save(car);
     }
     public List<Car> getCarsByUser(User user) {
         return carRepository.getCarsByUser(user);

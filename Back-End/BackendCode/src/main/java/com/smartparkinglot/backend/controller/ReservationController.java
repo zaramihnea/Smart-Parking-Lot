@@ -84,7 +84,7 @@ public class ReservationController {
             if(parkingSpotService.checkParkingSpotAvailability(reservationRequest.spotID, startTimestamp, endTimestamp)) {
                 int reservationCost = parkingSpotService.calculateReservationCost(startTimestamp, endTimestamp, reservationRequest.spotID);
                 if(reservationCost < userAuthorized.getBalance()) {
-                    Car userCar = new Car(reservationRequest.carId, carService.getPlateById(reservationRequest.carId), reservationRequest.carCapacity, reservationRequest.carType, userAuthorized);
+                    Car userCar = new Car(carService.getPlateById(reservationRequest.carId), reservationRequest.carCapacity, reservationRequest.carType, userAuthorized);
                     carService.addNewCar(userCar);
                     return reservationService.createReservation(userAuthorized, reservationRequest.spotID, startTimestamp, endTimestamp, reservationCost, userCar);
                 }

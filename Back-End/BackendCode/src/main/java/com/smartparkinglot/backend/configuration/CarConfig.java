@@ -21,8 +21,8 @@ public class CarConfig {
             User user2 = userRepository.
                     findByEmail("baciu_elena@gmail.com").orElse(null);
 
-            Car car1 = new Car(1L, "B201ABC", 201, "regular", user1);
-            Car car2 = new Car(2L, "IS21DEF", 402, "regular", user2);
+            Car car1 = new Car("B201ABC", 201, "regular", user1);
+            Car car2 = new Car("IS21DEF", 402, "regular", user2);
 
             if(!carRepository.exists(Example.of(car1)))carRepository.save(car1);
             if(!carRepository.exists(Example.of(car2)))carRepository.save(car2);

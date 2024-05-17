@@ -48,12 +48,9 @@ public class UserService {
 //            throw new UserIsBannedException("User is banned");
 //        }
 
-        boolean usernameExists = userRepository.existsByEmail(user.getEmail());
         boolean emailExists = userRepository.existsByEmail(user.getEmail());
 
-        if (usernameExists) {
-            throw new UsernameExistsException("Username taken");
-        } else if(emailExists) {
+        if(emailExists) {
             throw new EmailExistsException("Email taken");
         }
 

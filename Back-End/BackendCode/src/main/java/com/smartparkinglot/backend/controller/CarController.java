@@ -34,7 +34,7 @@ public class CarController {
             User userAuthorized = tokenService.getUserByToken(token);
 
             return ResponseEntity.ok().body(carService.getCarsByUser(userAuthorized).stream().map(car -> {
-                return new CarDetails(car.getPlate(), car.getCapacity(), car.getType(), car.getUser().getEmail());
+                return new CarDetails(car.getPlate(), car.getCapacity(), car.getType());
             }));
         }
         else {
@@ -42,17 +42,25 @@ public class CarController {
         }
     }
 
-    @PostMapping
-    public void registerNewCar(@RequestBody Car car) {
-        carService.addNewCar(car);
+    @PostMapping(value = "/register-car")
+    public ResponseEntity<String> registerNewCar(@RequestHeader("Authorization") String authorizationHeader, @RequestBody CarDetails car) {
+        String token = authorizationHeader.substring(7);// Assuming the scheme is "Bearer "
+        if(tokenService.validateToken(token)) {
+            User userAuthorized = tokenService.getUserByToken(token);
+            carService.addNewCar(new Car(car.getPlate(), car.getCapacity(), car.getType(), userAuthorized));
+
+            return ResponseEntity.ok().body("Car saved successfully");
+        }
+        else {
+            return ResponseEntity.badRequest().body("Authentication token invalid. Protected resource could not be accessed");
+        }
     }
 
     @Getter @Setter
     @AllArgsConstructor
-    public class CarDetails {
+    public static class CarDetails {
         private String plate;
         private int capacity;
         private String type;
-        private String username;
     }
 }
