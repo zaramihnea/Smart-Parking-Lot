@@ -28,6 +28,24 @@ public class UserController {
         this.tokenService = tokenService;
         this.emailService = emailService;
     }
+
+    @GetMapping(value = "/all-users")
+    public ResponseEntity<?> getAllUsers(@RequestHeader("Authorization") String authorizationHeader) {
+        String token = authorizationHeader.substring(7);// Assuming the scheme is "Bearer "
+        if(tokenService.validateToken(token)) {
+            User userAuthorized = tokenService.getUserByToken(token);
+            if(userAuthorized.getType() == 3) {
+                return ResponseEntity.ok(userService.findAll());
+            }
+            else {
+                return ResponseEntity.badRequest().body("User is not admin");
+            }
+        }
+        else {
+            return ResponseEntity.badRequest().body("Invalid token");
+        }
+    }
+
     @GetMapping(value = "/email")
     public ResponseEntity<?> getUserID(@RequestHeader("Authorization") String authorizationHeader) {
         String token = authorizationHeader.substring(7);// Assuming the scheme is "Bearer "

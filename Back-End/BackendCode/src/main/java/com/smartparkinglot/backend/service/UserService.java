@@ -40,20 +40,19 @@ public class UserService {
     public void deleteUserById(String id){
         userRepository.deleteById(id);
     }
-
+    public List<User> findAll() {
+        return userRepository.findAll();
+    }
 
     public void register(User user) throws UsernameExistsException, EmailExistsException, UserIsBannedException {
 
-//        if( userRepository.isBanned(user.getEmail()) ){
-//            throw new UserIsBannedException("User is banned");
-//        }
+        if( userRepository.isBanned(user.getEmail()) ){
+            throw new UserIsBannedException("User is banned");
+        }
 
-        boolean usernameExists = userRepository.existsByEmail(user.getEmail());
         boolean emailExists = userRepository.existsByEmail(user.getEmail());
 
-        if (usernameExists) {
-            throw new UsernameExistsException("Username taken");
-        } else if(emailExists) {
+        if(emailExists) {
             throw new EmailExistsException("Email taken");
         }
 
