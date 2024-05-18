@@ -65,6 +65,7 @@ CREATE TABLE tokens (
 
 CREATE TABLE parking_lots (
     id BIGSERIAL PRIMARY KEY,
+    admin_email VARCHAR(50) REFERENCES users(email) ON DELETE CASCADE,
     nr_spots INTEGER,
 	price NUMERIC,
     latitude NUMERIC(10,8),
