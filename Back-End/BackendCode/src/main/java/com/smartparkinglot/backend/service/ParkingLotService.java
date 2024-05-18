@@ -4,6 +4,7 @@ import com.smartparkinglot.backend.entity.ParkingLot;
 import com.smartparkinglot.backend.repository.ParkingLotRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -19,6 +20,12 @@ public class ParkingLotService {
     }
     public List<ParkingLot> getParkingLotsWithinRadius(BigDecimal latitude, BigDecimal longitude, Long radius) {
         return parkingLotRepository.findWithinRadius(latitude, longitude, radius);
+    }
+
+    public ParkingLot getParkingLotById(Long id){
+        if(parkingLotRepository.findById(id).isPresent())
+            return parkingLotRepository.findById(id).get();
+        else return null;
     }
 
     public List<ParkingLot> getAllParkingLots() {
@@ -47,4 +54,10 @@ public class ParkingLotService {
             parkingLot.setLongitude(longitude);
         }
     }
+
+    @Transactional
+    public void deleteParkingLot(ParkingLot parkingLot){
+        parkingLotRepository.deleteParkingLot(parkingLot.getId());
+    }
+
 }

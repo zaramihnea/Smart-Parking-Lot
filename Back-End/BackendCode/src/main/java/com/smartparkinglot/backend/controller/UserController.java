@@ -74,7 +74,7 @@ public class UserController {
     @PostMapping(value = "/register")
     public ResponseEntity<String> registerNewUser(@RequestBody RegisterRequest registerRequest) {
         try {
-            User user = new User(registerRequest.getEmail(), registerRequest.getName(), registerRequest.getPassword(), registerRequest.getDob(), registerRequest.getCountry(), registerRequest.getCity(), 0.0, false);
+            User user = new User(registerRequest.getEmail(), registerRequest.getName(), registerRequest.getPassword(), registerRequest.getDob(), registerRequest.getCountry(), registerRequest.getCity(), 0.0, registerRequest.getType());
             userService.register(user);
             return ResponseEntity.ok("User registered successfully");
         } catch (UsernameExistsException | EmailExistsException e) {
@@ -131,6 +131,29 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid or expired token");
     }
 
+    @PostMapping(value = "/ban/{email}")
+    public ResponseEntity<String> banUser(@RequestHeader("Authorization") String authorizationHeader, @PathVariable("email") String email) {
+        String token = authorizationHeader.substring(7);// Assuming the scheme is "Bearer "
+        if(tokenService.validateToken(token)) {
+            User userAuthorized = tokenService.getUserByToken(token);
+            if(userAuthorized.getType() == 3) {
+                try {
+                    User user = userService.getUserByEmail(email);
+                    userService.banUser(user);
+                    return ResponseEntity.ok("User banned successfully");
+                } catch (Exception e) {
+                    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while banning the user");
+                }
+            }
+            else {
+                return ResponseEntity.badRequest().body("User is not admin");
+            }
+        }
+        else {
+            return ResponseEntity.badRequest().body("Invalid token");
+        }
+    }
+
     @Getter
     @Setter
     public static class RegisterRequest {
@@ -140,6 +163,7 @@ public class UserController {
         private Date dob;
         private String country;
         private String city;
+        private Integer type;
     }
 
     @Setter @Getter

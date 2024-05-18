@@ -52,18 +52,13 @@ public class User {
     @Column(nullable = false)
     private int type;
 
-    @Setter
-    @Getter
-    @Column
-    private Boolean isBanned;
-
 
     public User() {
     }
 
     //constructor
     // Method for user that logs in from the app. A user that logs in from the app can only be CLIENT
-    public User(String email, String name, String password, Date dob, String country, String city, Double balance, Boolean isBanned) {
+    public User(String email, String name, String password, Date dob, String country, String city, Double balance) {
         this.password = password;
         this.type = 1;
         this.email = email;
@@ -72,10 +67,9 @@ public class User {
         this.city = city;
         this.balance = balance;
         this.name = name;
-        this.isBanned = isBanned;
     }
 
-    public User(String email, String name, String password, Date dob, String country, String city, Double balance, Boolean isBanned, int type) {
+    public User(String email, String name, String password, Date dob, String country, String city, Double balance, int type) {
         this.password = password;
         this.type = type;
         this.email = email;
@@ -84,7 +78,6 @@ public class User {
         this.city = city;
         this.balance = balance;
         this.name = name;
-        this.isBanned = isBanned;
     }
 
 }

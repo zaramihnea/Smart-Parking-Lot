@@ -14,6 +14,10 @@ public class ParkingLot {
     @Column(name = "id")
     private Long id;
 
+    @ManyToOne
+    @JoinColumn(name = "admin_email", referencedColumnName = "email", foreignKey = @ForeignKey(name = "FK_parking_lots_users"), nullable = false)
+    private User user;
+
     @Column(name = "nr_spots")
     private Integer nrSpots;
 
@@ -30,8 +34,9 @@ public class ParkingLot {
     public ParkingLot() {
     }
 
-    public ParkingLot(Long id, int nrSpots, float price, BigDecimal latitude, BigDecimal longitude) {
+    public ParkingLot(Long id, User user,int nrSpots, float price, BigDecimal latitude, BigDecimal longitude) {
         this.id = id;
+        this.user = user;
         this.nrSpots = nrSpots;
         this.price = price;
         this.latitude = latitude;
@@ -67,5 +72,9 @@ public class ParkingLot {
 
     public void setLongitude(BigDecimal longitude) {
         this.longitude = longitude;
+    }
+
+    public User getUser() {
+        return user;
     }
 }
