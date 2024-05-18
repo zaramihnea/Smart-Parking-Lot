@@ -4,7 +4,6 @@ import com.smartparkinglot.backend.entity.ParkingLot;
 import com.smartparkinglot.backend.repository.ParkingLotRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -28,14 +27,16 @@ public class ParkingLotService {
         else return null;
     }
 
+    public boolean existsById(Long id) {
+        return parkingLotRepository.existsById(id);
+    }
+
     public List<ParkingLot> getAllParkingLots() {
         return parkingLotRepository.findAll();
     }
 
-    public void addNewParkingLot(ParkingLot parkingLot) {
-        if (parkingLotRepository.existsById(parkingLot.getId())) {
-            throw new IllegalStateException("Parking lot with ID " + parkingLot.getId() + " already exists");
-        }
+    @Transactional
+    public void save(ParkingLot parkingLot) {
         parkingLotRepository.save(parkingLot);
     }
 
