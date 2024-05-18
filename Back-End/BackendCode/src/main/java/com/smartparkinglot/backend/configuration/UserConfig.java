@@ -26,7 +26,6 @@ public class UserConfig {
                     "Romania",
                     "Iasi",
                     57.00,
-                    false,
                     1
             );
 
@@ -38,7 +37,6 @@ public class UserConfig {
                     "Romania",
                     "Iasi",
                     57.00,
-                    false,
                     3
             );
             userRepository.save(user1);

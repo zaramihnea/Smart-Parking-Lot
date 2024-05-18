@@ -8,8 +8,6 @@ import lombok.Setter;
 @Table(name = "banned_users")
 public class BannedUser {
     @Getter @Setter
-    @ManyToOne
     @Id
-    @JoinColumn(name = "email", referencedColumnName = "email", foreignKey = @ForeignKey(name = "fk_tokens_users"), unique = true, nullable = false)
-    private User user;
+    private String email;
 }
