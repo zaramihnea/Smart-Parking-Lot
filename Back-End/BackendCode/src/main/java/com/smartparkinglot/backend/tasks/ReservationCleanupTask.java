@@ -28,7 +28,7 @@ public class ReservationCleanupTask {
     public void cleanUpOldReservations() {
         LocalDateTime thirtyDaysAgo = LocalDateTime.now().minus(30, ChronoUnit.DAYS);
         Timestamp cutoffDate = Timestamp.valueOf(thirtyDaysAgo);
-        reservationRepository.deleteByStopTimeBefore(cutoffDate);
+        reservationRepository.deleteCancelledReservationsOlderThan(cutoffDate);
         System.out.println("Deleted reservations older than 30 days");
     }
 }
