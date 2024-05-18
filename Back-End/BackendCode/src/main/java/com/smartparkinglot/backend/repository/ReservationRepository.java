@@ -24,4 +24,6 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
     @Modifying
     @Query("UPDATE Reservation r SET r.status = 'cancelled' WHERE r.stopTime < :currentTimestamp AND r.status <> 'cancelled'")
     int cancelExpiredReservations(Timestamp currentTimestamp);
+
+    void deleteByStopTimeBefore(Timestamp cutoffDate);
 }
