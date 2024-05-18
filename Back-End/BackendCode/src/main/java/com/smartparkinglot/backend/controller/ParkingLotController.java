@@ -77,9 +77,6 @@ public class ParkingLotController {
         List<ParkingLot> parkingLots = parkingLotService.getParkingLotsWithinRadius(latitude, longitude, radius);
         List<ParkingSpot> availableParkingSpots = parkingSpotService.findAvailableParkingSpots(start_time, stop_time);
 
-        parkingLots.forEach(parkingLot -> {
-            System.out.println(parkingLot.getId());
-        });
         return parkingLots.stream().map(parkingLot -> {
             List<ParkingSpot> availableSpots = availableParkingSpots.stream().filter(parkingSpot -> {
                 return parkingSpot.getParkingLot().getId().equals(parkingLot.getId());
