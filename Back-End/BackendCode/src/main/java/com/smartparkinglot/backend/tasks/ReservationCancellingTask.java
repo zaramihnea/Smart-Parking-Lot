@@ -2,6 +2,7 @@ package com.smartparkinglot.backend.tasks;
 
 import com.smartparkinglot.backend.repository.ReservationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -14,6 +15,7 @@ public class ReservationCancellingTask {
     private ReservationRepository reservationRepository;
 
     @Scheduled(fixedRate = 900000) // Run every 15 minutes
+    @Async
     public void cancelExpiredReservations() {
         Timestamp currentTimestamp = Timestamp.from(Instant.now());
         int updatedRows = reservationRepository.cancelExpiredReservations(currentTimestamp);
