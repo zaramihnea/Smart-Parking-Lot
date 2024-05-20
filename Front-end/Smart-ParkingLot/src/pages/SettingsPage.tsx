@@ -1,11 +1,8 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import SearchBar from '../components/SearchBar';
 import Navbar from '../components/Navbar';
-import MoonIcon from '../assets/moon.svg';
 
 const SettingsPage: React.FC = () => {
-  const navigate = useNavigate();
 
   const [settings, setSettings] = useState({
     theme: 'light',
