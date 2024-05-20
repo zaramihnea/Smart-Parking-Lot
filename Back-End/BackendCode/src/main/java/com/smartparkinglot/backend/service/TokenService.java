@@ -50,7 +50,6 @@ public class TokenService {
         Token jwtToken = new Token();
         jwtToken.setToken(token);
         jwtToken.setUser(user);
-        jwtToken.setCreationDate(now);
         jwtToken.setExpirationDate(expiryDate);
         tokenRepository.save(jwtToken);
 

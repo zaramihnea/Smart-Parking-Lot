@@ -3,6 +3,7 @@ package com.smartparkinglot.backend.service;
 import com.smartparkinglot.backend.entity.ParkingLot;
 import com.smartparkinglot.backend.entity.ParkingSpot;
 import com.smartparkinglot.backend.repository.ParkingSpotRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,10 +24,8 @@ public class ParkingSpotService {
         return parkingSpotRepository.findAll();
     }
 
+    @Transactional
     public void addNewParkingSpot(ParkingSpot parkingSpot) {
-        if(parkingSpotRepository.existsById(parkingSpot.getId())){
-            throw new IllegalStateException("Parking spot with ID " + parkingSpot.getId() + " already exists");
-        }
         parkingSpotRepository.save(parkingSpot);
     }
 

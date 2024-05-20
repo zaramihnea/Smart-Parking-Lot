@@ -19,10 +19,6 @@ public class Token {
     @JoinColumn(name = "email", referencedColumnName = "email", foreignKey = @ForeignKey(name = "fk_tokens_users"))
     private User user;
 
-
-    @Getter @Setter
-    private Timestamp creationDate; // Changed to Timestamp for date and time
-
     @Getter @Setter
     private Timestamp expirationDate; // Changed to Timestamp for date and time
 
