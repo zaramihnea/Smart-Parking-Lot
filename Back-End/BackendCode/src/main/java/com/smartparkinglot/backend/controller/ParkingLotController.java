@@ -102,36 +102,6 @@ public class ParkingLotController {
         }).collect(Collectors.toList());
     }
 
-    @PostMapping(value = "/delete/{lot}")
-    public ResponseEntity<String> deleteParkingLot(@RequestHeader("Authorization") String authorizationHeader, @PathVariable("lot") Long lot) {
-        String token = authorizationHeader.substring(7);// Assuming the scheme is "Bearer "
-        if(tokenService.validateToken(token)) {
-            User userAuthorized = tokenService.getUserByToken(token);
-            if(userAuthorized.getType() == 3 || userAuthorized.getType() == 2) {
-                ParkingLot parkingLot = parkingLotService.getParkingLotById(lot);
-
-                if(parkingLot == null)
-                    return ResponseEntity.badRequest().body("The parking lot does not exist.");
-
-                if(userAuthorized.getEmail().equals(parkingLot.getUser().getEmail())){
-                    try {
-                        parkingLotService.deleteParkingLot(parkingLot);
-                        return ResponseEntity.ok("Parking lot deleted successfully.");
-                    } catch (Exception e) {
-                        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while deleting parking lot.");
-                    }
-                } else {
-                    return ResponseEntity.badRequest().body("The parking lot has different admin.");
-                }
-            }
-            else {
-                return ResponseEntity.badRequest().body("User is not admin");
-            }
-        }
-        else {
-            return ResponseEntity.badRequest().body("Invalid token");
-        }
-    }
 
     @PostMapping("/save")
     public ResponseEntity<String> saveParkingLot(@RequestHeader("Authorization") String authorizationHeader,@RequestBody ParkingLotSaveReq parkingLotSaveReq) {
