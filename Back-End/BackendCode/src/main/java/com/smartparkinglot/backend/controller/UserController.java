@@ -29,6 +29,23 @@ public class UserController {
         this.emailService = emailService;
     }
 
+    @GetMapping(value = "/all-users")
+    public ResponseEntity<?> getAllUsers(@RequestHeader("Authorization") String authorizationHeader) {
+        String token = authorizationHeader.substring(7);// Assuming the scheme is "Bearer "
+        if(tokenService.validateToken(token)) {
+            User userAuthorized = tokenService.getUserByToken(token);
+            if(userAuthorized.getType() == 3) {
+                return ResponseEntity.ok(userService.findAll());
+            }
+            else {
+                return ResponseEntity.badRequest().body("User is not admin");
+            }
+        }
+        else {
+            return ResponseEntity.badRequest().body("Invalid token");
+        }
+    }
+
     @GetMapping(value = "/email")
     public ResponseEntity<?> getUserID(@RequestHeader("Authorization") String authorizationHeader) {
         String token = authorizationHeader.substring(7);// Assuming the scheme is "Bearer "
@@ -114,6 +131,28 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid or expired token");
     }
 
+    @PostMapping(value = "/ban/{email}")
+    public ResponseEntity<String> banUser(@RequestHeader("Authorization") String authorizationHeader, @PathVariable("email") String email) {
+        String token = authorizationHeader.substring(7);// Assuming the scheme is "Bearer "
+        if(tokenService.validateToken(token)) {
+            User userAuthorized = tokenService.getUserByToken(token);
+            if(userAuthorized.getType() == 3) {
+                try {
+                    User user = userService.getUserByEmail(email);
+                    userService.banUser(user);
+                    return ResponseEntity.ok("User banned successfully");
+                } catch (Exception e) {
+                    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while banning the user");
+                }
+            }
+            else {
+                return ResponseEntity.badRequest().body("User is not admin");
+            }
+        }
+        else {
+            return ResponseEntity.badRequest().body("Invalid token");
+        }
+    }
 
     @Getter
     @Setter
