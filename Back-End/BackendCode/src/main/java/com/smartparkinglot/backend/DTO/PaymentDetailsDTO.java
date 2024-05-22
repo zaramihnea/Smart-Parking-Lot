@@ -1,33 +1,24 @@
 package com.smartparkinglot.backend.DTO;
 
+import lombok.Getter;
+import lombok.Setter;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
+@Getter@Setter
 public class PaymentDetailsDTO {
 
-    @JsonProperty("userEmail")
     private String userEmail;
-    @JsonProperty("price")
-    private double price;
+    private Double amount;
 
-    public String getUserEmail() {
-        return userEmail;
-    }
-
-    public double getPrice() {
-        return price;
-    }
-
-    public PaymentDetailsDTO(String userEmail, double price) {
+    public PaymentDetailsDTO(String userEmail, Double amount) {
         this.userEmail = userEmail;
-        this.price = price;
+        this.amount = amount;
     }
 
     @Override
     public String toString() {
         return "PaymentDetailsDTO{" +
                 "userEmail='" + userEmail + '\'' +
-                ", price=" + price +
+                ", amount=" + amount +
                 '}';
     }
 }
