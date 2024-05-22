@@ -1,11 +1,17 @@
 // src/pages/Homepage.tsx
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import SearchBar from './components/SearchBar';
 import Navbar from './components/Navbar';
+import Map from './components/Map';
 
 const Homepage: React.FC = () => {
   const navigate = useNavigate();
+  const [isMapVisible, setIsMapVisible] = useState(false);
+
+  const toggleMapVisibility = () => {
+    setIsMapVisible(!isMapVisible);
+  };
 
   const savedCars = [
     { brand: 'Volkswagen', model: 'Polo', plate: 'IS16LFK' },
@@ -69,7 +75,21 @@ const Homepage: React.FC = () => {
           </div>
         ))}
       </div>
-
+      <div className="flex justify-center items-center flex-grow mt-4 mb-4 px-4">
+        <button
+          onClick={toggleMapVisibility}
+          className="bg-purple-600 text-white px-4 py-2 rounded-lg shadow-md hover:bg-purple-700 transition duration-300 mb-4"
+        >
+          {isMapVisible ? 'Hide Map' : 'Show Map'}
+        </button>
+      </div>
+      {isMapVisible && (
+        <div className="flex justify-center items-center flex-grow mt-4 mb-4 px-4">
+          <div className="w-full max-w-4xl h-96 bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden z-0">
+            <Map />
+          </div>
+        </div>
+      )}
       <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md">
         <h2 className="text-xl font-medium mb-4">Saved Cars</h2>
         <div>
@@ -83,10 +103,11 @@ const Homepage: React.FC = () => {
           ))}
         </div>
       </div>
-      <Navbar />
+      <div className="sticky bottom-0 z-50">
+        <Navbar />
+      </div>
     </div>
   );
 };
 
 export default Homepage;
-
