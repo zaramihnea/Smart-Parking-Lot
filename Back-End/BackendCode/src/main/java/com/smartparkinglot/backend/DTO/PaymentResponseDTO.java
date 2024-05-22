@@ -13,12 +13,4 @@ public class PaymentResponseDTO {
         this.clientSecret = clientSecret;
         this.paymentIntentID = paymentIntentID;
     }
-
-    public String getPaymentIntentID() {
-        return paymentIntentID;
-    }
-
-    public String getClientSecret() {
-        return clientSecret;
-    }
 }
