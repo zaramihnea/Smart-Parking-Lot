@@ -1,5 +1,8 @@
 # Smart-Parking-Lot
 
+A smart parking solution is needed which can detect occupied/free parking spots in a parking lot. The users can access this information through a web and mobile application. Heuristically making multiple rounds around a location to find a free parking spot is a time, fuel, and energy waste for each driver when looking for a parking spot, this also causes additional traffic congestion to every traffic participant which reduces the effectiveness of the city and increases pollution.
+
+
 ## Project Components
 
 1. **Software-based Solution**
