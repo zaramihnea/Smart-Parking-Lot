@@ -1,6 +1,7 @@
 package com.smartparkinglot.backend.service;
 
 import com.smartparkinglot.backend.entity.ParkingLot;
+import com.smartparkinglot.backend.entity.User;
 import com.smartparkinglot.backend.repository.ParkingLotRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,6 +60,16 @@ public class ParkingLotService {
     @Transactional
     public void deleteParkingLot(ParkingLot parkingLot){
         parkingLotRepository.deleteParkingLot(parkingLot.getId());
+    }
+
+    @Transactional
+    public void updatePrice(ParkingLot parkingLot, Float price){
+        parkingLotRepository.updatePrice(parkingLot.getId(), price);
+    }
+
+
+    public List<ParkingLot> findAllByAdminEmail(User admin){
+        return parkingLotRepository.findAllByAdminEmail(admin);
     }
 
 }
