@@ -1,5 +1,4 @@
 import React from 'react';
-import TimePicker from 'react-time-picker';
 import './CustomTimePicker.css';
 
 interface CustomTimePickerProps {
@@ -9,16 +8,18 @@ interface CustomTimePickerProps {
 }
 
 const CustomTimePicker: React.FC<CustomTimePickerProps> = ({ label, value, onChange }) => {
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    onChange(event.target.value);
+  };
+
   return (
     <div className="time-picker-container">
       <label className="block text-sm font-medium mb-1">{label}</label>
-      <TimePicker
+      <input
+        type="time"
         className="custom-time-picker"
-        value={value}
-        onChange={onChange}
-        disableClock={true}
-        clearIcon={null}
-        clockIcon={null}
+        value={value || ''}
+        onChange={handleChange}
       />
     </div>
   );

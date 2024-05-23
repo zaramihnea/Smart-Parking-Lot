@@ -1,46 +1,18 @@
-/* src/components/TimePickerCustom.css */
+.time-picker-container {
+  margin-bottom: 1rem;
+}
 
-/* General container styling */
-.react-time-picker__wrapper {
-    background-color: transparent; /* Transparent background */
-    border: none; /* Remove border */
-    padding: 0;
-    height: auto;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  
-  /* Input field styling */
-  .react-time-picker__inputGroup__input {
-    color: #ccc; /* Light text color */
-    background-color: transparent; /* Transparent background */
-    border: none; /* Remove border */
-    font-size: 24px; /* Increase font size */
-    padding: 0 5px; /* Add padding for spacing */
-    text-align: center; /* Center align text */
-    width: 3.5rem; /* Increase width */
-    box-sizing: content-box; /* Ensure padding and border are not included in width */
-    font-family: 'Arial', monospace; /* Ensure monospaced font for uniform width */
-  }
-  
-  /* Divider styling (colon) */
-  .react-time-picker__inputGroup__divider {
-    color: #ccc; /* Light text color */
-    font-size: 24px; /* Increase font size */
-    padding: 0 0.5rem; /* Add some space around the colon */
-    font-family: 'Roboto Mono', monospace; /* Ensure monospaced font */
-  }
-  
-  /* Focus state styling */
-  .react-time-picker__inputGroup__input:focus {
-    outline: none; /* Remove outline */
-    border: none; /* Remove border */
-  }
-  
-  /* Hide dropdown or popup elements */
-  .react-time-picker__clock,
-  .react-time-picker__clear-button,
-  .react-time-picker__clock-button {
-    display: none; /* Hide elements */
-  }
+.custom-time-picker {
+  width: 100%;
+  padding: 0.5rem;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 0.25rem;
+  outline: none;
+  background-color: rgb(31, 41, 55); /* Background color matches your background */
+  color: #fff; /* Text color */
+}
+
+.custom-time-picker:focus {
+  border-color: #007bff;
+}
