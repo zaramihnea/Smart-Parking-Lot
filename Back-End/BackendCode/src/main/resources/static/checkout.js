@@ -19,7 +19,7 @@ async function fetchAndInitialize() {
     try {
         const paymentDetails = {
             userEmail: 'amihaesiisimona5@gmail.com',
-            price: 1000
+            amount: 10
         };
         const response = await fetch('/', {
             method: 'POST',
@@ -55,7 +55,7 @@ async function handleSubmit(e) {
         elements,
         confirmParams: {
             //if payment was successful it redirects here
-            return_url: `http://localhost:8081/after-payment-processing?payment_intent=${paymentIntentId}`,
+            return_url: `http://localhost:8081/after-payment-processing`,
         },
     });
 
@@ -65,7 +65,7 @@ async function handleSubmit(e) {
     } else {
         // If no error, send the payment status and payment intent ID to the backend
         const paymentIntentId = paymentIntent.id;
-        const response = await fetch(`http://localhost:8081/after-payment-processing?payment_intent=${paymentIntentId}`);
+        const response = await fetch(`http://localhost:8081/after-payment-processing`);
         setLoading(false);
     }
 }

@@ -77,7 +77,7 @@ public class AdminController {
                 if(parkingLot == null)
                     return ResponseEntity.badRequest().body("The parking lot does not exist.");
 
-                if(userAuthorized.getEmail().equals(parkingLot.getUser().getEmail())){
+                if(userAuthorized.getType() == 2 && userAuthorized.getEmail().equals(parkingLot.getUser().getEmail())){
                     try {
                         parkingLotService.deleteParkingLot(parkingLot);
                         return ResponseEntity.ok("Parking lot deleted successfully.");

@@ -20,6 +20,7 @@ import SettingsPage from './pages/SettingsPage'
 import Reserve1 from './pages/reserve1';
 import MapPage from './pages/reserve2';
 import './App.css';
+import HelpPage from './pages/HelpPage'
 
 const App: React.FC = () => {
     document.title = 'Smart Parking Lot'
@@ -46,9 +47,10 @@ const App: React.FC = () => {
                 <Route path="/profile/reserve" element={<Reserve1 />} />
                 <Route path="/home/reserve1" element={<Reserve1 />} />
                 <Route path="/home/reserve1/reserve2" element={<MapPage />} />
+                <Route path="/help" element={<HelpPage />} />
             </Routes>
         </Router>
     )
 }
 
-export default App
+export default App;

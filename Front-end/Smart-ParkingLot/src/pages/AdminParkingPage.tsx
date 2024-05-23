@@ -13,7 +13,7 @@ const AdminParkingPage: React.FC = () => {
     return (
         <div className="flex flex-col min-h-screen bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-white">
             <div className="flex-grow p-4">
-                <SearchBar />
+                <SearchBar placeholder="Search for parking spot"/>
                 <div className="mt-4">
                     <h1 className="text-2xl font-bold">Welcome, Admin!</h1>
                 </div>
