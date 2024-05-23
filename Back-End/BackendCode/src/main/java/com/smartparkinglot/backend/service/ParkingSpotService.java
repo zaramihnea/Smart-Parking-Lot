@@ -51,4 +51,7 @@ public class ParkingSpotService {
         return parkingSpotRepository.getParkingSpotById(id).orElse(null);
     }
 
+    public void updateParkingSpot(ParkingSpot parkingSpot) {
+        parkingSpotRepository.save(parkingSpot);
+    }
 }
