@@ -22,7 +22,7 @@ const AccountBalance = () => {
   return (
     <div className="min-h-screen flex flex-col bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
       <div className="sticky top-0 z-50 w-full p-4 bg-gray-100 dark:bg-gray-900">
-        <SearchBar />
+        <SearchBar placeholder={''} />
       </div>
       <div className="flex flex-col items-center flex-grow p-4 mb-16">
         <div className="w-full max-w-md p-8 bg-white dark:bg-gray-800 rounded-lg shadow-md">
