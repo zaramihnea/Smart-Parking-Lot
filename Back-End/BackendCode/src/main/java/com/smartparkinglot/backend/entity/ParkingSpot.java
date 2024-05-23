@@ -16,6 +16,13 @@ public class ParkingSpot {
     @JoinColumn(name = "parking_lot_id", referencedColumnName = "id", foreignKey = @ForeignKey(name = "FK_parking_spots_parking_lots"), nullable = false)
     private ParkingLot parkingLot;
 
+    @Getter @Setter
+    @Column(name = "status")
+    private String status;
+
+    @Getter @Setter
+    @Column(name = "plate", length = 7)
+    private String plate;
 
     public ParkingSpot() {
     }
