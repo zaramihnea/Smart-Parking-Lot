@@ -40,7 +40,7 @@ const Homepage: React.FC = () => {
   return (
     <div className="min-h-screen flex flex-col bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 p-4 pb-16">
       <div className="sticky top-0 z-50 bg-gray-100 dark:bg-gray-900">
-        <SearchBar />
+        <SearchBar placeholder="Search for parking spot" />
       </div>
       <div className="mb-8">
         <div className="flex justify-between items-center mt-4">

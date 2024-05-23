@@ -15,7 +15,7 @@ const AdminPanelPage: React.FC = () => {
     return (
         <div className="flex flex-col min-h-screen bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-white p-4 pb-16">
             <div className="sticky top-0 z-50 bg-gray-100 dark:bg-gray-900">
-                <SearchBar />
+                <SearchBar placeholder="Search for parking spot" />
             </div>
             <div className="flex flex-col items-center flex-grow p-4 mb-16">
                 <div className="w-full max-w-md p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md">

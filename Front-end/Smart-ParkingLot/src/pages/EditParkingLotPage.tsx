@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import SearchBar from '../components/SearchBar';
 import Navbar from '../components/Navbar';
 
 const EditParkingLotPage: React.FC = () => {
     const navigate = useNavigate();
-    const { id } = useParams<{ id: string }>();
 
     // Placeholder data, should be replaced with actual data fetch
     const [address, setAddress] = useState('123 Parking Lot St.');
@@ -21,7 +20,7 @@ const EditParkingLotPage: React.FC = () => {
         <div className="min-h-screen flex flex-col bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 pb-16">
             <div className="sticky top-0 z-50 w-full flex justify-center bg-gray-100 dark:bg-gray-900">
                 <div className="w-full max-w-4xl px-4">
-                    <SearchBar />
+                    <SearchBar placeholder="Search for parking spot" />
                 </div>
             </div>
             <div className="flex flex-col items-center flex-grow mt-4 mb-4 px-4">

@@ -25,7 +25,7 @@ const DetailsAdminPage: React.FC = () => {
   return (
     <div className="flex flex-col min-h-screen bg-gray-900 text-gray-100">
       <div className="flex-grow p-4">
-        <SearchBar placeholder={''} />
+        <SearchBar placeholder="Search for parking spot" />
         <div className="mt-4 flex justify-between items-center">
           <div className="flex items-center space-x-4">
             <div className="bg-gray-800 p-4 rounded-full">

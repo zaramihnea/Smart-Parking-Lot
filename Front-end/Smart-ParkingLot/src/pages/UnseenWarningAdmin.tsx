@@ -41,7 +41,7 @@ const UnseenWarningAdmin: React.FC = () => {
   return (
     <div className="flex flex-col min-h-screen bg-gray-900 text-gray-100">
       <div className="flex-grow p-4">
-        <SearchBar placeholder="Search for destination" />
+        <SearchBar placeholder="Search for parking spot" />
         <div className="mt-4 flex justify-between items-center">
           <h1 className="text-2xl font-bold text-red-500">Unread</h1>
           <button
