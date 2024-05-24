@@ -4,47 +4,31 @@ import { useNavigate } from 'react-router-dom';
 import SearchBar from './components/SearchBar';
 import Navbar from './components/Navbar';
 import Map from './components/Map';
-import { useEffect } from 'react';
+import useUsername from "./hooks/useUsername"
+import useSavedCars from "./hooks/useSavedCars"
+
+import { Car } from './types/Car';
 
 const Homepage: React.FC = () => {
   const baseUrl = process.env.API_BASE_URL;
   const navigate = useNavigate();
   const [isMapVisible, setIsMapVisible] = useState(false);
   const [username, setUsername] = useState('username');
+  const [savedCars, setSavedCars] = useState<Car[]>([]);
 
-  // make a request to the backend to get the username
-  useEffect(() => {
-    const cookies = document.cookie.split(';').map(cookie => cookie.split('='));
-    for (const cookie of cookies) {
-      if (cookie[0] && cookie[0].includes('authToken')) {
-        console.log("User is already logged in");
-        fetch(`${baseUrl}/user/username`, {
-          method: 'GET',
-          headers: {
-            'Authorization': `Bearer ${cookie[1]}`,
-          },
-        })
-          .then(response => response.text())
-          .then(data => {
-            console.log(data);
-            setUsername(data);
-          })
-          .catch(error => {
-            console.error('Error:', error);
-          });
-        break;
-      }
-    }
-  }, [baseUrl]);
+  // Set the username on the "Welcome, {username} greet message"
+  useUsername(baseUrl || "", setUsername);
+
+  useSavedCars(baseUrl || "", setSavedCars);
+
+
 
   const toggleMapVisibility = () => {
     setIsMapVisible(!isMapVisible);
   };
 
-  const savedCars = [
-    { brand: 'Volkswagen', model: 'Polo', plate: 'IS16LFK' },
-    { brand: 'Honda', model: 'Civic', plate: 'B16RTJ' },
-  ];
+
+
 
   const reservations = [
     {
@@ -113,7 +97,7 @@ const Homepage: React.FC = () => {
       </div>
       {isMapVisible && (
         <div className="flex justify-center items-center flex-grow mt-4 mb-4 px-4">
-          <div className="w-full max-w-4xl h-96 bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden z-0">
+          <div className="w-full max-w-4xl h-96 bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden z-0 space-y">
             <Map />
           </div>
         </div>

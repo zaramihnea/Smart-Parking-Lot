@@ -21,11 +21,13 @@ public class CarConfig {
             User user2 = userRepository.
                     findByEmail("baciu_elena@gmail.com").orElse(null);
 
-            Car car1 = new Car("B201ABC", 201, "regular", user1);
-            Car car2 = new Car("IS21DEF", 402, "regular", user2);
+            Car car1 = new Car("B201ABC", 201, "Sedan", user2);
+            Car car2 = new Car("IS21DEF", 402, "SUV", user2);
+            Car car3 = new Car("IS21DEF", 402, "Benzinara", user2);
 
             if(!carRepository.exists(Example.of(car1)))carRepository.save(car1);
             if(!carRepository.exists(Example.of(car2)))carRepository.save(car2);
+            if(!carRepository.exists(Example.of(car3)))carRepository.save(car3);
         };
     }
 }
