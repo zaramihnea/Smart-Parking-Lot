@@ -16,16 +16,16 @@ const LoginPage: React.FC = () => {
   const baseUrl = process.env.API_BASE_URL;
 
   
-  useEffect(() => {
-    const cookies = document.cookie.split(';').map(cookie => cookie.split('='));
-    for (const cookie of cookies) {
-      if (cookie[0] && cookie[0].includes('authToken')) {
-        console.log("User is already logged in");
-        navigate('/home');
-        break;
-      }
-    }
-  }, [navigate]); // Add 'navigate' as a dependency
+  // useEffect(() => {
+  //   const cookies = document.cookie.split(';').map(cookie => cookie.split('='));
+  //   for (const cookie of cookies) {
+  //     if (cookie[0] && cookie[0].includes('authToken')) {
+  //       console.log("User is already logged in");
+  //       navigate('/home');
+  //       break;
+  //     }
+  //   }
+  // }, [navigate]); // Add 'navigate' as a dependency
 
 
   const handleLogin = async () => {
