@@ -1,11 +1,8 @@
-import './App.css'
-
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-
-import Homepage from './Homepage'
-import LoginPage from './pages/LoginPage'
-import SignupPage from './pages/SignupPage'
-import ForgotPasswordPage from './pages/ForgotPasswordPage'
+import Homepage from './Homepage';
+import LoginPage from './pages/LoginPage';
+import SignupPage from './pages/SignupPage';
+import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import ProfileAdminPage from './pages/ProfileAdminPage';
 import AdminParkingPage from './pages/AdminParkingPage';
 import AdminPanelPage from './pages/AdminPanelPage';
@@ -16,14 +13,17 @@ import Profiles from './pages/Profiles';
 import Details from './pages/Details';
 import Cars from './pages/Cars';
 import Messages from './pages/Messages';
-import SettingsPage from './pages/SettingsPage'
+import SettingsPage from './pages/SettingsPage';
 import Reserve1 from './pages/reserve1';
 import MapPage from './pages/reserve2';
+import HelpPage from './pages/HelpPage';
+import DetailsAdminPage from './pages/DetailsAdminPage';
+import UnseenWarningAdmin from './pages/UnseenWarningAdmin';
+import SeeAllParkingSpots from './pages/SeeAllParkingSpots';
 import './App.css';
-import HelpPage from './pages/HelpPage'
 
 const App: React.FC = () => {
-    document.title = 'Smart Parking Lot'
+    document.title = 'Smart Parking Lot';
 
     return (
         <Router>
@@ -37,7 +37,7 @@ const App: React.FC = () => {
                 <Route path="/admin-panel" element={<AdminPanelPage />} />
                 <Route path="/admin-panel/add-parking-lot" element={<AddParkingLotPage />} />
                 <Route path="/admin-panel/edit-parking-lot/:id" element={<EditParkingLotPage />} />
-                <Route path='/balance' element={<AccountBalance />} />
+                <Route path="/balance" element={<AccountBalance />} />
                 <Route path="/settings" element={<SettingsPage />} />
                 <Route path="/profiles" element={<Profiles />} />
                 <Route path="/profiles/messages" element={<Messages />} />
@@ -48,9 +48,12 @@ const App: React.FC = () => {
                 <Route path="/home/reserve1" element={<Reserve1 />} />
                 <Route path="/home/reserve1/reserve2" element={<MapPage />} />
                 <Route path="/help" element={<HelpPage />} />
+                <Route path="/details-admin" element={<DetailsAdminPage />} />
+                <Route path="/unseen-warning-admin" element={<UnseenWarningAdmin />} />
+                <Route path="/see-all-parking-spots" element={<SeeAllParkingSpots />} />
             </Routes>
         </Router>
-    )
-}
+    );
+};
 
 export default App;

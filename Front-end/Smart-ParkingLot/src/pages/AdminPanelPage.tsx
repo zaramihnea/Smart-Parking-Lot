@@ -44,6 +44,12 @@ const AdminPanelPage: React.FC = () => {
                         >
                             Add Parking Lot
                         </button>
+                        <button
+                            onClick={() => navigate('/see-all-parking-spots')}
+                            className="w-full px-4 py-2 bg-gray-300 dark:bg-gray-700 text-gray-900 dark:text-white font-bold rounded-lg shadow-md hover:bg-gray-400 dark:hover:bg-gray-600 transition duration-300"
+                        >
+                            See All Parking Spots
+                        </button>
                     </div>
                 </div>
             </div>

@@ -10,6 +10,10 @@ const AdminParkingPage: React.FC = () => {
         navigate('/');
     };
 
+    const handleUnseenWarnings = () => {
+        navigate('/unseen-warning-admin');
+    };
+
     return (
         <div className="flex flex-col min-h-screen bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-white">
             <div className="flex-grow p-4">
@@ -31,6 +35,12 @@ const AdminParkingPage: React.FC = () => {
                             onClick={() => navigate('/admin-panel')}
                         >
                             Admin Panel
+                        </button>
+                        <button
+                            onClick={handleUnseenWarnings}
+                            className="w-full px-4 py-2 bg-gray-300 dark:bg-gray-700 text-gray-900 dark:text-white font-bold rounded-lg shadow-md hover:bg-gray-400 dark:hover:bg-gray-600 transition duration-300"
+                        >
+                            Unseen Warnings
                         </button>
                         <button
                             onClick={handleLogout}

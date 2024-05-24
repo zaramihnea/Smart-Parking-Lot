@@ -69,7 +69,7 @@ const SeeAllParkingSpots: React.FC = () => {
         <div className="mt-4 flex justify-between items-center">
           <h1 className="text-2xl font-bold text-purple-500">All Parking Spaces</h1>
           <button
-            onClick={() => navigate('/profileadminpage')} // Navigate back to the profile admin page
+            onClick={() => navigate('/admin-panel')} // Navigate back to the profile admin page
             className="px-4 py-2 bg-purple-600 text-white font-bold rounded-lg shadow-md hover:bg-purple-700 transition duration-300"
           >
             Back
