@@ -21,6 +21,8 @@ import DetailsAdminPage from './pages/DetailsAdminPage';
 import UnseenWarningAdmin from './pages/UnseenWarningAdmin';
 import SeeAllParkingSpots from './pages/SeeAllParkingSpots';
 import './App.css';
+import LoadingPage from './pages/LoadingPage';
+import ResultsPage from './pages/ResultsPage';
 
 const App: React.FC = () => {
     document.title = 'Smart Parking Lot';
@@ -51,6 +53,8 @@ const App: React.FC = () => {
                 <Route path="/details-admin" element={<DetailsAdminPage />} />
                 <Route path="/unseen-warning-admin" element={<UnseenWarningAdmin />} />
                 <Route path="/see-all-parking-spots" element={<SeeAllParkingSpots />} />
+                <Route path="/loading" element={<LoadingPage />} />
+                <Route path="/results" element={<ResultsPage />} />
             </Routes>
         </Router>
     );
