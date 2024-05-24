@@ -105,10 +105,10 @@ public class FunctionsAndTriggersConfig {
                         "\tp_start_time TIMESTAMP, \n" +
                         "\tp_stop_time TIMESTAMP\n" +
                         ")\n" +
-                        "RETURNS TABLE(id bigint, parking_lot_id bigint) AS $$\n" +
+                        "RETURNS TABLE(id bigint, parking_lot_id bigint, plate VARCHAR, status VARCHAR) AS $$\n" +
                         "BEGIN\n" +
                         "    RETURN QUERY \n" +
-                        "    SELECT ps.id, ps.parking_lot_id\n" +
+                        "    SELECT ps.id, ps.parking_lot_id, ps.plate, ps.status\n" +
                         "    FROM parking_spots ps\n" +
                         "    WHERE NOT EXISTS (\n" +
                         "        SELECT 1 FROM reservations r\n" +
