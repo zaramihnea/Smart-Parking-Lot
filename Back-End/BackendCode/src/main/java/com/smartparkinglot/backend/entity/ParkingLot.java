@@ -1,5 +1,6 @@
 package com.smartparkinglot.backend.entity;
 
+import com.smartparkinglot.backend.service.GeocodingService;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -40,9 +41,10 @@ public class ParkingLot {
     public ParkingLot() {
     }
 
-    public ParkingLot(Long id, User user, Integer nrSpots, Float price, BigDecimal latitude, BigDecimal longitude) {
+    public ParkingLot(Long id, User user, String name, Integer nrSpots, Float price, BigDecimal latitude, BigDecimal longitude) {
         this.id = id;
         this.user = user;
+        this.name = name;
         this.nrSpots = nrSpots;
         this.price = price;
         this.latitude = latitude;
@@ -90,5 +92,12 @@ public class ParkingLot {
 
     public User getUser() {
         return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+    public String getName() {
+        return name;
     }
 }

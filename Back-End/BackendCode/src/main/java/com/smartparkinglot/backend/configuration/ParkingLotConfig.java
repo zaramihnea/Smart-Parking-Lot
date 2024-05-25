@@ -7,8 +7,11 @@ import com.google.maps.model.PlacesSearchResponse;
 import com.google.maps.model.PlacesSearchResult;
 import com.smartparkinglot.backend.entity.ParkingLot;
 import com.smartparkinglot.backend.entity.ParkingSpot;
+import com.smartparkinglot.backend.entity.User;
 import com.smartparkinglot.backend.repository.ParkingLotRepository;
 import com.smartparkinglot.backend.repository.ParkingSpotRepository;
+import com.smartparkinglot.backend.repository.UserRepository;
+import com.smartparkinglot.backend.service.UserService;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,7 +26,7 @@ import java.util.List;
 @Configuration
 public class ParkingLotConfig {
     @Bean
-    CommandLineRunner parkingLotCommandLineRunner(ParkingLotRepository parkingLotRepository, ParkingSpotRepository parkingSpotRepository) {
+    CommandLineRunner parkingLotCommandLineRunner(ParkingLotRepository parkingLotRepository, ParkingSpotRepository parkingSpotRepository, UserService userService) {
         return args -> {
             GeoApiContext context = new GeoApiContext.Builder()
                     .apiKey("AIzaSyCQnveA3osqanDT7SHtzkVYXyOypc__sKk")
@@ -49,7 +52,7 @@ public class ParkingLotConfig {
 
                     locationIndex++;
                     // Process first page of results
-                    addToDatabase(response, parkingLotRepository, parkingSpotRepository);
+                    addToDatabase(response, parkingLotRepository, parkingSpotRepository, userService);
 
                     // UNCOMMENT IN PRODUCTION
 //                    // Handling pagination
@@ -66,21 +69,26 @@ public class ParkingLotConfig {
     }
 
 
-    private static void addToDatabase(PlacesSearchResponse response, ParkingLotRepository parkingLotRepository, ParkingSpotRepository parkingSpotRepository) {
+    private static void addToDatabase(PlacesSearchResponse response, ParkingLotRepository parkingLotRepository, ParkingSpotRepository parkingSpotRepository, UserService userService) {
         for (PlacesSearchResult result : response.results) {
             Random rand = new Random();
-            long nrOfSpots = rand.nextInt(10, 30);
-            long price = rand.nextInt(2, 10);
-            /*
-            if(!parkingLotRepository.existsById(result.name)) {
-                ParkingLot parkingLotToSave = new ParkingLot(result.name, nrOfSpots, price, new BigDecimal(result.geometry.location.lat), new BigDecimal(result.geometry.location.lng));
-                parkingLotRepository.save(parkingLotToSave);
+            Integer nrOfSpots = rand.nextInt(10, 30);
+            Float price = rand.nextFloat(2, 10);
 
-                for(int i = 0; i < nrOfSpots; i++) {
-                    ParkingSpot spotForThisParkingLot = new ParkingSpot(parkingLotToSave);
-                    parkingSpotRepository.save(spotForThisParkingLot);
-                }
-            }*/
+            User admin = userService.getUserByEmail("baciu_elena@gmail.com");
+
+            if(admin == null) {
+                return;
+            }
+
+            ParkingLot parkingLotToSave = new ParkingLot(userService.getUserByEmail("baciu_elena@gmail.com"), result.name, nrOfSpots, price, new BigDecimal(result.geometry.location.lat), new BigDecimal(result.geometry.location.lng));
+            parkingLotRepository.save(parkingLotToSave);
+
+            for(int i = 0; i < nrOfSpots; i++) {
+                ParkingSpot spotForThisParkingLot = new ParkingSpot(parkingLotToSave);
+                parkingSpotRepository.save(spotForThisParkingLot);
+            }
+
         }
     }
 }

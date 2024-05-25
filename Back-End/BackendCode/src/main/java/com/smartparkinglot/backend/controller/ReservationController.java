@@ -1,6 +1,5 @@
 package com.smartparkinglot.backend.controller;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.smartparkinglot.backend.entity.*;
 import com.smartparkinglot.backend.service.*;
 import lombok.AllArgsConstructor;
@@ -8,15 +7,14 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
-import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/reservation")
@@ -24,16 +22,19 @@ public class ReservationController {
     private final ReservationService reservationService;
     private final TokenService tokenService;
     private final ParkingSpotService parkingSpotService;
+
+    private final ParkingLotService parkingLotService;
     private final CarService carService;
     private final UserService userService;
 
     @Autowired
-    public ReservationController(ReservationService reservationService, TokenService tokenService, ParkingSpotService parkingSpotService, UserService userService, CarService carService) {
+    public ReservationController(ReservationService reservationService, TokenService tokenService, ParkingSpotService parkingSpotService, UserService userService, ParkingLotService parkingLotService, CarService carService) {
         this.reservationService = reservationService;
         this.tokenService = tokenService;
         this.parkingSpotService = parkingSpotService;
         this.carService = carService;
         this.userService = userService;
+        this.parkingLotService = parkingLotService;
     }
     @GetMapping("get-own-active-reservations")
     public ResponseEntity<?> getOwnReservations(@RequestHeader("Authorization") String authorizationHeader) {
@@ -84,7 +85,7 @@ public class ReservationController {
             if(parkingSpotService.checkParkingSpotAvailability(reservationRequest.spotID, startTimestamp, endTimestamp)) {
                 int reservationCost = parkingSpotService.calculateReservationCost(startTimestamp, endTimestamp, reservationRequest.spotID);
                 if(reservationCost < userAuthorized.getBalance()) {
-                    Car userCar = new Car(carService.getPlateById(reservationRequest.carId), reservationRequest.carCapacity, reservationRequest.carType, userAuthorized);
+                    Car userCar = new Car(reservationRequest.carPlate, reservationRequest.carCapacity, reservationRequest.carType, userAuthorized);
                     carService.addNewCar(userCar);
                     return reservationService.createReservation(userAuthorized, reservationRequest.spotID, startTimestamp, endTimestamp, reservationCost, userCar);
                 }
@@ -102,13 +103,33 @@ public class ReservationController {
         }
     }
 
+    @GetMapping("get-own-active-reservations-with-name")
+    public ResponseEntity<?> getOwnReservationsWithAdress(@RequestHeader("Authorization") String authorizationHeader) {
+        String token = authorizationHeader.substring(7);// Assuming the scheme is "Bearer "
+        if(tokenService.validateToken(token)) {
+            User userAuthorized = tokenService.getUserByToken(token);
+
+            List<ParkingLot> parkingLots = parkingLotService.getAllParkingLots();
+
+            return ResponseEntity.ok().body(reservationService.getOwnActiveReservations(userAuthorized.getEmail()).stream().map(reservation -> {
+                return new ReservationDetailsWithName(reservation.getId(), reservation.getCar_id().getId(), reservation.getParkingSpot().getId(), reservation.getStartTime(), reservation.getStopTime(), reservation.getStatus(), parkingLots.stream().filter(parkingLot -> {
+                    List<ParkingSpot> parkingSpots = parkingSpotService.getParkingSpotsByParkingLot(parkingLot);
+                    return parkingSpots.stream().anyMatch(parkingSpot -> Objects.equals(parkingSpot.getId(), reservation.getParkingSpot().getId()));
+                }).findFirst().get().getName());
+            }));
+        }
+        else {
+            return ResponseEntity.badRequest().body("Authentication token invalid. Protected resource could not be accessed");
+        }
+    }
+
     @Getter @Setter
     @AllArgsConstructor
     public static class ReservationRequest {
         private Long spotID;
         private String startTime;
         private String endTime;
-        private Long carId;
+        private String carPlate;
         private int carCapacity;
         private String carType;
     }
@@ -122,5 +143,17 @@ public class ReservationController {
         private Timestamp start_time;
         private Timestamp stop_time;
         private String status;
+    }
+
+    @Getter @Setter
+    @AllArgsConstructor
+    public static class ReservationDetailsWithName {
+        private Long id;
+        private Long car_id;
+        private Long parking_spot_id;
+        private Timestamp start_time;
+        private Timestamp stop_time;
+        private String status;
+        private String name;
     }
 }

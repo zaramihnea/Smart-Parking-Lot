@@ -1,38 +1,48 @@
-import { useEffect } from "react";
+import { useCallback } from "react";
 import { Car } from "../types/Car";
 
-export default function useSavedCars(baseUrl: string, setSavedCars: React.Dispatch<React.SetStateAction<{ brand: string; model: string; plate: string; }[]>>) {
-  useEffect(() => {
-    const cookies = document.cookie.split(';').map(cookie => cookie.split('='));
-    for (const cookie of cookies) {
-      if (cookie[0] && cookie[0].includes('authToken')) {
-        console.log("User is logged in");
-        fetch(`${baseUrl}/car/user-cars`, {
-          method: 'GET',
-          headers: {
-            'Authorization': `Bearer ${cookie[1]}`,
-          },
-        })
-          .then(response => response.json())
-          .then(data => {
-            console.log(data);
-            const car: Car[] = [];
-            for (const carData of data) {
-              car.push(
-                {
-                  brand:"",
-                  model: carData.type,
-                  plate: carData.plate
-                }
-              )
-            }
-            setSavedCars(car);
-          })
-          .catch(error => {
-            console.error('Error:', error);
-          });
-        break;
-      }
+export default function useSavedCars() {
+  const getUserCars = useCallback((baseUrl: string): Promise<Car[]> => {
+    const cookies = document.cookie.split(';').map(cookie => cookie.trim().split('='));
+    const authToken = cookies.find(cookie => cookie[0].includes('authToken'));
+
+    if (!authToken) {
+      // Ensure that we return a Promise even if there is no auth token
+      return Promise.resolve([]);
     }
-  }, [baseUrl, setSavedCars]);
+
+    return fetch(`${baseUrl}/car/user-cars`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${authToken[1]}`,
+      },
+    })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      return response.json();
+    })
+    .then(data => {
+      const cars: Car[] = [];
+      for (const carData of data) {
+        cars.push(
+          {
+            id: carData.car_id,
+            model: carData.type,
+            plate: carData.plate
+          }
+        )
+      }
+      return cars;
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      // Even in case of error, we return a consistent type: an empty array inside a Promise
+      return [];
+    });
+  }, []);
+
+  return { getUserCars };
 }
+
