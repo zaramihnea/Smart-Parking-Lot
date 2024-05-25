@@ -1,42 +1,40 @@
-import { useEffect } from "react";
+import { useCallback } from "react";
 
-export default function useUsername(baseUrl : string, setUsername :React.Dispatch<React.SetStateAction<string>>) {
-  useEffect(() => {
+export default function useUsername() {
+  const getUsername = useCallback((baseUrl: string): Promise<string> => {
     const cookies = document.cookie.split(';').map(cookie => cookie.split('='));
-    let username = "user that is not logged in";
+    const username = "user that is not logged in";
     let authToken = "";
     for (const cookie of cookies) {
       if (cookie[0] && cookie[0].includes('authToken')) {
         authToken = cookie[1];
       }
     }
-    if (authToken) {
-      fetch(`${baseUrl}/user/username`, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${authToken}`,
-        },
-      })
-      .then(response => {
-        if(response.status !== 200) {
-          return;
-        }
-        else {
-          return response.text();
-        }
-      })
-      .then(data => {
-        console.log(data);
-        username = data || "user that is not logged in";
-        setUsername(username);
-      })
-      .catch(error => {
-        console.error('Error:', error);
-      });
-    }
-    else {
-      setUsername(username);
+
+    if(!authToken) {
+      return Promise.resolve(username);
     }
 
-  }, [baseUrl, setUsername]);
+    return fetch(`${baseUrl}/user/username`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${authToken}`,
+      },
+    })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      return response.text();
+    })
+    .then(data => {
+      return data;
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      return username;
+    });
+  }, []);
+
+  return { getUsername };
 }

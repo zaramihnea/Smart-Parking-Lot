@@ -1,8 +1,8 @@
 import { useCallback } from "react";
-import { Car } from "../types/Car";
+import { Reservation } from "../types/Reservation";
 
-export default function useSavedCars() {
-  const getUserCars = useCallback((baseUrl: string): Promise<Car[]> => {
+export default function useReservations() {
+  const getOwnActiveReservations = useCallback((baseUrl: string): Promise<Reservation[]> => {
     const cookies = document.cookie.split(';').map(cookie => cookie.trim().split('='));
     const authToken = cookies.find(cookie => cookie[0].includes('authToken'));
 
@@ -11,7 +11,7 @@ export default function useSavedCars() {
       return Promise.resolve([]);
     }
 
-    return fetch(`${baseUrl}/car/user-cars`, {
+    return fetch(`${baseUrl}/reservation/get-own-active-reservations-with-name`, {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${authToken[1]}`,
@@ -24,17 +24,22 @@ export default function useSavedCars() {
       return response.json();
     })
     .then(data => {
-      const cars: Car[] = [];
-      for (const carData of data) {
-        cars.push(
+      const reservations: Reservation[] = [];
+      for (const reservationData of data) {
+        reservations.push(
           {
-            id: carData.id,
-            model: carData.type,
-            plate: carData.plate
+            id: reservationData.id,
+            address: reservationData.name,
+            spot_id: reservationData.parking_spot_id,
+            start_date: reservationData.start_time,
+            end_date: reservationData.stop_time,
+            car_id: reservationData.car_id,
+            latitude: reservationData.latitude,
+            longitude: reservationData.longitude,
           }
         )
       }
-      return cars;
+      return reservations;
     })
     .catch(error => {
       console.error('Error:', error);
@@ -43,6 +48,5 @@ export default function useSavedCars() {
     });
   }, []);
 
-  return { getUserCars };
+  return { getOwnActiveReservations };
 }
-

@@ -35,7 +35,7 @@ const Reserve1: React.FC = () => {
           </div>
           <button
             className="bg-purple-600 text-white font-bold py-2 px-4 rounded-lg shadow-lg mt-4 hover:bg-purple-700 transition duration-300"
-            onClick={handleReserve}
+            onClick={() => {handleReserve; navigate('/home/reserve1/reserve2')}}
           >
             Reserve Now
           </button>

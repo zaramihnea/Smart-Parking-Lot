@@ -1,5 +1,6 @@
 import React, { FormEvent } from "react";
 import { useImmer } from "use-immer";
+import { useNavigate } from "react-router-dom";
 
 interface SearchBarProps {
   placeholder: string;
@@ -7,6 +8,7 @@ interface SearchBarProps {
 
 const SearchBar: React.FC<SearchBarProps> = ({ placeholder }) => {
   const [input, setInput] = useImmer("");
+  const navigate = useNavigate();
 
   const handleChangeInput = (value: string) => {
     setInput(value);
@@ -15,6 +17,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ placeholder }) => {
   const handleSubmit = (event: FormEvent) => {
     event.preventDefault();
     console.log(input);
+    navigate("/loading");
   };
 
   return (

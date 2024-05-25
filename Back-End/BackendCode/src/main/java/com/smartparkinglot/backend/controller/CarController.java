@@ -1,5 +1,6 @@
 package com.smartparkinglot.backend.controller;
 
+import com.smartparkinglot.backend.DTO.CarDTO;
 import com.smartparkinglot.backend.entity.Car;
 import com.smartparkinglot.backend.entity.ParkingLot;
 import com.smartparkinglot.backend.entity.User;
@@ -34,7 +35,7 @@ public class CarController {
             User userAuthorized = tokenService.getUserByToken(token);
 
             return ResponseEntity.ok().body(carService.getCarsByUser(userAuthorized).stream().map(car -> {
-                return new CarDetails(car.getPlate(), car.getCapacity(), car.getType());
+                return new CarDTO(car.getId(), car.getPlate(), car.getCapacity(), car.getType());
             }));
         }
         else {

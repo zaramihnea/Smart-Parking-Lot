@@ -5,18 +5,14 @@ import Map from '../components/Map';
 
 const MapPage: React.FC = () => {
     return (
-        <div className="min-h-screen flex flex-col bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 pb-16">
-            <div className="sticky top-0 z-50 w-full flex justify-center bg-gray-100 dark:bg-gray-900">
-                <div className="w-full max-w-4xl px-4">
-                    <SearchBar placeholder="Search for parking spot" />
-                </div>
+        <div className="relative h-screen w-full">
+            <div className="fixed top-0 left-0 w-full z-50">
+                <SearchBar placeholder="Search for parking spot" />
             </div>
-            <div className="flex justify-center items-center flex-grow mt-4 mb-4 px-4">
-                <div className="w-full max-w-4xl h-96 bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
-                    <Map />
-                </div>
+            <div className="absolute h-screen w-full z-0">
+                <Map />
             </div>
-            <div className="sticky bottom-0 z-50 w-full">
+            <div className="fixed bottom-0 left-0 w-full z-50">
                 <Navbar />
             </div>
         </div>
