@@ -1,7 +1,7 @@
 package com.smartparkinglot.backend.controller;
 
 import com.smartparkinglot.backend.DTO.PaymentDetailsDTO;
-import com.smartparkinglot.backend.DTO.PaymentIntentDTO;
+import com.smartparkinglot.backend.DTO.TransactionDTO;
 import com.smartparkinglot.backend.DTO.PaymentResponseDTO;
 import com.smartparkinglot.backend.service.PaymentService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +21,7 @@ public class StripeAPIController {
     }
 
 
-    @PostMapping("/")
+    @PostMapping("/create-payment-intent")
     public ResponseEntity<PaymentResponseDTO> createPaymentIntent(@RequestBody PaymentDetailsDTO paymentRequest) {
         PaymentResponseDTO response = paymentService.createPaymentIntent(paymentRequest);
         return ResponseEntity.ok(response);
@@ -42,7 +42,7 @@ public class StripeAPIController {
     @GetMapping("/get-transactions-history")
     public ResponseEntity<?> getCustomerTransactionsHistory(@RequestParam("email") String customerEmail) {
         try {
-            List<PaymentIntentDTO> transactions = paymentService.getTransactionsHistory(customerEmail);
+            List<TransactionDTO> transactions = paymentService.getTransactionsHistory(customerEmail);
             return ResponseEntity.ok(transactions);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -50,9 +50,21 @@ public class StripeAPIController {
         }
     }
 
-    @PostMapping("/create-customer-balance-transaction")//for paying for a parking spot with their current balance should have a negative value
-    public ResponseEntity<?> createCustomerTransaction(@RequestBody PaymentDetailsDTO paymentDetails) {
-        String response = paymentService.createCustomerBalanceTransaction(paymentDetails.getUserEmail(), paymentDetails.getAmount());
+    @PostMapping("/refund-balance-transaction")
+    public ResponseEntity<?> refundBalanceTransaction(@RequestParam("transactionId") String transactionId, @RequestParam("email") String email) {
+        String response = paymentService.refundCustomerBalanceTransaction(transactionId, email);
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/pay-for-parking-spot")
+    public ResponseEntity<?> payForParkingSpot(@RequestBody PaymentDetailsDTO paymentDetails) {
+        String response = paymentService.payForParkingSpot(paymentDetails.getEmail(), paymentDetails.getAmount());
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/refund-charge")
+    public ResponseEntity<?> refundCharge(@RequestParam("chargeId") String id, @RequestParam("email") String email) {
+        String response = paymentService.createCardPaymentRefund(id, email);
         return ResponseEntity.ok(response);
     }
 

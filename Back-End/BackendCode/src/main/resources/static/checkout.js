@@ -17,11 +17,21 @@ function initialize(clientSecret) {
 
 async function fetchAndInitialize() {
     try {
+        const urlParams = new URLSearchParams(window.location.search);
+        const email = urlParams.get('email');
+        const amount = parseFloat(urlParams.get('amount'));
+
+        if (!email || isNaN(amount)) {
+            throw new Error("Missing or invalid email or amount in URL");
+        }
+
+        document.querySelector("#button-text").textContent = `Pay now (${amount.toFixed(2)} RON)`;
+
         const paymentDetails = {
-            userEmail: 'amihaesiisimona5@gmail.com',
-            amount: 10
+            email: email,
+            amount: amount
         };
-        const response = await fetch('/', {
+        const response = await fetch('/create-payment-intent', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
