@@ -1,11 +1,13 @@
 package com.smartparkinglot.backend.configuration;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.annotation.Order;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 import javax.annotation.PostConstruct;
 import java.util.List;
 
 @Component
+@Order(2)
 public class FunctionsAndTriggersConfig {
     @Autowired
     private JdbcTemplate jdbcTemplate;

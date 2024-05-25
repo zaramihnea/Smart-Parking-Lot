@@ -22,6 +22,7 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
+    @Transactional
     public User saveUser(User user){
         return userRepository.save(user);
     }

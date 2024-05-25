@@ -15,6 +15,7 @@ import com.smartparkinglot.backend.service.UserService;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.data.domain.Example;
 import java.util.Random;
 
@@ -24,6 +25,7 @@ import java.util.List;
 
 
 @Configuration
+@Order(5)
 public class ParkingLotConfig {
     @Bean
     CommandLineRunner parkingLotCommandLineRunner(ParkingLotRepository parkingLotRepository, ParkingSpotRepository parkingSpotRepository, UserService userService) {
