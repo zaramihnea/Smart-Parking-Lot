@@ -10,6 +10,7 @@ import useReservations from "./hooks/useReservations"
 import { Car } from './types/Car';
 import { Reservation } from './types/Reservation';
 import useSavedCars from './hooks/useSavedCars';
+import useParkingLots from './hooks/useParkingLots';
 
 const Homepage: React.FC = () => {
   const baseUrl = process.env.API_BASE_URL;
@@ -22,6 +23,7 @@ const Homepage: React.FC = () => {
   const [reservations, setReservations] = useState<Reservation[]>([]);
 
   const { getUsername } = useUsername();
+  const { getUserCars } = useSavedCars();
   const { getOwnActiveReservations } = useReservations();
   
   // Fetch username
@@ -31,7 +33,6 @@ const Homepage: React.FC = () => {
     });
   }, [baseUrlString, getUsername]); // Dependencies
   
-  const { getUserCars } = useSavedCars();
   // Fetch saved cars using getUserCars to show the cars on the homepage
   useEffect(() => {
     getUserCars(baseUrlString).then((cars) => {
@@ -50,25 +51,21 @@ const Homepage: React.FC = () => {
     });
   }, [baseUrlString, getOwnActiveReservations]); // Dependencies
 
-  // const reservations = [
-  //   {
-  //     googleSearch: 'Parcare Palas Mall',
-  //     address: 'Strada Palas, Iași, Romania',
-  //     spot: '2A',
-  //     startTime: '2024-05-21T09:00',
-  //     endTime: '2024-05-21T11:00',
-  //     plate: 'IS16LFK',
-  //   },
-  //   {
-  //     googleSearch: 'Parcare Iulius Mall',
-  //     address: 'Iași 700259, Romania',
-  //     spot: '3G',
-  //     startTime: '2024-05-21T14:00',
-  //     endTime: '2024-05-21T16:00',
-  //     plate: 'B16RTJ',
-  //   },
-  // ];
+  const { getParkingLotsAndClosestLot } = useParkingLots();
 
+  // Fetch parking lots
+  useEffect(() => {
+    const radius = 1000;
+    const latitude = 47.1741024;
+    const longitude = 27.5724613;
+    const startTime = '2024-05-24T12:00:00Z';
+    const stopTime = '2024-05-27T23:00:00Z';
+
+    getParkingLotsAndClosestLot(baseUrlString, radius, latitude, longitude, startTime, stopTime).then((parkingLots) => {
+      console.log(parkingLots.parkingLots);
+      console.log(parkingLots.closestLot);
+    });
+  }, [baseUrlString, getParkingLotsAndClosestLot]);
 
 
   return (
