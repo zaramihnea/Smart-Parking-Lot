@@ -1,5 +1,5 @@
 // src/pages/Homepage.tsx
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import SearchBar from './components/SearchBar';
 import Navbar from './components/Navbar';
@@ -11,17 +11,30 @@ import { Car } from './types/Car';
 
 const Homepage: React.FC = () => {
   const baseUrl = process.env.API_BASE_URL;
+
+  const [baseUrlString]= useState<string>(baseUrl || 'http://localhost:8081');
   const navigate = useNavigate();
   const [isMapVisible, setIsMapVisible] = useState(false);
   const [username, setUsername] = useState('username');
   const [savedCars, setSavedCars] = useState<Car[]>([]);
 
-  // Set the username on the "Welcome, {username} greet message"
-  useUsername(baseUrl || "", setUsername);
+  const { getUsername } = useUsername();
+  const { getUserCars } = useSavedCars();
+  // const { getReservations } = useReservations();
 
-  useSavedCars(baseUrl || "", setSavedCars);
+  // Fetch username
+  useEffect(() => {
+    getUsername(baseUrlString).then((name) => {
+      setUsername(name);
+    });
+  }, [baseUrlString, getUsername]); // Dependencies
 
-
+  // Fetch saved cars
+  useEffect(() => {
+    getUserCars(baseUrlString).then((cars) => {
+      setSavedCars(cars);
+    });
+  }, [baseUrlString, getUserCars]); // Dependencies
 
   const toggleMapVisibility = () => {
     setIsMapVisible(!isMapVisible);
@@ -108,7 +121,7 @@ const Homepage: React.FC = () => {
           {savedCars.map((car, index) => (
             <div key={index} className="flex items-center justify-between bg-gray-200 dark:bg-gray-700 p-3 rounded-lg mb-2">
               <div>
-                <p className="font-semibold">{car.brand} {car.model}</p>
+                <p className="font-semibold">{car.model}</p>
                 <p className="text-sm">{car.plate}</p>
               </div>
             </div>

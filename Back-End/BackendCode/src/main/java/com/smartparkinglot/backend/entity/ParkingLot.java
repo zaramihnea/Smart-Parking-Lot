@@ -1,5 +1,6 @@
 package com.smartparkinglot.backend.entity;
 
+import com.smartparkinglot.backend.service.GeocodingService;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -91,5 +92,12 @@ public class ParkingLot {
 
     public User getUser() {
         return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+    public String getName() {
+        return name;
     }
 }

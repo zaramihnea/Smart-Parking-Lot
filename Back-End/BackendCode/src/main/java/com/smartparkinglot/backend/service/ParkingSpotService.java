@@ -54,4 +54,8 @@ public class ParkingSpotService {
     public void updateParkingSpot(ParkingSpot parkingSpot) {
         parkingSpotRepository.save(parkingSpot);
     }
+
+    public List<ParkingSpot> getParkingSpotsByParkingLot(ParkingLot parkingLot) {
+        return parkingSpotRepository.getParkingSpotsByParkingLot(parkingLot).orElse(null);
+    }
 }
