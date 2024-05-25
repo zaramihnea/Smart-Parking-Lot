@@ -28,7 +28,7 @@ export default function useSavedCars() {
       for (const carData of data) {
         cars.push(
           {
-            id: carData.car_id,
+            id: carData.id,
             model: carData.type,
             plate: carData.plate
           }
