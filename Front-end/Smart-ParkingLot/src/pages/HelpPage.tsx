@@ -62,7 +62,7 @@ const MainView: React.FC<{ setView: (view: string) => void }> = ({ setView }) =>
                 className="w-full p-2 bg-gray-200 dark:bg-gray-600 rounded-lg shadow-inner"
             />
             <button className="mt-2 w-full flex justify-center items-center bg-purple-600 text-white p-2 rounded-lg shadow-md">
-                <span className="material-icons">send</span>
+                <span className="material-icons">Send</span>
             </button>
         </div>
     </>
