@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 
 // some user
 // baciu_elena@gmail.com 84732saf
@@ -9,6 +11,7 @@ const LoginPage: React.FC = () => {
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false); // Stare pentru a afișa parola
 
   const [loginErrorPopup, setloginErrorPopup] = useState(false);
   const [emailErrorPopup, setemailErrorPopup] = useState(false);
@@ -25,7 +28,6 @@ const LoginPage: React.FC = () => {
   //     }
   //   }
   // }, [navigate]); // Add 'navigate' as a dependency
-
 
   const handleLogin = async () => {
     if (isValidEmail(email)) {
@@ -85,7 +87,6 @@ const LoginPage: React.FC = () => {
     return emailRegex.test(email);
   };
 
-
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-100 dark:bg-gray-900">
       <div className="relative">
@@ -100,13 +101,22 @@ const LoginPage: React.FC = () => {
             className="w-full max-w-xs px-4 py-2 mb-4 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:border-purple-500"
           />
           {emailErrorPopup && <p className="text-red-500 text-sm mb-4">Email is invalid!</p>}
-          <input
-            type="password"
-            placeholder="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="w-full max-w-xs px-4 py-2 mb-4 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:border-purple-500"
-          />
+          <div className="relative w-full max-w-xs">
+            <input
+              type={showPassword ? "text" : "password"}
+              placeholder="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full px-4 py-2 mb-4 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:border-purple-500"
+            />
+            <button
+              type="button"
+              className="absolute right-2 top-2 text-gray-600 dark:text-gray-400"
+              onClick={() => setShowPassword(!showPassword)}
+            >
+              <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
+            </button>
+          </div>
           {loginErrorPopup && <p className="text-red-500 text-sm mb-4">Please fill in all fields</p>}
           {errorMessage && <div className="text-red-500 mt-4">{errorMessage}</div>} {/* Display the error message */}
           <button

@@ -4,6 +4,11 @@
     "description": "A smart parking lot application.",
     "icons": [
       {
+        "src": "icons/logo64.png",
+        "sizes": "64x64",
+        "type": "image/png"
+      },
+      {
         "src": "icons/logo128.png",
         "sizes": "128x128",
         "type": "image/png"
