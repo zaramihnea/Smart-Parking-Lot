@@ -5,7 +5,7 @@ import os from 'os';
 
 // Set API base URL based on OS type ( Use the IP adress of the EC2 Instance or localhost)
 const apiBaseUrl = os.type() === 'Linux' ? 'http://192.168.1.100:8081' : 'http://localhost:8081';
-
+const REACT_APP_GOOGLE_MAPS_API_KEY = 'AIzaSyC0c45KPuqZ2kVQcNWU89SLAj0m7DhKQ-A';
 
 export default defineConfig({
   plugins: [
@@ -34,5 +34,6 @@ export default defineConfig({
   ],
   define: {
     'process.env.API_BASE_URL': JSON.stringify(apiBaseUrl),
+    'process.env.REACT_APP_GOOGLE_MAPS_API_KEY': JSON.stringify(REACT_APP_GOOGLE_MAPS_API_KEY),
   }
 });
