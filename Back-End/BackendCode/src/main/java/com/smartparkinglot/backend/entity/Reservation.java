@@ -1,5 +1,6 @@
 package com.smartparkinglot.backend.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -29,9 +30,11 @@ public class Reservation {
     private ParkingSpot parkingSpot;
 
     @Column(name = "start_time")
+    @JsonFormat(pattern="dd-MM-yyyy HH:mm:ss")
     private Timestamp startTime;
 
     @Column(name = "stop_time")
+    @JsonFormat(pattern="dd-MM-yyyy HH:mm:ss")
     private Timestamp stopTime;
 
     @Column(name = "status", length = 15)

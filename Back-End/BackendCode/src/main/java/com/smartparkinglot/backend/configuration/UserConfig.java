@@ -5,6 +5,7 @@ import com.smartparkinglot.backend.repository.UserRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.data.domain.Example;
 
 import java.util.Date;
@@ -16,6 +17,7 @@ public class UserConfig {
     //las comentariu ca sa nu mai fie adaugate o data
 
     @Bean
+    @Order(4)
     CommandLineRunner commandLineRunner(UserRepository userRepository){
         return args -> {
             User user1 = new User(

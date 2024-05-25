@@ -5,4 +5,6 @@ export interface Reservation {
   end_date: string;
   spot_id: number;
   address: string;
+  longitude: number;
+  latitude: number;
 }

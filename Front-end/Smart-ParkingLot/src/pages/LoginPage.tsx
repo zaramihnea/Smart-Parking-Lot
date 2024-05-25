@@ -15,7 +15,6 @@ const LoginPage: React.FC = () => {
   const [errorMessage, setUIErrorMessage] = useState('');
   const baseUrl = process.env.API_BASE_URL;
 
-  
   // useEffect(() => {
   //   const cookies = document.cookie.split(';').map(cookie => cookie.split('='));
   //   for (const cookie of cookies) {
