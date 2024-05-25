@@ -1,7 +1,7 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import loadingGif from '../assets/animation.gif'; 
+import loadingGif from '../assets/animation.gif';
 
 export default function LoadingPage() {
   const navigate = useNavigate();
@@ -19,7 +19,7 @@ export default function LoadingPage() {
 
   return (
     <motion.div
-      className="flex flex-col items-center justify-center min-h-screen bg-gray-100"
+      className="min-h-screen flex flex-col items-center justify-center bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 p-4"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
