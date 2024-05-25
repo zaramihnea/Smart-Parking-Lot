@@ -1,18 +1,19 @@
-import React, { useState } from 'react';
+import React from 'react';
 import SearchBar from '../components/SearchBar';
 import Navbar from '../components/Navbar';
 import Map from '../components/Map';
 
 const MapPage: React.FC = () => {
-
     return (
-        <div className="min-h-screen flex flex-col bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 p-4 pb-16">
-            <div className="sticky top-0 z-50 bg-gray-100 dark:bg-gray-900">
+        <div className="relative h-screen w-full">
+            <div className="fixed top-0 left-0 w-full z-50">
                 <SearchBar />
             </div>
-            <Map />
-            <div>
-            <Navbar />
+            <div className="fixed bottom-0 left-0 w-full z-50">
+                <Navbar />
+            </div>
+            <div className="absolute top-14 bottom-20 left-0 w-full z-0">
+                <Map />
             </div>
         </div>
     );

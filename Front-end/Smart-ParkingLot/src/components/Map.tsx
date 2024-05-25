@@ -1,16 +1,48 @@
 import React, { useState, useEffect } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from 'react-leaflet'
+import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from 'react-leaflet';
+import L from 'leaflet';
+import { LatLngExpression } from 'leaflet';
+import 'leaflet-defaulticon-compatibility';
+import 'leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.css';
+
+// Define custom icons
+const greenIcon = new L.Icon({
+    iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png',
+    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+    iconSize: [25, 41],
+    iconAnchor: [12, 41],
+    popupAnchor: [1, -34],
+    shadowSize: [41, 41]
+});
+
+const redIcon = new L.Icon({
+    iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
+    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+    iconSize: [25, 41],
+    iconAnchor: [12, 41],
+    popupAnchor: [1, -34],
+    shadowSize: [41, 41]
+});
+
+const orangeIcon = new L.Icon({
+    iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-orange.png',
+    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+    iconSize: [25, 41],
+    iconAnchor: [12, 41],
+    popupAnchor: [1, -34],
+    shadowSize: [41, 41]
+});
 
 // temporary function to get coordonates for parking lots when clicking the map
-function LocationMarker() {
-    const map = useMapEvents({
-        click(e) {
-            const { lat, lng } = e.latlng;
-            alert(`Latitude: ${lat}, Longitude: ${lng}`);
-        }
-    });
-    return null;
-}
+// function LocationMarker() {
+//     const map = useMapEvents({
+//         click(e) {
+//             const { lat, lng } = e.latlng;
+//             alert(`Latitude: ${lat}, Longitude: ${lng}`);
+//         }
+//     });
+//     return null;
+// }
 
 function Map() {
 
@@ -25,7 +57,7 @@ function Map() {
 
     const availableHardcodedParkingLot = {
         id: "Parcare Xenopol demo",
-        nrSpots: 3,
+        nrSpots: 10,
         price: 6,
         latitude: 47.17410240,
         longitude: 27.57246130
@@ -143,24 +175,36 @@ function Map() {
     };
 
     return (
-        <MapContainer center={centerOfIasi} zoom={14} style={{ height: '100vh', width: '100%' }}>
+        <MapContainer center={centerOfIasi} zoom={14} style={{ height: '100vh', width: '100%' } } zoomControl={false}>
             <TileLayer
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
-            <LocationMarker /* to be removed */ />
-            {mergedParkingLots.map(lot => (
-                <Marker key={lot.id} position={[lot.latitude, lot.longitude]}>
+            {mergedParkingLots.map(lot => {
+                const availabilityPercentage = (lot.availableSpots / lot.nrSpots) * 100;
+                let icon = greenIcon;
+                if (availabilityPercentage === 0) {
+                    icon = redIcon;
+                } else if (availabilityPercentage < 30) {
+                    icon = orangeIcon;
+                }
+                return (
+                <Marker
+                    key={lot.id}
+                    position={[lot.latitude, lot.longitude]}
+                    icon={icon}
+                >
                     <Popup>
                         {lot.id} <br />
                         Spots: {lot.availableSpots} / {lot.nrSpots} <br />
                         Price per hour: {lot.price} RON <br />
                         {lot.availableSpots !== 0 && (
                             <button onClick={() => handleReserveClick(lot.id)}>Reserve</button>
-                        )}                    
-                        </Popup>
+                        )}
+                    </Popup>
                 </Marker>
-            ))}
-        </MapContainer>
+            );
+        })}
+        </MapContainer >
     );
 }
 
