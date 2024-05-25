@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import Homepage from './Homepage';
 import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
+import AdminPanelPage from './pages/AdminPanelPage';
 import ProfileAdminPage from './pages/ProfileAdminPage';
 import AdminParkingPage from './pages/AdminParkingPage';
-import AdminPanelPage from './pages/AdminPanelPage';
+import SeeAllUsersAdmin from './pages/SeeAllUsersAdmin';
+import AdminQuestions from './pages/AdminQuestions';
 import AddParkingLotPage from './pages/AddParkingLotPage';
 import EditParkingLotPage from './pages/EditParkingLotPage';
 import AccountBalance from './pages/AccountBalance';
@@ -21,9 +23,9 @@ import HelpPage from './pages/HelpPage';
 import DetailsAdminPage from './pages/DetailsAdminPage';
 import UnseenWarningAdmin from './pages/UnseenWarningAdmin';
 import SeeAllParkingSpots from './pages/SeeAllParkingSpots';
-import './App.css';
 import LoadingPage from './pages/LoadingPage';
 import ResultsPage from './pages/ResultsPage';
+import './App.css';
 
 const InstallPrompt: React.FC<{ device: string }> = ({ device }) => {
   const installInstructions =
@@ -45,6 +47,7 @@ const InstallPrompt: React.FC<{ device: string }> = ({ device }) => {
 const App: React.FC = () => {
   const [isInstalled, setIsInstalled] = useState<boolean>(false);
   const [device, setDevice] = useState<string>('other');
+  const [userType, setUserType] = useState<number | null>(null);
 
   useEffect(() => {
     if (window.matchMedia('(display-mode: standalone)').matches) {
@@ -58,43 +61,55 @@ const App: React.FC = () => {
       setDevice('Android');
     }
 
+    const fetchUserType = async () => {
+      const fetchedUserType = 3; // 1: normal user, 2: parking manager, 3: app admin
+      setUserType(fetchedUserType);
+    };
+
+    fetchUserType();
   }, []);
 
   return (
     <div>
-      {isInstalled ? (
+      {/* {isInstalled ? ( */}
         <Router>
           <Routes>
             <Route path="/" element={<LoginPage />} />
             <Route path="/home" element={<Homepage />} />
             <Route path="/signup" element={<SignupPage />} />
             <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-            <Route path="/admin" element={<ProfileAdminPage />} />
-            <Route path="/admin-parking" element={<AdminParkingPage />} />
-            <Route path="/admin-panel" element={<AdminPanelPage />} />
-            <Route path="/admin-panel/add-parking-lot" element={<AddParkingLotPage />} />
-            <Route path="/admin-panel/edit-parking-lot/:id" element={<EditParkingLotPage />} />
+            <Route path="/profile" element={
+              userType === 1 ? <Profiles /> :
+              userType === 3 ? <ProfileAdminPage /> :
+              userType === 2 ? <AdminPanelPage /> :
+              <Navigate to="/" />
+            } />
+            <Route path="/profile/messages" element={<Messages />} />
+            <Route path="/profile/cars" element={<Cars />} />
+            <Route path="/profile/details" element={<Details />} />
+            <Route path="/profile/reserve" element={<Reserve1 />} />
+            <Route path="/profile/add-parking-lot" element={<AddParkingLotPage />} />
+            <Route path="/profile/edit-parking-lot/:id" element={<EditParkingLotPage />} />
+            <Route path="/profile/unseen-questions" element={<AdminQuestions />} />
+            <Route path="/profile/admin-details" element={< DetailsAdminPage/>} />
+            <Route path="/profile/see-all-users" element={<SeeAllUsersAdmin />} />
+            <Route path="/profile/admin-questions" element={<AdminQuestions />} />
+            <Route path="/profile/unseen-warning-admin" element={<UnseenWarningAdmin />} />
             <Route path="/balance" element={<AccountBalance />} />
             <Route path="/settings" element={<SettingsPage />} />
-            <Route path="/profiles" element={<Profiles />} />
-            <Route path="/profiles/messages" element={<Messages />} />
-            <Route path="/profiles/cars" element={<Cars />} />
-            <Route path="/profiles/details" element={<Details />} />
-            <Route path="/profiles/reserve" element={<Reserve1 />} />
-            <Route path="/profile/reserve" element={<Reserve1 />} />
             <Route path="/home/reserve1" element={<Reserve1 />} />
             <Route path="/home/reserve1/reserve2" element={<MapPage />} />
             <Route path="/help" element={<HelpPage />} />
             <Route path="/details-admin" element={<DetailsAdminPage />} />
-            <Route path="/unseen-warning-admin" element={<UnseenWarningAdmin />} />
             <Route path="/see-all-parking-spots" element={<SeeAllParkingSpots />} />
             <Route path="/loading" element={<LoadingPage />} />
             <Route path="/results" element={<ResultsPage />} />
+            <Route path="*" element={<Navigate to="/" />} />
           </Routes>
         </Router>
-      ) : (
-        <InstallPrompt device={device} />
-      )}
+      {/* ) : ( */}
+       {/* <InstallPrompt device={device} /> */}
+       {/* )} */}
     </div>
   );
 };
