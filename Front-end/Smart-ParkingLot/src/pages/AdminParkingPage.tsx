@@ -1,52 +1,54 @@
 import React from 'react';
-import Navbar from '../components/Navbar';
-import SearchBar from '../components/SearchBar';
 import { useNavigate } from 'react-router-dom';
+import SearchBar from '../components/SearchBar';
+import Navbar from '../components/Navbar';
 
-const AdminParkingPage: React.FC = () => {
+const AdminPanelPage: React.FC = () => {
     const navigate = useNavigate();
 
-    const handleLogout = () => {
-        navigate('/');
-    };
-
-    const handleUnseenWarnings = () => {
-        navigate('/unseen-warning-admin');
-    };
+    const parkingLots = [
+        { id: 1, name: 'Lot 1' },
+        { id: 2, name: 'Lot 2' },
+        { id: 3, name: 'Lot 3' },
+    ];
 
     return (
-        <div className="flex flex-col min-h-screen bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-white">
-            <div className="flex-grow p-4">
-                <SearchBar placeholder="Search for parking spot"/>
-                <div className="mt-4">
-                    <h1 className="text-2xl font-bold">Welcome, Admin!</h1>
-                </div>
-                <div className="mt-6 max-w-md mx-auto bg-gray-300 dark:bg-gray-800 p-6 rounded-lg shadow-lg">
-                    <h2 className="text-xl font-semibold mb-4">Admin Actions</h2>
+        <div className="flex flex-col min-h-screen bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-white p-4 pb-16">
+            <div className="sticky top-0 z-50 bg-gray-100 dark:bg-gray-900">
+                <SearchBar placeholder="Search for parking spot" />
+            </div>
+            <div className="flex flex-col items-center flex-grow p-4 mb-16">
+                <div className="w-full max-w-md p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md">
+                    <button
+                        className="bg-gray-300 dark:bg-gray-700 text-gray-900 dark:text-gray-100 font-bold py-2 px-4 rounded-lg shadow-lg mb-4"
+                        onClick={() => navigate('/admin-parking')}
+                    >
+                        Back
+                    </button>
+                    <h2 className="text-xl font-semibold mb-4">Parking Lots</h2>
                     <div className="space-y-4">
+                        {parkingLots.map((lot) => (
+                            <div key={lot.id} className="flex justify-between items-center">
+                                <span>{lot.name}</span>
+                                <button
+                                    className="px-4 py-2 bg-gray-300 dark:bg-gray-700 text-gray-900 dark:text-white font-bold rounded-lg shadow-md hover:bg-gray-400 dark:hover:bg-gray-600 transition duration-300"
+                                    onClick={() => navigate(`/admin-panel/edit-parking-lot/${lot.id}`)}
+                                >
+                                    Edit
+                                </button>
+                            </div>
+                        ))}
                         <button
-                            className="w-full px-4 py-2 bg-gray-300 dark:bg-gray-700 text-gray-900 dark:text-white font-bold rounded-lg shadow-md hover:bg-gray-400 dark:hover:bg-gray-600 transition duration-300"
-                            onClick={() => navigate('/profiles/details')}
+                            className="w-full px-4 py-2 bg-green-500 text-white font-bold rounded-lg shadow-md hover:bg-green-600 transition duration-300"
+                            onClick={() => navigate('/admin-panel/add-parking-lot')}
                         >
-                            Details
+                            Add Parking Lot
                         </button>
                         <button
-                            className="w-full px-4 py-2 bg-gray-300 dark:bg-gray-700 text-gray-900 dark:text-white font-bold rounded-lg shadow-md hover:bg-gray-400 dark:hover:bg-gray-600 transition duration-300"
-                            onClick={() => navigate('/admin-panel')}
-                        >
-                            Admin Panel
-                        </button>
-                        <button
-                            onClick={handleUnseenWarnings}
+                            onClick={() => navigate('/see-all-parking-spots')}
                             className="w-full px-4 py-2 bg-gray-300 dark:bg-gray-700 text-gray-900 dark:text-white font-bold rounded-lg shadow-md hover:bg-gray-400 dark:hover:bg-gray-600 transition duration-300"
                         >
-                            Unseen Warnings
-                        </button>
-                        <button
-                            onClick={handleLogout}
-                            className="w-full px-4 py-2 bg-purple-600 text-white font-bold rounded-lg shadow-md hover:bg-purple-700 transition duration-300"
-                        >
-                            Logout
+                            See All Parking Spots
                         </button>
                     </div>
                 </div>
@@ -56,4 +58,4 @@ const AdminParkingPage: React.FC = () => {
     );
 };
 
-export default AdminParkingPage;
+export default AdminPanelPage;

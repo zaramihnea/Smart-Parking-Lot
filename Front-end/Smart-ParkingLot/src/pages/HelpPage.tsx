@@ -57,8 +57,8 @@ const MainView: React.FC<{ setView: (view: string) => void }> = ({ setView }) =>
                 placeholder="Send a message" 
                 className="w-full p-2 bg-gray-200 dark:bg-gray-600 rounded-lg shadow-inner focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
-            <button className="mt-2 w-full flex justify-center items-center bg-purple-600 text-white p-2 rounded-lg shadow-md hover:bg-purple-700 transition duration-300">
-                <span className="material-icons">send</span>
+            <button className="mt-2 w-full flex justify-center items-center bg-purple-600 text-white p-2 rounded-lg shadow-md">
+                <span className="material-icons">Send</span>
             </button>
         </div>
     </>

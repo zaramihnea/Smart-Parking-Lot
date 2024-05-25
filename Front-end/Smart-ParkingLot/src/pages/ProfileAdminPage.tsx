@@ -7,15 +7,15 @@ const ProfileAdminPage: React.FC = () => {
   const navigate = useNavigate();
 
   const handleDetailsClick = () => {
-    navigate('/detailsadminpage');
+    navigate('/profile/admin-details');
   };
 
   const handleQuestionsClick = () => {
-    navigate('/adminquestions');
+    navigate('/profile/admin-questions');
   };
 
   const handleSeeAllUsersClick = () => {
-    navigate('/seeallusersadmin');
+    navigate('/profile/see-all-users');
   };
 
   /*const handleSeeAllParkingSpotsClick = () => {

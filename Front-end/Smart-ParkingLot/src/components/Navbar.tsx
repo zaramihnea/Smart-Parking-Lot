@@ -20,14 +20,14 @@ export default function Navbar() {
           )}
         </NavLink>
         <NavLink 
-          to="/profiles" 
+          to="/profile" 
           className={({ isActive }) => 
-            `flex flex-col items-center justify-center ${isActive || location.pathname.startsWith('/profiles') ? 'text-[#7167EE]' : 'text-gray-900 dark:text-gray-100'}`
+            `flex flex-col items-center justify-center ${isActive || location.pathname.startsWith('/profile') ? 'text-[#7167EE]' : 'text-gray-900 dark:text-gray-100'}`
           }
         >
           {({ isActive }) => (
             <>
-              <img src={isActive || location.pathname.startsWith('/profiles') ? "/navbar/ProfileIconActive.svg" : "/navbar/ProfileIcon.svg"} alt="profile" className="h-6 w-6 mb-1" />
+              <img src={isActive || location.pathname.startsWith('/profile') ? "/navbar/ProfileIconActive.svg" : "/navbar/ProfileIcon.svg"} alt="profile" className="h-6 w-6 mb-1" />
               <span className="text-sm">Profile</span>
             </>
           )}
@@ -45,19 +45,7 @@ export default function Navbar() {
             </>
           )}
         </NavLink>
-        <NavLink 
-          to="/settings" 
-          className={({ isActive }) => 
-            `flex flex-col items-center justify-center ${isActive || location.pathname === '/settings' ? 'text-[#7167EE]' : 'text-gray-900 dark:text-gray-100'}`
-          }
-        >
-          {({ isActive }) => (
-            <>
-              <img src={isActive || location.pathname === '/settings' ? "/navbar/SettingIconActive.svg" : "/navbar/SettingIcon.svg"} alt="settings" className="h-6 w-6 mb-1" />
-              <span className="text-sm">Settings</span>
-            </>
-          )}
-        </NavLink>
+        
         <NavLink 
           to="/help" 
           className={({ isActive }) => 
