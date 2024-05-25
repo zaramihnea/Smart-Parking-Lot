@@ -1,5 +1,6 @@
 package com.smartparkinglot.backend.controller;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.smartparkinglot.backend.entity.*;
 import com.smartparkinglot.backend.service.*;
 import lombok.AllArgsConstructor;
@@ -9,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -112,10 +114,12 @@ public class ReservationController {
             List<ParkingLot> parkingLots = parkingLotService.getAllParkingLots();
 
             return ResponseEntity.ok().body(reservationService.getOwnActiveReservations(userAuthorized.getEmail()).stream().map(reservation -> {
-                return new ReservationDetailsWithName(reservation.getId(), reservation.getCar_id().getId(), reservation.getParkingSpot().getId(), reservation.getStartTime(), reservation.getStopTime(), reservation.getStatus(), parkingLots.stream().filter(parkingLot -> {
-                    List<ParkingSpot> parkingSpots = parkingSpotService.getParkingSpotsByParkingLot(parkingLot);
+                ParkingLot parkingLot = parkingLots.stream().filter(parkingLot1 -> {
+                    List<ParkingSpot> parkingSpots = parkingSpotService.getParkingSpotsByParkingLot(parkingLot1);
                     return parkingSpots.stream().anyMatch(parkingSpot -> Objects.equals(parkingSpot.getId(), reservation.getParkingSpot().getId()));
-                }).findFirst().get().getName());
+                }).findFirst().get();
+
+                return new ReservationDetailsWithNameAndCoordinates(reservation.getId(), reservation.getCar_id().getId(), reservation.getParkingSpot().getId(), reservation.getStartTime(), reservation.getStopTime(), reservation.getStatus(), parkingLot.getName(), parkingLot.getLatitude(), parkingLot.getLongitude());
             }));
         }
         else {
@@ -140,20 +144,26 @@ public class ReservationController {
         private Long id;
         private Long car_id;
         private Long parking_spot_id;
+        @JsonFormat(pattern="dd-MM-yyyy HH:mm:ss")
         private Timestamp start_time;
+        @JsonFormat(pattern="dd-MM-yyyy HH:mm:ss")
         private Timestamp stop_time;
         private String status;
     }
 
     @Getter @Setter
     @AllArgsConstructor
-    public static class ReservationDetailsWithName {
+    public static class ReservationDetailsWithNameAndCoordinates {
         private Long id;
         private Long car_id;
         private Long parking_spot_id;
+        @JsonFormat(pattern="dd-MM-yyyy HH:mm:ss")
         private Timestamp start_time;
+        @JsonFormat(pattern="dd-MM-yyyy HH:mm:ss")
         private Timestamp stop_time;
         private String status;
         private String name;
+        private BigDecimal latitude;
+        private BigDecimal longitude;
     }
 }

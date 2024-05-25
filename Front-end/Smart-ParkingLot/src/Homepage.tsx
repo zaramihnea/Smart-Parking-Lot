@@ -5,11 +5,11 @@ import SearchBar from './components/SearchBar';
 import Navbar from './components/Navbar';
 import Map from './components/Map';
 import useUsername from "./hooks/useUsername"
-import useSavedCars from "./hooks/useSavedCars"
 import useReservations from "./hooks/useReservations"
 
 import { Car } from './types/Car';
 import { Reservation } from './types/Reservation';
+import useSavedCars from './hooks/useSavedCars';
 
 const Homepage: React.FC = () => {
   const baseUrl = process.env.API_BASE_URL;
@@ -22,22 +22,22 @@ const Homepage: React.FC = () => {
   const [reservations, setReservations] = useState<Reservation[]>([]);
 
   const { getUsername } = useUsername();
-  const { getUserCars } = useSavedCars();
   const { getOwnActiveReservations } = useReservations();
-
+  
   // Fetch username
   useEffect(() => {
     getUsername(baseUrlString).then((name) => {
       setUsername(name);
     });
   }, [baseUrlString, getUsername]); // Dependencies
-
-  // Fetch saved cars
+  
+  const { getUserCars } = useSavedCars();
+  // Fetch saved cars using getUserCars to show the cars on the homepage
   useEffect(() => {
     getUserCars(baseUrlString).then((cars) => {
       setSavedCars(cars);
     });
-  }, [baseUrlString, getUserCars]); // Dependencies
+  }, [baseUrlString, getUserCars]); 
 
   const toggleMapVisibility = () => {
     setIsMapVisible(!isMapVisible);
@@ -100,14 +100,14 @@ const Homepage: React.FC = () => {
                 savedCars.find(car => car.id === reservation.car_id)?.plate || 'Unknown'
               }</p>
             </div>
-            {/* <a
-              href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(reservation.googleSearch)}`}
+            {<a
+              href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(reservation.latitude + ',' + reservation.longitude)}`}
               target="_blank"
               rel="noopener noreferrer"
               className="bg-purple-600 text-white px-2 py-1 rounded-lg shadow-md hover:bg-blue-700 transition duration-300"
             >
               Navigate to Parking
-            </a> */}
+            </a>}
           </div>
         ))}
       </div>

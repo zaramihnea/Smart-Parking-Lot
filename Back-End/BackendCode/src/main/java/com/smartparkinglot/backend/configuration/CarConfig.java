@@ -9,9 +9,11 @@ import com.smartparkinglot.backend.repository.UserRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.data.domain.Example;
 
 @Configuration
+@Order(6)
 public class CarConfig {
     @Bean
     CommandLineRunner carCommandLineRunner(CarRepository carRepository, UserRepository userRepository) {

@@ -34,6 +34,8 @@ export default function useReservations() {
             start_date: reservationData.start_time,
             end_date: reservationData.stop_time,
             car_id: reservationData.car_id,
+            latitude: reservationData.latitude,
+            longitude: reservationData.longitude,
           }
         )
       }
