@@ -26,7 +26,6 @@ public class UserConfig {
                     "Romania",
                     "Iasi",
                     57.00,
-                    false,
                     1
             );
 
@@ -38,15 +37,11 @@ public class UserConfig {
                     "Romania",
                     "Iasi",
                     57.00,
-                    false,
-                    2
+                    3
             );
-            if(!userRepository.existsByEmail(user1.getEmail())) {
-                userRepository.save(user1);
-            }
-            if(!userRepository.existsByEmail(user2.getEmail())) {
-                userRepository.save(user2);
-            }
+            userRepository.save(user1);
+
+            userRepository.save(user2);
         };
     }
 

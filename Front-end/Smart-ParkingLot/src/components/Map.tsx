@@ -35,17 +35,15 @@ const orangeIcon = new L.Icon({
 
 // temporary function to get coordonates for parking lots when clicking the map
 // function LocationMarker() {
-//     const map = useMapEvents({
-//         click(e) {
-//             const { lat, lng } = e.latlng;
-//             alert(`Latitude: ${lat}, Longitude: ${lng}`);
-//         }
+//     useMapEvents({
+//         click(e: any) {
+//             alert(`Latitude: ${e.latlng.lat}, Longitude: ${e.latlng.lng}`);
+//         },
 //     });
 //     return null;
 // }
 
 function Map() {
-
     // hardcoded parking lot for demo
     const hardcodedParkingLot = {
         id: "Parcare Xenopol demo",
@@ -64,15 +62,14 @@ function Map() {
     };
 
     // center of the map, currently set on Iasi
-    const centerOfIasi = [47.16212698716967, 27.588606476783752];
+    const centerOfIasi: LatLngExpression = [47.16212698716967, 27.588606476783752];
+    
     // full parking lot info
     const [parkingLots, setParkingLots] = useState([hardcodedParkingLot]);
+    
     // info of available parking spots between a timeframe
     const [availableParkingLots, setAvailableParkingLots] = useState([availableHardcodedParkingLot]);
-    // default timeframe: start_time = now and end_time = start_time +1h
-    const [startTime, setStartTime] = useState(new Date());
-    const [endTime, setEndTime] = useState(new Date(new Date().setHours(new Date().getHours() + 1)));
-
+    
     // fetching parkingLots (backend documentation item nr.6)
     useEffect(() => {
         const fetchData = async () => {
@@ -93,8 +90,8 @@ function Map() {
     // fetching availableParkingLots (backend documentation item nr.7)
     useEffect(() => {
         const fetchData = async () => {
-            const formattedStartTime = startTime.toISOString();
-            const formattedEndTime = endTime.toISOString();
+            const formattedStartTime = new Date().toISOString();
+            const formattedEndTime = new Date(new Date().setHours(new Date().getHours() + 1)).toISOString();
 
             try {
                 const url = `http://localhost:8081/parking_lot/available-spots-search?radius=100&latitude=47.1741024&longitude=27.5724613&start_time=${formattedStartTime}&stop_time=${formattedEndTime}`;
@@ -109,7 +106,7 @@ function Map() {
             }
         }
         fetchData();
-    }, [startTime, endTime]);
+    }, []);
 
     // adding field 'availableSpots' to parkingLots that is equal to availableParkingLots.nrSpots
     const mergedParkingLots = parkingLots.map(lot => {
@@ -121,7 +118,7 @@ function Map() {
     });
 
     // TODO: action when user clicks 'Reserve' button
-    const handleReserveClick = async (lotId) => {
+    const handleReserveClick = async (lotId: string) => {
         if (window.confirm(`Reserve a parking spot at ${lotId}?`)) {
 
             alert(`Reserved spot at lot ${lotId}`); //demo

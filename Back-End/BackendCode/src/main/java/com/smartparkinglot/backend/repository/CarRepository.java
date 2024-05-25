@@ -10,6 +10,6 @@ import java.util.List;
 public interface CarRepository extends JpaRepository<Car, Long> {
 
     List<Car> getCarsByUser(User user);
-    @Query(value = "SELECT plate FROM cars WHERE id = :id", nativeQuery = true)
+    @Query(value = "SELECT * FROM cars WHERE id = :id", nativeQuery = true)
     Car getCarById(Long id);
 }

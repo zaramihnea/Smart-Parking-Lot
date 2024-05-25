@@ -10,16 +10,23 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "framer-motion": "^11.2.6",
     "leaflet": "^1.9.4",
     "leaflet-defaulticon-compatibility": "^0.1.2",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "os": "^0.1.2",
+    "react-icons": "^5.2.1",
     "react-leaflet": "^4.2.1",
     "react-router-dom": "^6.23.1",
     "react-time-picker": "^7.0.0",
-    "use-immer": "^0.9.0"
+    "serve": "^14.2.3",
+    "use-immer": "^0.9.0",
+    "vite-plugin-pwa": "^0.20.0"
   },
   "devDependencies": {
+    "@types/leaflet": "^1.9.12",
+    "@types/node": "^20.12.12",
     "@types/react": "^18.2.66",
     "@types/react-dom": "^18.2.22",
     "@typescript-eslint/eslint-plugin": "^7.2.0",
@@ -32,6 +39,8 @@
     "postcss": "^8.4.38",
     "tailwindcss": "^3.4.3",
     "typescript": "^5.2.2",
-    "vite": "^5.2.11"
+    "vite": "^5.2.11",
+    "vite-plugin-checker": "^0.6.4",
+    "workbox-cli": "^7.1.0"
   }
 }

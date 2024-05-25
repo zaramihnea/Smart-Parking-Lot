@@ -2,6 +2,8 @@ import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 const SignupPage: React.FC = () => {
+    const baseUrl = process.env.API_BASE_URL;
+
     const navigate = useNavigate();
 
     const [step, setStep] = useState(1);
@@ -79,7 +81,7 @@ const SignupPage: React.FC = () => {
                 console.log("Sending data to backend:", tempEmail, tempPassword, tempUsername, fname, lname, dob, country, city);
     
                 try {
-                    const response = await fetch('http://localhost:8081/user/register', {
+                    const response = await fetch(`${baseUrl}/user/register`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',

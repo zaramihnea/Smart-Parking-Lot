@@ -3,7 +3,7 @@ package com.smartparkinglot.backend.controller;
 import com.smartparkinglot.backend.entity.ParkingSpot;
 import com.smartparkinglot.backend.service.ParkingSpotService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.Time;
@@ -31,5 +31,21 @@ public class ParkingSpotController {
     @PostMapping
     public void registerNewParkingSpot(@RequestBody ParkingSpot parkingSpot){
         parkingSpotService.addNewParkingSpot(parkingSpot);
+    }
+
+    @PostMapping("/update/{id}")
+    public ResponseEntity<String> updateParkingSpot(@PathVariable("id") Long id, @RequestBody ParkingSpot updatedParkingSpot) {
+        ParkingSpot existingParkingSpot = parkingSpotService.getById(id);
+
+        if (existingParkingSpot == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        existingParkingSpot.setStatus(updatedParkingSpot.getStatus());
+        existingParkingSpot.setPlate(updatedParkingSpot.getPlate());
+
+        parkingSpotService.updateParkingSpot(existingParkingSpot);
+
+        return ResponseEntity.ok("Parking spot updated successfully");
     }
 }

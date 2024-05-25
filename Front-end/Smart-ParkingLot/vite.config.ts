@@ -1,7 +1,38 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+import { VitePWA } from 'vite-plugin-pwa';
+import os from 'os';
 
-// https://vitejs.dev/config/
+// Set API base URL based on OS type ( Use the IP adress of the EC2 Instance or localhost)
+const apiBaseUrl = os.type() === 'Linux' ? 'http://192.168.1.100:8081' : 'http://localhost:8081';
+
+
 export default defineConfig({
-  plugins: [react()],
-})
+  plugins: [
+    react(),
+    VitePWA({
+      registerType: 'autoUpdate',
+      manifest: {
+        name: 'Smart Parking Lot',
+        short_name: 'ParkingLot',
+        description: 'A smart parking lot application.',
+        theme_color: '#6B46C1',
+        icons: [
+          {
+            src: '/favicon_win.ico',
+            sizes: '128x128',
+            type: 'image/x-icon'
+          },
+          {
+            src: '/favicon_mac.icns',
+            sizes: '128x128',
+            type: 'image/x-icns'
+          }
+        ]
+      }
+    })
+  ],
+  define: {
+    'process.env.API_BASE_URL': JSON.stringify(apiBaseUrl),
+  }
+});

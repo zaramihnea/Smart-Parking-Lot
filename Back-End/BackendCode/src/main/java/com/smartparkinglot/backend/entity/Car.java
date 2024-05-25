@@ -27,8 +27,7 @@ public class Car {
     public Car() {
     }
 
-    public Car(Long id, String plate, int capacity, String type, User user) {
-        this.id = id;
+    public Car(String plate, int capacity, String type, User user) {
         this.plate = plate;
         this.capacity = capacity;
         this.type = type;

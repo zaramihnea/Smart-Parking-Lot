@@ -24,9 +24,12 @@ public interface UserRepository extends JpaRepository<User, String> {
 
     @Modifying
     @Transactional
-    @Query("UPDATE User u SET u.balance = u.balance + :amount WHERE u.email = :email")
-    void updateBalanceByEmail(@Param("email") String email, @Param("amount") double amount);
+    @Query("DELETE FROM User u WHERE u.email = :email")
+    void deleteFromUsersTable(@Param("email") String email);
 
-
+    @Modifying
+    @Transactional
+    @Query(value = "INSERT INTO banned_users (email) VALUES (:email)", nativeQuery = true)
+    void addToBannedUsers(@Param("email") String email);
 
 }

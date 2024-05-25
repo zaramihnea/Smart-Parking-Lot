@@ -1,6 +1,7 @@
 package com.smartparkinglot.backend.service;
 
 import com.smartparkinglot.backend.entity.ParkingLot;
+import com.smartparkinglot.backend.entity.User;
 import com.smartparkinglot.backend.repository.ParkingLotRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,14 +22,22 @@ public class ParkingLotService {
         return parkingLotRepository.findWithinRadius(latitude, longitude, radius);
     }
 
+    public ParkingLot getParkingLotById(Long id){
+        if(parkingLotRepository.findById(id).isPresent())
+            return parkingLotRepository.findById(id).get();
+        else return null;
+    }
+
+    public boolean existsById(Long id) {
+        return parkingLotRepository.existsById(id);
+    }
+
     public List<ParkingLot> getAllParkingLots() {
         return parkingLotRepository.findAll();
     }
 
-    public void addNewParkingLot(ParkingLot parkingLot) {
-        if (parkingLotRepository.existsById(parkingLot.getId())) {
-            throw new IllegalStateException("Parking lot with ID " + parkingLot.getId() + " already exists");
-        }
+    @Transactional
+    public void save(ParkingLot parkingLot) {
         parkingLotRepository.save(parkingLot);
     }
 
@@ -47,4 +56,20 @@ public class ParkingLotService {
             parkingLot.setLongitude(longitude);
         }
     }
+
+    @Transactional
+    public void deleteParkingLot(ParkingLot parkingLot){
+        parkingLotRepository.deleteParkingLot(parkingLot.getId());
+    }
+
+    @Transactional
+    public void updatePrice(ParkingLot parkingLot, Float price){
+        parkingLotRepository.updatePrice(parkingLot.getId(), price);
+    }
+
+
+    public List<ParkingLot> findAllByAdminEmail(User admin){
+        return parkingLotRepository.findAllByAdminEmail(admin);
+    }
+
 }

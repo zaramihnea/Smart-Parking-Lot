@@ -12,12 +12,13 @@ const Reserve1: React.FC = () => {
   const handleReserve = () => {
     console.log('Start Time:', startTime);
     console.log('End Time:', endTime);
+    navigate('/home/reserve1/reserve2');
   };
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 p-4 pb-16">
       <div className="sticky top-0 z-50 bg-gray-100 dark:bg-gray-900">
-        <SearchBar />
+        <SearchBar placeholder="Search for parking spot" />
       </div>
       <div className="flex flex-col items-center flex-grow p-4">
         <div className="w-full max-w-md p-8 bg-white dark:bg-gray-800 rounded-lg shadow-md">
@@ -46,3 +47,5 @@ const Reserve1: React.FC = () => {
 };
 
 export default Reserve1;
+
+

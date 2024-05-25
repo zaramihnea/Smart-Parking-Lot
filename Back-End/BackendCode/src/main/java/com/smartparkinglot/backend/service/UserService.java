@@ -3,10 +3,12 @@ package com.smartparkinglot.backend.service;
 import com.smartparkinglot.backend.customexceptions.EmailExistsException;
 import com.smartparkinglot.backend.customexceptions.UserIsBannedException;
 import com.smartparkinglot.backend.customexceptions.UsernameExistsException;
+import com.smartparkinglot.backend.entity.ParkingLot;
 import com.smartparkinglot.backend.entity.User;
 import com.smartparkinglot.backend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -40,7 +42,9 @@ public class UserService {
     public void deleteUserById(String id){
         userRepository.deleteById(id);
     }
-
+    public List<User> findAll() {
+        return userRepository.findAll();
+    }
 
     public void register(User user) throws UsernameExistsException, EmailExistsException, UserIsBannedException {
 
@@ -48,12 +52,9 @@ public class UserService {
             throw new UserIsBannedException("User is banned");
         }
 
-        boolean usernameExists = userRepository.existsByEmail(user.getEmail());
         boolean emailExists = userRepository.existsByEmail(user.getEmail());
 
-        if (usernameExists) {
-            throw new UsernameExistsException("Username taken");
-        } else if(emailExists) {
+        if(emailExists) {
             throw new EmailExistsException("Email taken");
         }
 
@@ -64,13 +65,17 @@ public class UserService {
         return userRepository.tryLogin(email, password);
     }
 
-    public void updateUserBalance(String email, double amount) {
-        userRepository.updateBalanceByEmail(email, amount);
-    }
 
     public void changePassword(User user, String password){
         user.setPassword(password);
         userRepository.save(user);
     }
+
+    @Transactional
+    public void banUser(User user) {
+        userRepository.deleteFromUsersTable(user.getEmail());
+        userRepository.addToBannedUsers(user.getEmail());
+    }
+
 
 }

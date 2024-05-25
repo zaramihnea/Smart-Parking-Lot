@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+// some user
+// baciu_elena@gmail.com 84732saf
+
 const LoginPage: React.FC = () => {
   const navigate = useNavigate();
 
@@ -10,13 +13,27 @@ const LoginPage: React.FC = () => {
   const [loginErrorPopup, setloginErrorPopup] = useState(false);
   const [emailErrorPopup, setemailErrorPopup] = useState(false);
   const [errorMessage, setUIErrorMessage] = useState('');
+  const baseUrl = process.env.API_BASE_URL;
+
+  
+  // useEffect(() => {
+  //   const cookies = document.cookie.split(';').map(cookie => cookie.split('='));
+  //   for (const cookie of cookies) {
+  //     if (cookie[0] && cookie[0].includes('authToken')) {
+  //       console.log("User is already logged in");
+  //       navigate('/home');
+  //       break;
+  //     }
+  //   }
+  // }, [navigate]); // Add 'navigate' as a dependency
+
 
   const handleLogin = async () => {
     if (isValidEmail(email)) {
       if (password) {
           console.log("Sending data to backend for login:", email, password);
           try {
-              const response = await fetch('http://localhost:8081/user/login', {
+              const response = await fetch(`${baseUrl}/user/login`, {
                   method: 'POST',
                   headers: {
                       'Content-Type': 'application/json',
