@@ -20,37 +20,33 @@ const HelpPage: React.FC = () => {
     };
 
     return (
-        <div className="min-h-screen flex flex-col bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 pb-16">
-            <div className="sticky top-0 z-50 w-full flex justify-center bg-gray-100 dark:bg-gray-900">
-                <div className="w-full max-w-4xl px-4">
-                    <SearchBar placeholder="Search for parking spot" />
-                </div>
+        <div className="min-h-screen flex flex-col bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
+            <div className="sticky top-0 z-50 w-full p-4 bg-gray-100 dark:bg-gray-900">
+                <SearchBar placeholder="Search for parking spot" />
             </div>
-            <div className="flex justify-center items-center flex-grow mt-4 mb-4 px-4">
-                <div className="w-full max-w-4xl bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden p-4">
+            <div className="flex flex-col items-center flex-grow p-4 mb-16">
+                <div className="w-full max-w-4xl p-8 bg-white dark:bg-gray-800 rounded-lg shadow-md">
                     {renderContent()}
                 </div>
             </div>
-            <div className="sticky bottom-0 z-50 w-full">
-                <Navbar />
-            </div>
+            <Navbar />
         </div>
     );
 };
 
 const MainView: React.FC<{ setView: (view: string) => void }> = ({ setView }) => (
     <>
-        <h2 className="text-xl font-bold text-purple-600 mb-4">Get help</h2>
+        <h2 className="text-3xl font-bold text-purple-500 mb-4">Get help</h2>
         <div className="space-y-4">
-            <div className="flex items-center p-4 bg-gray-100 dark:bg-gray-700 rounded-lg shadow-md cursor-pointer" onClick={() => setView('faq')}>
+            <div className="flex items-center p-4 bg-gray-300 dark:bg-gray-700 rounded-lg shadow-md cursor-pointer" onClick={() => setView('faq')}>
                 <FaQuestionCircle className="text-purple-600 mr-4" size={24} />
                 <span className="text-lg">FAQ</span>
             </div>
-            <div className="flex items-center p-4 bg-gray-100 dark:bg-gray-700 rounded-lg shadow-md cursor-pointer" onClick={() => setView('terms')}>
+            <div className="flex items-center p-4 bg-gray-300 dark:bg-gray-700 rounded-lg shadow-md cursor-pointer" onClick={() => setView('terms')}>
                 <FaFileAlt className="text-purple-600 mr-4" size={24} />
                 <span className="text-lg">Terms and conditions</span>
             </div>
-            <div className="flex items-center p-4 bg-gray-100 dark:bg-gray-700 rounded-lg shadow-md cursor-pointer" onClick={() => setView('emergency')}>
+            <div className="flex items-center p-4 bg-gray-300 dark:bg-gray-700 rounded-lg shadow-md cursor-pointer" onClick={() => setView('emergency')}>
                 <FaBell className="text-purple-600 mr-4" size={24} />
                 <span className="text-lg">Emergency</span>
             </div>
@@ -58,10 +54,10 @@ const MainView: React.FC<{ setView: (view: string) => void }> = ({ setView }) =>
         <div className="mt-4">
             <input 
                 type="text" 
-                placeholder="send a message" 
-                className="w-full p-2 bg-gray-200 dark:bg-gray-600 rounded-lg shadow-inner"
+                placeholder="Send a message" 
+                className="w-full p-2 bg-gray-200 dark:bg-gray-600 rounded-lg shadow-inner focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
-            <button className="mt-2 w-full flex justify-center items-center bg-purple-600 text-white p-2 rounded-lg shadow-md">
+            <button className="mt-2 w-full flex justify-center items-center bg-purple-600 text-white p-2 rounded-lg shadow-md hover:bg-purple-700 transition duration-300">
                 <span className="material-icons">send</span>
             </button>
         </div>
@@ -71,7 +67,7 @@ const MainView: React.FC<{ setView: (view: string) => void }> = ({ setView }) =>
 const BackButton: React.FC<{ onClick: () => void }> = ({ onClick }) => (
     <button
         onClick={onClick}
-        className="text-purple-600 border border-purple-600 rounded px-4 py-2"
+        className="text-purple-600 border border-purple-600 rounded px-4 py-2 hover:bg-purple-600 hover:text-white transition duration-300"
     >
         Back
     </button>
