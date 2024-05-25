@@ -17,7 +17,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ placeholder }) => {
   const handleSubmit = (event: FormEvent) => {
     event.preventDefault();
     console.log(input);
-    navigate("/loading");
+    navigate(`/loading?address=${encodeURIComponent(input)}`);
   };
 
   return (

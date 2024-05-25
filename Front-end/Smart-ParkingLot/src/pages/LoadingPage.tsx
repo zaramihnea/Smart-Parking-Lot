@@ -10,8 +10,10 @@ export default function LoadingPage() {
   useEffect(() => {
     const timer = setTimeout(() => {
       const searchParams = new URLSearchParams(location.search);
-      const query = searchParams.get('query');
-      navigate(`/results?query=${query}`);
+      const address = searchParams.get('address');
+      console.log(address);
+
+      navigate(`/results?address=${address}`);
     }, 3000);
 
     return () => clearTimeout(timer);

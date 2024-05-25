@@ -30,7 +30,7 @@ public class ReservationConfig {
                 return;
             }
             ParkingSpot someSpot = parkingSpotRepository.findById(1L).orElse(null);
-            ParkingSpot someSpot2 = parkingSpotRepository.findById(2L).orElse(null);
+            ParkingSpot someSpot2 = parkingSpotRepository.findById(30L).orElse(null);
             if(someSpot == null || someSpot2 == null){
                 return;
             }

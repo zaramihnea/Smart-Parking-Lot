@@ -4,7 +4,7 @@ export default function ResultsPage() {
   const location = useLocation();
   const navigate = useNavigate();
   const searchParams = new URLSearchParams(location.search);
-  const query = searchParams.get('query');
+  const address = searchParams.get('address');
 
   const handleAccept = () => {
     alert('Accepted and navigating to payment...');
@@ -19,7 +19,7 @@ export default function ResultsPage() {
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 p-4">
       <h1 className="text-3xl mb-4">This is what we found:</h1>
       <div className="border p-4 mb-4 bg-white dark:bg-gray-800 rounded shadow-md">
-        <p><strong>Parking Location:</strong> {query}</p>
+        <p><strong>Parking Location:</strong> {address}</p>
         <p><strong>Parking Spot:</strong> A12</p>
       </div>
       <div className="flex space-x-4">
