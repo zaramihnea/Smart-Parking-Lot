@@ -1,16 +1,14 @@
 package com.smartparkinglot.backend.service;
 
 import com.smartparkinglot.backend.DTO.PaymentDetailsDTO;
-import com.smartparkinglot.backend.DTO.PaymentIntentDTO;
+import com.smartparkinglot.backend.DTO.TransactionDTO;
 import com.smartparkinglot.backend.DTO.PaymentResponseDTO;
 import com.smartparkinglot.backend.configuration.StripeConfig;
 import com.smartparkinglot.backend.customexceptions.PaymentException;
 import com.stripe.Stripe;
+import com.stripe.exception.InvalidRequestException;
 import com.stripe.exception.StripeException;
-import com.stripe.model.Customer;
-import com.stripe.model.CustomerBalanceTransaction;
-import com.stripe.model.CustomerBalanceTransactionCollection;
-import com.stripe.model.PaymentIntent;
+import com.stripe.model.*;
 import com.stripe.param.*;
 import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
@@ -18,8 +16,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 @Service
 public class PaymentService {
@@ -44,7 +41,7 @@ public class PaymentService {
             Stripe.apiKey = stripeConfig.getApiKey();
 
             validatePaymentDetails(paymentDetailsDTO);
-            Customer customer = getOrCreateCustomer(paymentDetailsDTO.getUserEmail());
+            Customer customer = getOrCreateCustomer(paymentDetailsDTO.getEmail());
             PaymentIntent paymentIntent = createStripePaymentIntent(customer, paymentDetailsDTO.getAmount());
 
             log.info("Payment intent created: {}", paymentIntent.getId());
@@ -56,7 +53,7 @@ public class PaymentService {
     }
 
     private void validatePaymentDetails(PaymentDetailsDTO paymentDetailsDTO) {
-        if (paymentDetailsDTO.getUserEmail() == null || paymentDetailsDTO.getUserEmail().isEmpty()) {
+        if (paymentDetailsDTO.getEmail() == null || paymentDetailsDTO.getEmail().isEmpty()) {
             throw new PaymentException("User email is required.");
         }
         if (paymentDetailsDTO.getAmount() < 2) {
@@ -101,6 +98,8 @@ public class PaymentService {
         try {
             Stripe.apiKey = stripeConfig.getApiKey();
             PaymentIntent paymentIntent = PaymentIntent.retrieve(paymentIntentId);
+            String chargeId = paymentIntent.getLatestCharge();
+            Charge charge = Charge.retrieve(chargeId);
             String paymentStatus = paymentIntent.getStatus();
 
             String customerEmail = getCustomerEmail(paymentIntentId);
@@ -112,28 +111,64 @@ public class PaymentService {
                 case "succeeded" -> {
                     log.info("Payment successful");
                     emailService.sendConfirmationEmail(customerEmail);
-                    createCustomerBalanceTransaction(customerEmail,amountToAdd);
-                    yield "payment-success";
+
+                    CustomerListParams customerListParams = CustomerListParams.builder()
+                            .setEmail(customerEmail)
+                            .build();
+
+                    List<Customer> customers = Customer.list(customerListParams).getData();
+                    if (customers.isEmpty()) {
+                        throw new RuntimeException("No customer found with email: " + customerEmail);
+                    } else {
+                        Customer customer = customers.get(0);
+                        CustomerBalanceTransactionCollectionCreateParams balanceParams =
+                                CustomerBalanceTransactionCollectionCreateParams.builder()
+                                        .setAmount(amount)
+                                        .setCurrency("ron")
+                                        .setDescription("Funds added " + amountToAdd)
+                                        .build();
+                        CustomerBalanceTransaction balanceTransaction =
+                                customer.balanceTransactions().create(balanceParams);
+
+
+                        Map<String, String> metadata = new HashMap<>();
+                        metadata.put("balance_transaction_id", balanceTransaction.getId());
+
+                        ChargeUpdateParams params = ChargeUpdateParams.builder()
+                                .putAllMetadata(metadata)
+                                .build();
+
+                        charge.update(params);
+                    }
+                    yield paymentStatus;
                 }
-                case "incomplete" -> {
+                case "processing" -> {
+                    log.info("Payment is processing");
+                    yield paymentStatus;
+                }
+                case "requires_action" -> {
                     log.info("Payment requires action");
-                    yield "payment-incomplete";
-                }
-                case "failed" -> {
-                    log.info("Payment failed");
-                    yield "payment-failed";
+                    yield paymentStatus;
                 }
                 case "canceled" -> {
                     log.info("Payment canceled");
-                    yield "payment-canceled";
+                    yield paymentStatus;
                 }
-                case "uncaptured" -> {
-                    log.info("Payment uncaptured");
-                    yield "payment-uncaptured";
+                case "requires_capture" -> {
+                    log.info("Payment requires capture");
+                    yield paymentStatus;
+                }
+                case "requires_confirmation" -> {
+                    log.info("Payment requires confirmation");
+                    yield paymentStatus;
+                }
+                case "requires_payment_method" -> {
+                    log.info("Payment requires payment method");
+                    yield paymentStatus;
                 }
                 default -> {
                     log.info("Payment status unknown: {}", paymentStatus);
-                    yield "payment-unknown";
+                    yield paymentStatus;
                 }
             };
         } catch (StripeException e) {
@@ -182,7 +217,7 @@ public class PaymentService {
         }
     }
 
-    public List<PaymentIntentDTO> getTransactionsHistory(String customerEmail) {
+    public List<TransactionDTO> getTransactionsHistory(String customerEmail) {
         Stripe.apiKey = stripeConfig.getApiKey();
 
         try {
@@ -198,28 +233,152 @@ public class PaymentService {
                 CustomerBalanceTransactionsParams params =
                         CustomerBalanceTransactionsParams.builder().build();
 
-                CustomerBalanceTransactionCollection transactionCollection = customer.balanceTransactions(params);
-                List<CustomerBalanceTransaction> transactions = transactionCollection.getData();
+                CustomerBalanceTransactionCollection balanceTransactionCollection = customer.balanceTransactions(params);
+                List<CustomerBalanceTransaction> balanceTransactions =
+                        balanceTransactionCollection.getData();
 
-                List<PaymentIntentDTO> paymentIntents = new ArrayList<>();
-                for (CustomerBalanceTransaction transaction : transactions) {
-                    PaymentIntentDTO paymentIntentDTO = new PaymentIntentDTO();
-                    paymentIntentDTO.setId(transaction.getId());
-                    paymentIntentDTO.setAmount(transaction.getAmount()/100.0);
-                    paymentIntentDTO.setCurrency(transaction.getCurrency());
-                    paymentIntentDTO.setDescription(transaction.getDescription());
-                    paymentIntentDTO.setCreatedFromTimestamp(transaction.getCreated());
-                    paymentIntents.add(paymentIntentDTO);
+                ChargeListParams chargeParams = ChargeListParams.builder()
+                        .setCustomer(customer.getId())
+                        .build();
+                ChargeCollection chargeCollection = Charge.list(chargeParams);
+                List<Charge> charges = chargeCollection.getData();
+                List<TransactionDTO> allTransactions = new ArrayList<>();
+
+                for (CustomerBalanceTransaction transaction : balanceTransactions) {
+                    TransactionDTO transactionDTO = new TransactionDTO();
+                    transactionDTO.setId(transaction.getId());
+                    transactionDTO.setObject(transaction.getObject());
+                    transactionDTO.setAmount(transaction.getAmount()/100.0);
+                    transactionDTO.setCurrency(transaction.getCurrency());
+                    transactionDTO.setDescription(transaction.getDescription());
+                    transactionDTO.setCreatedFromTimestamp(transaction.getCreated());
+                    allTransactions.add(transactionDTO);
+                }
+                for (Charge charge : charges) {
+                    TransactionDTO transactionDTO = new TransactionDTO();
+                    transactionDTO.setId(charge.getId());
+                    transactionDTO.setObject(charge.getObject());
+                    transactionDTO.setAmount(charge.getAmount() / 100.0);
+                    transactionDTO.setCurrency(charge.getCurrency());
+                    transactionDTO.setDescription(charge.getDescription());
+                    transactionDTO.setCreatedFromTimestamp(charge.getCreated());
+                    transactionDTO.setStatus(charge.getStatus());
+                    transactionDTO.setStatus(charge.getStatus());
+                    allTransactions.add(transactionDTO);
                 }
 
-                return paymentIntents;
+
+                allTransactions.sort(Comparator.comparing(TransactionDTO::getCreated).reversed());
+                return allTransactions;
             }
         } catch (StripeException e) {
             throw new RuntimeException("Error retrieving customer transactions from Stripe", e);
         }
     }
 
-    public String createCustomerBalanceTransaction(String customerEmail, Double amount) {
+    public String createCardPaymentRefund(String chargeId, String userEmail) {
+        Stripe.apiKey = stripeConfig.getApiKey();
+
+        try {
+            Charge charge;
+            try {
+                charge = Charge.retrieve(chargeId);
+            } catch (InvalidRequestException e) {
+                if (e.getStripeError().getCode().equals("resource_missing")) {
+                    return "The charge with the specified ID does not exist.";
+                } else {
+                    throw e;
+                }
+            }
+
+            if ("refunded".equals(charge.getDescription())) {
+                return "This charge has already been refunded.";
+            }
+
+            String balanceTransactionId = charge.getMetadata().get("balance_transaction_id");
+            if (balanceTransactionId == null || balanceTransactionId.trim().isEmpty()) {
+                return "Invalid balance transaction ID.";
+            }
+
+            String response = refundCustomerBalanceTransaction(balanceTransactionId, userEmail);
+
+            if("success".equals(response)){
+
+                RefundCreateParams refundParams = RefundCreateParams.builder()
+                        .setCharge(chargeId)
+                        .build();
+                Refund refund = Refund.create(refundParams);
+
+                ChargeUpdateParams updateParams = ChargeUpdateParams.builder()
+                        .setDescription("refunded")
+                        .build();
+                charge.update(updateParams);
+
+                return refund.getStatus();
+            } else return "Error refunding the associated balance transaction: " + response;
+        } catch (StripeException e) {
+            throw new PaymentException(e.getMessage());
+        }
+    }
+
+    public String refundCustomerBalanceTransaction(String transactionId, String userEmail) {
+        Stripe.apiKey = stripeConfig.getApiKey();
+
+        try {
+            if (transactionId == null || transactionId.trim().isEmpty()) {
+                return "Invalid transaction ID.";
+            }
+            CustomerListParams customerListParams = CustomerListParams.builder()
+                    .setEmail(userEmail)
+                    .build();
+
+            List<Customer> customers = Customer.list(customerListParams).getData();
+            if (customers.isEmpty()) {
+                return "No customer found with email: " + userEmail;
+            }
+
+            Customer customer = customers.get(0);
+            CustomerBalanceTransactionCollection balanceTransactions =
+                    customer.balanceTransactions().list(CustomerBalanceTransactionCollectionListParams.builder().build());
+
+            for (CustomerBalanceTransaction txn : balanceTransactions.getData()) {
+                if (txn.getDescription() != null && txn.getDescription().contains("Refund for transaction: " + transactionId)) {
+                    return "A refund has already been issued for this transaction.";
+                }
+            }
+
+
+            CustomerBalanceTransaction transaction;
+            try {
+                transaction = customer.balanceTransactions().retrieve(transactionId);
+                if(transaction.getDescription().contains("Refund for transaction:"))
+                    return "This transaction is a refund.";
+            } catch (InvalidRequestException e) {
+                if (e.getStripeError().getCode().equals("resource_missing")) {
+                    return "The balance transaction with the specified ID does not exist.";
+                } else {
+                    throw e;
+                }
+            }
+
+
+            // Create the refund transaction
+            CustomerBalanceTransactionCollectionCreateParams params =
+                    CustomerBalanceTransactionCollectionCreateParams.builder()
+                            .setAmount((long)(transaction.getAmount() * -1.0))
+                            .setCurrency(transaction.getCurrency())
+                            .setDescription("Refund for transaction: " + transactionId)
+                            .build();
+
+            CustomerBalanceTransaction refundTransaction = customer.balanceTransactions().create(params);
+            return "success";
+
+        } catch (StripeException e) {
+            return "Error refunding customer balance transaction: " + e.getMessage();
+        }
+    }
+
+    public String payForParkingSpot(String customerEmail, Double amount) {
         Stripe.apiKey = stripeConfig.getApiKey();
 
         try {
@@ -232,24 +391,25 @@ public class PaymentService {
                 throw new RuntimeException("No customer found with email: " + customerEmail);
             } else {
                 Customer customer = customers.get(0);
-                Double currentBalance = customer.getBalance()/100.0;
+                Double currentBalance = customer.getBalance() / 100.0;
 
-                if((currentBalance + amount) < 0)
+                if ((currentBalance - amount) < 0) {
                     return "insufficient-balance";
-                else {
+                } else {
                     CustomerBalanceTransactionCollectionCreateParams params =
                             CustomerBalanceTransactionCollectionCreateParams.builder()
-                                    .setAmount((long)(amount*100)) // Positive to increase, negative to decrease
+                                    .setAmount((long) (amount * -100)) // Negative to decrease
                                     .setCurrency("ron")
+                                    .setDescription("Payment for parking spot")
                                     .build();
 
-                    CustomerBalanceTransaction customerBalanceTransaction =
+                    CustomerBalanceTransaction transaction =
                             customer.balanceTransactions().create(params);
                     return "success";
                 }
             }
         } catch (StripeException e) {
-            throw new RuntimeException("Error creating customer balance transaction", e);
+            throw new RuntimeException("Error creating customer balance transaction for parking spot", e);
         }
     }
 }

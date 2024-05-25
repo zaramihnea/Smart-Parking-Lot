@@ -6,11 +6,13 @@ import lombok.Setter;
 import java.util.Date;
 
 @Getter @Setter
-public class PaymentIntentDTO {
+public class TransactionDTO {
     private String id;
+    private String object;
     private Double amount;
     private String currency;
     private String description;
+    private String status;
     private Date created;
 
     public void setCreatedFromTimestamp(Long timestamp) {

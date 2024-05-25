@@ -6,19 +6,12 @@ import lombok.Setter;
 @Getter@Setter
 public class PaymentDetailsDTO {
 
-    private String userEmail;
+    private String email;
     private Double amount;
 
-    public PaymentDetailsDTO(String userEmail, Double amount) {
-        this.userEmail = userEmail;
+    public PaymentDetailsDTO(String email, Double amount) {
+        this.email = email;
         this.amount = amount;
     }
 
-    @Override
-    public String toString() {
-        return "PaymentDetailsDTO{" +
-                "userEmail='" + userEmail + '\'' +
-                ", amount=" + amount +
-                '}';
-    }
 }
