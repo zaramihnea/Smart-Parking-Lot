@@ -40,9 +40,10 @@ public class ParkingLot {
     public ParkingLot() {
     }
 
-    public ParkingLot(Long id, User user, Integer nrSpots, Float price, BigDecimal latitude, BigDecimal longitude) {
+    public ParkingLot(Long id, User user, String name, Integer nrSpots, Float price, BigDecimal latitude, BigDecimal longitude) {
         this.id = id;
         this.user = user;
+        this.name = name;
         this.nrSpots = nrSpots;
         this.price = price;
         this.latitude = latitude;

@@ -47,6 +47,9 @@ public class ReservationService {
 
 
             ParkingSpot spot = parkingSpotService.getById(spotId);
+            if(spot == null) {
+                return ResponseEntity.badRequest().body("Spot could not be reserved. Spot not found");
+            }
             Reservation reservation = new Reservation(car, spot, startTimestamp, endTimestamp, "active");
             reservationRepository.save(reservation);  // Persist the reservation
 
