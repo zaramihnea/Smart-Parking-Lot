@@ -32,10 +32,10 @@ public class ParkingLot {
     @Column(name = "price")
     private Float price;
 
-    @Column(name = "latitude", precision=10, scale=8)
+    @Column(name = "latitude", precision=10, scale=7)
     private BigDecimal latitude;
 
-    @Column(name = "longitude", precision=10, scale=8)
+    @Column(name = "longitude", precision=10, scale=7)
     private BigDecimal longitude;
 
     public ParkingLot() {

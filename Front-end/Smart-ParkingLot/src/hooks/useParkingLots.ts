@@ -1,20 +1,20 @@
 import { useCallback } from "react";
 import { ParkingLot } from "../types/ParkingLot";
 
-interface ParkingLotsAndClosest {
+interface ParkingLotsAndClosestLot {
   parkingLots: ParkingLot[];
   closestLot: ParkingLot | null;
 }
 
 export default function useParkingLots() {
-  const getParkingLotsAndClosestLot = useCallback((
+  const getAvailableParkingLotsAndClosestLot = useCallback((
     baseUrl: string,
     radius: number,
     latitude: number,
     longitude: number,
     startTime: string,
     stopTime: string
-  ): Promise<ParkingLotsAndClosest> => {
+  ): Promise<ParkingLotsAndClosestLot> => {
     return fetch(`${baseUrl}/parking_lot/available-spots-search?radius=${radius}&latitude=${latitude}&longitude=${longitude}&start_time=${startTime}&stop_time=${stopTime}`, {
       method: 'GET',
     })
@@ -58,7 +58,48 @@ export default function useParkingLots() {
     });
   }, []);
 
-  return { getParkingLotsAndClosestLot };
+  const getParkingLots = useCallback((
+    baseUrl: string,
+    radius: number,
+    latitude: number,
+    longitude: number
+  ): Promise<ParkingLot[]> => {
+    return fetch(`${baseUrl}/parking_lot/search?radius=${radius}&latitude=${latitude}&longitude=${longitude}`, {
+      method: 'GET',
+    })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      return response.json();
+    })
+    .then(data => {
+      const parkingLots: ParkingLot[] = [];
+
+      for (const parkingLotData of data) {
+        const lot: ParkingLot = {
+          id: parkingLotData.parkingLot.id,
+          adminEmail: parkingLotData.parkingLot.adminEmail,
+          name: parkingLotData.parkingLot.name,
+          nrSpots: parkingLotData.parkingLot.nrSpots,
+          price: parkingLotData.parkingLot.price,
+          latitude: parkingLotData.parkingLot.latitude,
+          longitude: parkingLotData.parkingLot.longitude,
+          parkingSpotsIds: parkingLotData.parkingSpotsIds,
+        };
+
+        parkingLots.push(lot);
+      }
+
+      return parkingLots;
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      return [];
+    });
+  }, []);
+
+  return { getAvailableParkingLotsAndClosestLot, getParkingLots };
 }
 
 
