@@ -1,16 +1,40 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import SearchBar from '../components/SearchBar';
 import Navbar from '../components/Navbar';
+import { ParkingLot } from '../types/ParkingLot';
+import Cookies from 'js-cookie';
+
 
 const AdminPanelPage: React.FC = () => {
     const navigate = useNavigate();
+    const [parkingLots, setParkingLots] = useState<ParkingLot[]>([]);
 
-    const parkingLots = [
-        { id: 1, name: 'Lot 1' },
-        { id: 2, name: 'Lot 2' },
-        { id: 3, name: 'Lot 3' },
-    ];
+    useEffect(() => {
+        const fetchParkingLots = async () => {
+            const token = Cookies.get('authToken');
+            const baseURL = process.env.API_BASE_URL;
+
+            try {
+                const response = await fetch(`${baseURL}/admin/my-parking-lots`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+
+                const data: ParkingLot[] = await response.json();
+                setParkingLots(data);
+            } catch (error) {
+                console.error('Error fetching parking lots:', error);
+            }
+        };
+
+        fetchParkingLots();
+    }, []);
 
     return (
         <div className="flex flex-col min-h-screen bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-white p-4 pb-16">
@@ -27,8 +51,8 @@ const AdminPanelPage: React.FC = () => {
                     </button>
                     <h2 className="text-xl font-semibold mb-4">Parking Lots</h2>
                     <div className="space-y-4">
-                        {parkingLots.map((lot) => (
-                            <div key={lot.id} className="flex justify-between items-center">
+                        {parkingLots.map((lot, index) => (
+                            <div key={lot.id} className={`flex justify-between items-center ${index !== parkingLots.length - 1 ? 'border-b-2 py-4' : ''}`}>
                                 <span>{lot.name}</span>
                                 <button
                                     className="px-4 py-2 bg-gray-300 dark:bg-gray-700 text-gray-900 dark:text-white font-bold rounded-lg shadow-md hover:bg-gray-400 dark:hover:bg-gray-600 transition duration-300"
