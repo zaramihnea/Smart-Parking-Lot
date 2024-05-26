@@ -36,4 +36,9 @@ public class CarService {
         Car car = carRepository.getCarById(id);
         return car.getPlate();
     }
+
+    public boolean deleteCarByPlateAndUser(String plate, User user){
+        int deletedCount = carRepository.deleteByPlateAndUser(plate, user);
+        return deletedCount > 0;
+    }
 }
