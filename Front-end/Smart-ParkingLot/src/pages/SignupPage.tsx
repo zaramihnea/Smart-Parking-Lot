@@ -12,8 +12,6 @@ const SignupPage: React.FC = () => {
     const [password, setPassword] = useState('');
     const [passwordConfirm, setPasswordConfirm] = useState('');
 
-    const [fname, setFname] = useState('');
-    const [lname, setLname] = useState('');
     const [dob, setDob] = useState('');
     const [country, setCountry] = useState('');
     const [city, setCity] = useState('');
@@ -74,11 +72,11 @@ const SignupPage: React.FC = () => {
     };
 
     const handleSignup = async () => {
-        if (fname && lname && dob && country && city) {
-            console.log("Sending data to backend:", tempEmail, tempPassword, tempUsername, fname, lname, dob, country, city);
+        if (dob && country && city) {
+            console.log("Sending data to backend:", tempEmail, tempPassword, tempUsername, dob, country, city);
     
-            if (fname && lname && dob && country && city) {
-                console.log("Sending data to backend:", tempEmail, tempPassword, tempUsername, fname, lname, dob, country, city);
+            if (dob && country && city) {
+                console.log("Sending data to backend:", tempEmail, tempPassword, tempUsername, dob, country, city);
     
                 try {
                     const response = await fetch(`${baseUrl}/user/register`, {
@@ -89,7 +87,7 @@ const SignupPage: React.FC = () => {
                         body: JSON.stringify({
                             email: tempEmail,
                             password: tempPassword,
-                            username: tempUsername,
+                            name: tempUsername,
                             dob: formatDate(dob),
                             country: country,
                             city: city,
@@ -99,7 +97,7 @@ const SignupPage: React.FC = () => {
                     console.log(JSON.stringify({
                         email: tempEmail,
                         password: tempPassword,
-                        username: tempUsername,
+                        name: tempUsername,
                         dob: formatDate(dob),
                         country: country,
                         city: city,
@@ -215,20 +213,6 @@ const SignupPage: React.FC = () => {
                         </>
                     ) : (
                         <>
-                            <input
-                                type="text"
-                                placeholder="First Name"
-                                value={fname}
-                                onChange={(e) => setFname(e.target.value)}
-                                className="w-full max-w-xs px-4 py-2 mb-4 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:border-purple-500"
-                            />
-                            <input
-                                type="text"
-                                placeholder="Last Name"
-                                value={lname}
-                                onChange={(e) => setLname(e.target.value)}
-                                className="w-full max-w-xs px-4 py-2 mb-4 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:border-purple-500"
-                            />
                             <input
                                 type="date"
                                 placeholder="Date of Birth"
