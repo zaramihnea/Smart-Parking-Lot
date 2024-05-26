@@ -33,15 +33,15 @@ const AdminQuestions: React.FC = () => {
       <div className="flex-grow p-4">
         <SearchBar placeholder="Search for parking spot" />
         <div className="mt-4 flex justify-between items-center">
-          <h1 className="text-2xl font-bold text-purple-500">Pending Questions</h1>
-          <button
-            onClick={() => navigate(-1)} // Correcting the back navigation
-            className="px-4 py-2 bg-purple-600 text-white font-bold rounded-lg shadow-md hover:bg-purple-700 transition duration-300"
+        </div>
+        <div className="mt-6 max-w-md mx-auto bg-gray-800 p-6 rounded-lg shadow-lg">
+        <button
+            onClick={() => navigate('/profile/admin')}
+            className="px-4 py-2 bg-purple-600 text-white font-bold rounded-lg shadow-md hover:bg-purple-700 transition duration-300 mb-6"
           >
             Back
           </button>
-        </div>
-        <div className="mt-6 max-w-md mx-auto bg-gray-800 p-6 rounded-lg shadow-lg">
+
           {questions.map(q => (
             <div key={q.id} className="mb-4">
               <div className="bg-gray-700 p-4 rounded-lg shadow-md mb-2">

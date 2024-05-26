@@ -4,26 +4,25 @@ import Homepage from './Homepage';
 import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
-import AdminPanelPage from './pages/AdminPanelPage';
-import ProfileAdminPage from './pages/ProfileAdminPage';
+import AdminPanel from './pages/AdminPanel';
+import ParkingLotManagerPanel from './pages/ParkingLotManagerPanel';
 import SeeAllUsersAdmin from './pages/SeeAllUsersAdmin';
 import AdminQuestions from './pages/AdminQuestions';
 import AddParkingLotPage from './pages/AddParkingLotPage';
 import EditParkingLotPage from './pages/EditParkingLotPage';
 import AccountBalance from './pages/AccountBalance';
 import Profiles from './pages/Profiles';
+import ProfileAdmin from './pages/AdminProfile';
+import ProfileParkingLotManager from './pages/ProfileParkingLotManager';
 import Details from './pages/Details';
 import Cars from './pages/Cars';
 import Messages from './pages/Messages';
-import SettingsPage from './pages/SettingsPage';
 import Reserve1 from './pages/reserve1';
 import MapPage from './pages/reserve2';
 import HelpPage from './pages/HelpPage';
-import DetailsAdminPage from './pages/DetailsAdminPage';
-import UnseenWarningAdmin from './pages/UnseenWarningAdmin';
-import SeeAllParkingSpots from './pages/SeeAllParkingSpots';
 import LoadingPage from './pages/LoadingPage';
 import ResultsPage from './pages/ResultsPage';
+import SeeAllParkingSpots from './pages/SeeAllParkingSpots';
 import './App.css';
 
 const InstallPrompt: React.FC<{ device: string }> = ({ device }) => {
@@ -61,7 +60,7 @@ const App: React.FC = () => {
     }
 
     const fetchUserType = async () => {
-      const fetchedUserType = 1; // 1: normal user, 2: parking manager, 3: app admin
+      const fetchedUserType = 2; // 1: normal user, 2: parking manager, 3: app admin
       setUserType(fetchedUserType);
     };
 
@@ -74,35 +73,32 @@ const App: React.FC = () => {
         <Router>
           <Routes>
             <Route path="/" element={<LoginPage />} />
-            <Route path="/home" element={<Homepage />} />
             <Route path="/signup" element={<SignupPage />} />
             <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+            <Route path="/home" element={<Homepage />} />
             <Route path="/profile" element={
               userType === 1 ? <Profiles /> :
-              userType === 3 ? <ProfileAdminPage /> :
-              userType === 2 ? <AdminPanelPage /> :
+              userType === 2 ? <ProfileParkingLotManager /> :
+              userType === 3 ? <ProfileAdmin /> :
               <Navigate to="/" />
             } />
             <Route path="/profile/messages" element={<Messages />} />
             <Route path="/profile/cars" element={<Cars />} />
             <Route path="/profile/details" element={<Details />} />
             <Route path="/profile/reserve" element={<Reserve1 />} />
-            <Route path="/profile/add-parking-lot" element={<AddParkingLotPage />} />
-            <Route path="/profile/edit-parking-lot/:id" element={<EditParkingLotPage />} />
-            <Route path="/profile/unseen-questions" element={<AdminQuestions />} />
-            <Route path="/profile/admin-details" element={< DetailsAdminPage/>} />
-            <Route path="/profile/see-all-users" element={<SeeAllUsersAdmin />} />
-            <Route path="/profile/admin-questions" element={<AdminQuestions />} />
-            <Route path="/profile/unseen-warning-admin" element={<UnseenWarningAdmin />} />
+            <Route path="/profile/admin-parking-panel" element={<ParkingLotManagerPanel />} />
+            <Route path="/profile/admin-parking-panel/add-parking-lot" element={<AddParkingLotPage />} />
+            <Route path="/profile/admin-parking-panel/edit-parking-lot/:id" element={<EditParkingLotPage />} />
+            <Route path="/profile/admin" element={<AdminPanel />} />
+            <Route path="/profile/admin/see-all-users" element={<SeeAllUsersAdmin />} />
+            <Route path="/profile/admin/questions" element={<AdminQuestions />} />
             <Route path="/balance" element={<AccountBalance />} />
-            <Route path="/settings" element={<SettingsPage />} />
             <Route path="/home/reserve1" element={<Reserve1 />} />
             <Route path="/home/reserve1/reserve2" element={<MapPage />} />
             <Route path="/help" element={<HelpPage />} />
-            <Route path="/details-admin" element={<DetailsAdminPage />} />
-            <Route path="/see-all-parking-spots" element={<SeeAllParkingSpots />} />
             <Route path="/loading" element={<LoadingPage />} />
             <Route path="/results" element={<ResultsPage />} />
+            <Route path="/see-all-parking-spots" element={<SeeAllParkingSpots />} />
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>
         </Router>
