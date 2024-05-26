@@ -1,9 +1,16 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
 import { LatLngExpression } from 'leaflet';
 import 'leaflet-defaulticon-compatibility';
 import 'leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.css';
+import { ParkingLot } from '../types/ParkingLot';
+import useParkingLots from '../hooks/useParkingLots';
+import { ConfirmationModal } from './ReservationModal';
+import useReservations from '../hooks/useReservations';
+import { Car } from '../types/Car';
+import useSavedCars from '../hooks/useSavedCars';
+
 
 // Define custom icons
 const greenIcon = new L.Icon({
@@ -44,163 +51,179 @@ const orangeIcon = new L.Icon({
 // }
 
 function Map() {
-    // hardcoded parking lot for demo
-    const hardcodedParkingLot = {
-        id: "Parcare Xenopol demo",
-        nrSpots: 14,
-        price: 6,
-        latitude: 47.17410240,
-        longitude: 27.57246130
-    };
-
-    const availableHardcodedParkingLot = {
-        id: "Parcare Xenopol demo",
-        nrSpots: 10,
-        price: 6,
-        latitude: 47.17410240,
-        longitude: 27.57246130
-    };
+    const baseUrl = process.env.API_BASE_URL;
+    const [baseUrlString]= useState<string>(baseUrl || 'http://localhost:8081');
 
     // center of the map, currently set on Iasi
-    const centerOfIasi: LatLngExpression = [47.16212698716967, 27.588606476783752];
+    // wrap the centerOfIasi in a useMemo hook to avoid recalculating it on every render
+    const centerOfIasi: LatLngExpression = useMemo(() => [47.16212698716967, 27.588606476783752], []);
     
-    // full parking lot info
-    const [parkingLots, setParkingLots] = useState([hardcodedParkingLot]);
-    
-    // info of available parking spots between a timeframe
-    const [availableParkingLots, setAvailableParkingLots] = useState([availableHardcodedParkingLot]);
+    // const [parkingLots, setParkingLots] = useState<ParkingLot[]>([]);
+    const [availableParkingLots, setAvailableParkingLots] = useState<ParkingLot[]>([]);
+    const {getAvailableParkingLotsAndClosestLot } = useParkingLots();
+
     
     // fetching parkingLots (backend documentation item nr.6)
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const response = await fetch("http://localhost:8081/parking_lot/search?radius=100&latitude=47.1741024&longitude=27.5724613");
-                if (!response.ok) {
-                    throw new Error('Network error ' + response.statusText);
-                }
-                const data = await response.json();
-                setParkingLots(data);
-            } catch (error) {
-                console.error('Fetch error:', error);
-            }
-        };
-        fetchData();
-    }, []);
+    // useEffect(() => {
+    //     const fetchData = async () => {
+    //         try {
+    //             const radius = 3000;
+    //             const startTime = new Date(); // Current time
+    //             const stopTime = new Date(startTime.getTime() + 15 * 60 * 60 * 1000); // 15 hours from now
+    //             startTime.setMilliseconds(0);
+    //             stopTime.setMilliseconds(0);
+
+    //             const data = await getParkingLots(baseUrlString, radius, centerOfIasi[0], centerOfIasi[1]);
+    //             setParkingLots(data);
+    //             console.log(data);
+    //         } catch (error) {
+    //             console.error('Fetch error:', error);
+    //         }
+    //     }
+    //     fetchData();
+    // }, [baseUrlString, getParkingLots, centerOfIasi]);
+        
 
     // fetching availableParkingLots (backend documentation item nr.7)
+    
     useEffect(() => {
         const fetchData = async () => {
-            const formattedStartTime = new Date().toISOString();
-            const formattedEndTime = new Date(new Date().setHours(new Date().getHours() + 1)).toISOString();
-
             try {
-                const url = `http://localhost:8081/parking_lot/available-spots-search?radius=100&latitude=47.1741024&longitude=27.5724613&start_time=${formattedStartTime}&stop_time=${formattedEndTime}`;
-                const response = await fetch(url);
-                if (!response.ok) {
-                    throw new Error('Network error ' + response.statusText);
-                }
-                const data = await response.json();
-                setAvailableParkingLots(data);
+                const radius = 3000;
+                const startTime = new Date(); // Current time
+                const stopTime = new Date(startTime.getTime() + 15 * 60 * 60 * 1000); // 15 hours from now
+                startTime.setMilliseconds(0);
+                stopTime.setMilliseconds(0);
+
+                const formattedStartTime = startTime.toISOString().slice(0, 19) + 'Z';
+                const formattedStopTime = stopTime.toISOString().slice(0, 19) + 'Z';
+
+                const data = await getAvailableParkingLotsAndClosestLot(baseUrlString, radius, centerOfIasi[0], centerOfIasi[1], formattedStartTime, formattedStopTime);
+                setAvailableParkingLots(data.parkingLots);
+                console.log(data);
             } catch (error) {
                 console.error('Fetch error:', error);
             }
         }
         fetchData();
-    }, []);
+    }, [baseUrlString, getAvailableParkingLotsAndClosestLot, centerOfIasi]);
 
-    // adding field 'availableSpots' to parkingLots that is equal to availableParkingLots.nrSpots
-    const mergedParkingLots = parkingLots.map(lot => {
-        const availableLot = availableParkingLots.find(availableLot => availableLot.id === lot.id);
-        return {
-            ...lot,
-            availableSpots: availableLot ? availableLot.nrSpots : 0
-        };
-    });
 
+    const [modalIsOpen, setModalIsOpen] = useState(false);
+    const [modalMessage, setModalMessage] = useState('');
+    const [modalTitle, setModalTitle] = useState('');
     // TODO: action when user clicks 'Reserve' button
-    const handleReserveClick = async (lotId: string) => {
-        if (window.confirm(`Reserve a parking spot at ${lotId}?`)) {
 
-            alert(`Reserved spot at lot ${lotId}`); //demo
-
-            /*
-            const reservationDetails = {
-                spotID: lotId,
-                startTime: startTime.toISOString(),
-                endTime: endTime.toISOString(),
-                carPlate: carPlate,
-                carCapacity: carCapacity,
-                carType: carType
-            };
-
-            try {
-                // backend documentation item nr.10
-                const response = await fetch("http://localhost:8081/reservation/reserve", {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${jwtToken}`
-                    },
-                    body: JSON.stringify(reservationDetails)
-                });
-
-                const message = await response.text();
-
-                switch (message) {
-                    case "Invalid token":
-                        alert("Invalid token");
-                        break;
-                    case "Parking spot not available":
-                        alert("Parking spot not available");
-                        break;
-                    case "User does not have enough money in his balance":
-                        alert("Not enough money");
-                        break;
-                    case "Spot reserved successfully":
-                        alert("Spot reserved successfully");
-                        break;
-                    default:
-                        alert("Unexpected response: " + message);
-                        break;
-                }
-            } catch (error) {
-                console.error('Reservation error:', error);
-                alert('An error occurred while reserving the spot.');
-            }
-            */
-        }
+    const [lotToReserve, setLotToReserve] = useState<number>(-1);
+    const handleReserveClick = async (lotId: number) => {
+        console.log("Reserving spot at lot", lotId);
+        setLotToReserve(lotId);
+        setModalTitle('Confirmation');
+        setModalMessage(`Reserve parking spot at this parking lot?`);
+        setModalIsOpen(true);
     };
+
+
+    const [cars , setCars] = useState<Car[]>([]);
+
+    const { getUserCars } = useSavedCars();
+
+    useEffect(() => {
+        getUserCars(baseUrlString).then((fetchedCars: Car[]) => {
+            setCars(fetchedCars);
+        });
+    }, [baseUrlString, getUserCars]);
+
+    const { reserveParkingSpot } = useReservations();
+    const confirmReservation = async (hoursToReserve: number, carId: number) => {
+        setModalIsOpen(false);
+        // Place your reservation logic here
+        alert(`Reserved spot at lot ${lotToReserve}`); // Replace this alert with another modal for a nicer experience
+
+
+        const now = new Date();
+
+        const startTime = new Date(now.getTime() + 3 * 60 * 60 * 1000).toISOString().slice(0, 19) + 'Z';
+        const stopTime = new Date(new Date().getTime() + (hoursToReserve + 3) * 60 * 60 * 1000).toISOString().slice(0, 19) + 'Z'; 
+        
+        const car = cars.find(car => car.id === carId);
+
+        if(!car) {
+            alert('Car not found');
+            return;
+        }
+
+        const parkingLot: ParkingLot | undefined = availableParkingLots.find(lot => lot.id === lotToReserve);
+
+        if(!parkingLot) {
+            alert('Parking lot not found');
+            return;
+        }
+
+        const parkingSpotIdToReserve = parkingLot.parkingSpotsIds[0];
+
+        const result = await reserveParkingSpot(baseUrlString, parkingSpotIdToReserve, startTime, stopTime, car.plate, car.capacity, car.model);
+
+        console.log(baseUrlString, lotToReserve, startTime, stopTime, car.plate, car.capacity, car.model);
+
+        console.log(result);
+
+        if (result === 'Spot reserved successfully') {
+            alert('Reservation successful');
+        } else {
+            alert('Reservation failed');
+        }
+      };
 
     return (
         <MapContainer center={centerOfIasi} zoom={14} style={{ height: '100vh', width: '100%' } } zoomControl={false}>
             <TileLayer
-                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            />
-            {mergedParkingLots.map(lot => {
-                const availabilityPercentage = (lot.availableSpots / lot.nrSpots) * 100;
-                let icon = greenIcon;
-                if (availabilityPercentage === 0) {
-                    icon = redIcon;
-                } else if (availabilityPercentage < 30) {
-                    icon = orangeIcon;
-                }
-                return (
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        />
+        {availableParkingLots.map(lot => {
+            let availabilityPercentage;
+            if(lot.parkingSpotsIds.length === 0) {
+                availabilityPercentage = 0;
+            }
+            else {
+                availabilityPercentage = lot.parkingSpotsIds.length / lot.nrSpots * 100;
+            }
+
+            const spotsAvailable = `${lot.nrSpots} / ${lot.parkingSpotsIds.length}`;
+            let icon = greenIcon;
+            if (availabilityPercentage === 0) {
+                icon = redIcon;
+            } else if (availabilityPercentage < 30) {
+                icon = orangeIcon;
+            }
+
+            return (
                 <Marker
                     key={lot.id}
                     position={[lot.latitude, lot.longitude]}
                     icon={icon}
                 >
                     <Popup>
-                        {lot.id} <br />
-                        Spots: {lot.availableSpots} / {lot.nrSpots} <br />
-                        Price per hour: {lot.price} RON <br />
-                        {lot.availableSpots !== 0 && (
-                            <button onClick={() => handleReserveClick(lot.id)}>Reserve</button>
+                        <p>{lot.name}</p>
+                        <p>Spots: {spotsAvailable}</p>
+                        <p>Price per hour: {lot.price} RON</p>
+                        {availabilityPercentage !== 0 && (
+                            <button className='bg-purple-500 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-full
+                            ' onClick={() => handleReserveClick(lot.id)}>Reserve</button>
                         )}
                     </Popup>
                 </Marker>
-            );
-        })}
+            )})}
+            <div className='flex justify-center align-middle items-center content-center'>
+                <ConfirmationModal
+                    isOpen={modalIsOpen}
+                    onRequestClose={() => setModalIsOpen(false)}
+                    onConfirm={confirmReservation}
+                    title={modalTitle}
+                    message={modalMessage}
+                />
+            </div>
+            
         </MapContainer >
     );
 }

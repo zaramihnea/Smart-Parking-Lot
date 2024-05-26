@@ -24,7 +24,7 @@ export default function ResultsPage() {
   
   const { coordinates }  = useGeocoding(adresss);
 
-  const { getParkingLotsAndClosestLot } = useParkingLots();
+  const { getAvailableParkingLotsAndClosestLot } = useParkingLots();
   
   // fetch the parking lots for the given coordinates
   // show the closest parking lot to the user as parking location
@@ -39,18 +39,18 @@ export default function ResultsPage() {
     const formattedStartTime = startTime.toISOString().slice(0, 19) + 'Z';
     const formattedStopTime = stopTime.toISOString().slice(0, 19) + 'Z';
 
-    getParkingLotsAndClosestLot(baseUrlString, radius, coordinates? coordinates.lat : 0, coordinates? coordinates.lng : 0, formattedStartTime, formattedStopTime).then((parkingLots) => {
+    getAvailableParkingLotsAndClosestLot(baseUrlString, radius, coordinates? coordinates.lat : 0, coordinates? coordinates.lng : 0, formattedStartTime, formattedStopTime).then((parkingLots) => {
       setClosestParkingLot(parkingLots.closestLot);
       setSpotChosen(parkingLots.closestLot?.parkingSpotsIds[0] || -1);
       
     });
-  }, [baseUrlString, getParkingLotsAndClosestLot, coordinates]);
+  }, [baseUrlString, getAvailableParkingLotsAndClosestLot, coordinates]);
 
   const [hoursToReserve, setHoursToReserve] = useState('2');
   const [invalidHoursAlert, setErrorMessage] = useState('');
 
   const [cars, setCars] = useState<Car[]>([]);
-  const [input, setInput] = useState(-1);
+  const [inputCar, setInputCar] = useState(-1);
 
   const { getUserCars } = useSavedCars();
 
@@ -64,7 +64,7 @@ export default function ResultsPage() {
   // set the first car as the default car
   useEffect(() => {
     if (cars.length > 0) {
-      setInput(cars[0].id);
+      setInputCar(cars[0].id);
     }
   }, [cars]);
 
@@ -86,7 +86,7 @@ export default function ResultsPage() {
     }
     
     // Find the car by the id
-    const car = cars.find(car => car.id === input);
+    const car = cars.find(car => car.id === inputCar);
 
     console.log(car);
 
@@ -131,8 +131,8 @@ export default function ResultsPage() {
       <div>
         <p>Choose Car</p>
         <select
-          value={input}
-          onChange={(event) => setInput(Number(event.target.value))}
+          value={inputCar}
+          onChange={(event) => setInputCar(Number(event.target.value))}
           className="w-64 bg-gray-100 dark:bg-gray-800 text-white p-2 rounded-md mb-4"
         > 
           {cars.length === 0 && <option value=''>No cars saved</option>}

@@ -26,7 +26,6 @@ export default function useReservations() {
     .then(data => {
       const reservations: Reservation[] = [];
       for (const reservationData of data) {
-        console.log(reservationData);
         reservations.push(
           {
             id: reservationData.id,
