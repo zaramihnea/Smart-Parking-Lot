@@ -166,6 +166,38 @@ public class UserController {
         return ResponseEntity.ok(result);
     }
 
+    @GetMapping(value = "/details")
+    public ResponseEntity<?> getUserDetails(@RequestHeader("Authorization") String authorizationHeader) {
+        String token = authorizationHeader.substring(7); // Assuming the scheme is "Bearer "
+        if(tokenService.validateToken(token)) {
+            User userAuthorized = tokenService.getUserByToken(token);
+            UserDetailsResponse userDetails = new UserDetailsResponse(
+                    userAuthorized.getEmail(),
+                    userAuthorized.getName(),
+                    userAuthorized.getCity(),
+                    userAuthorized.getCountry()
+            );
+            return ResponseEntity.ok(userDetails);
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token");
+        }
+    }
+
+    @Getter @Setter
+    public static class UserDetailsResponse {
+        private String email;
+        private String name;
+        private String city;
+        private String country;
+
+        public UserDetailsResponse(String email, String name, String city, String country) {
+            this.email = email;
+            this.name = name;
+            this.city = city;
+            this.country = country;
+        }
+    }
+
     @Getter
     @Setter
     public static class RegisterRequest {

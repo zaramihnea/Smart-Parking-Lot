@@ -1,10 +1,45 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import SearchBar from '../components/SearchBar';
 import NavBar from '../components/Navbar';
+import { User } from '../types/User';
+import Cookies from 'js-cookie';
+
 
 const Details: React.FC = () => {
     const navigate = useNavigate();
+    const [userDetails, setUserDetails] = useState<User>({
+        email: '',
+        name: '',
+        city: '',
+        country: ''
+    });
+
+    useEffect(() => {
+        const fetchData = async () => {
+            const token = Cookies.get('authToken');
+            const baseUrl = process.env.API_BASE_URL;
+
+            try {
+                const response = await fetch('http://localhost:8081/user/details', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+
+                const data: User = await response.json();
+                setUserDetails(data);
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            }
+        };
+
+        fetchData();
+    }, []);
 
     return (
         <div className="min-h-screen flex flex-col bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 p-4 pb-16">
@@ -22,19 +57,13 @@ const Details: React.FC = () => {
                     <img src="/profile-Logo.png" alt="profile" className="w-24 h-24 rounded-full mx-auto" />
                     <div className="flex flex-col gap-4 mt-4 justify-center rounded-lg">
                         <button className="bg-gray-300 dark:bg-gray-700 text-gray-900 dark:text-gray-100 font-bold py-2 px-8 rounded-lg shadow-lg">
-                            Name
+                            {userDetails.name}
                         </button>
                         <button className="bg-gray-300 dark:bg-gray-700 text-gray-900 dark:text-gray-100 font-bold py-2 px-8 rounded-lg shadow-lg">
-                            Address
+                             {`${userDetails.city}, ${userDetails.country}`}
                         </button>
                         <button className="bg-gray-300 dark:bg-gray-700 text-gray-900 dark:text-gray-100 font-bold py-2 px-8 rounded-lg shadow-lg">
-                            Country
-                        </button>
-                        <button className="bg-gray-300 dark:bg-gray-700 text-gray-900 dark:text-gray-100 font-bold py-2 px-8 rounded-lg shadow-lg">
-                            Phone Number
-                        </button>
-                        <button className="bg-gray-300 dark:bg-gray-700 text-gray-900 dark:text-gray-100 font-bold py-2 px-8 rounded-lg shadow-lg">
-                            Email
+                            {userDetails.email}
                         </button>
                     </div>
                 </div>
