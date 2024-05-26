@@ -12,6 +12,7 @@ import { Reservation } from './types/Reservation';
 import useSavedCars from './hooks/useSavedCars';
 import useParkingLots from './hooks/useParkingLots';
 
+
 const Homepage: React.FC = () => {
   const baseUrl = process.env.API_BASE_URL;
 
@@ -68,10 +69,13 @@ const Homepage: React.FC = () => {
   }, [baseUrlString, getParkingLotsAndClosestLot]);
 
 
+  
+
   return (
     <div className="min-h-screen flex flex-col bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 p-4 pb-16">
       <div className="sticky top-0 z-50 bg-gray-100 dark:bg-gray-900">
         <SearchBar placeholder="Search for parking spot" />
+        
       </div>
       <div className="mb-8">
         <div className="flex justify-between items-center mt-4">

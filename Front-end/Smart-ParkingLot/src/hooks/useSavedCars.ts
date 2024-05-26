@@ -30,7 +30,8 @@ export default function useSavedCars() {
           {
             id: carData.id,
             model: carData.type,
-            plate: carData.plate
+            plate: carData.plate,
+            capacity: carData.capacity
           }
         )
       }
@@ -45,4 +46,3 @@ export default function useSavedCars() {
 
   return { getUserCars };
 }
-
