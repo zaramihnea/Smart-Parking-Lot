@@ -16,9 +16,15 @@ public interface CarRepository extends JpaRepository<Car, Long> {
     @Query(value = "SELECT * FROM cars WHERE id = :id", nativeQuery = true)
     Car getCarById(Long id);
 
+
+    boolean existsByPlate(String plate);
+
+    Car getByPlate(String plate);
+
     @Modifying
     @Transactional
     @Query("DELETE FROM Car c WHERE c.plate = :plate AND c.user = :user")
     int deleteByPlateAndUser(@Param("plate") String plate, @Param("user") User user);
+
 
 }

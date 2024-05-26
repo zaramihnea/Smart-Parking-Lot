@@ -45,7 +45,10 @@ public class ReservationController {
             User userAuthorized = tokenService.getUserByToken(token);
 
             return ResponseEntity.ok().body(reservationService.getOwnActiveReservations(userAuthorized.getEmail()).stream().map(reservation -> {
-                return new ReservationDetails(reservation.getId(), reservation.getCar_id().getId(), reservation.getParkingSpot().getId(), reservation.getStartTime(), reservation.getStopTime(), reservation.getStatus());
+                String startTimestampWithoutMilliseconds = reservation.getStartTime().toString().substring(0, reservation.getStartTime().toString().length() - 2);
+                String stopTimestampWithoutMilliseconds = reservation.getStopTime().toString().substring(0, reservation.getStopTime().toString().length() - 2);
+
+                return new ReservationDetails(reservation.getId(), reservation.getCar_id().getId(), reservation.getParkingSpot().getId(), startTimestampWithoutMilliseconds, stopTimestampWithoutMilliseconds, reservation.getStatus());
             }));
         }
         else {
@@ -62,7 +65,10 @@ public class ReservationController {
                     return ResponseEntity.badRequest().body("User for which data is requested does not exist");
                 }
                 return ResponseEntity.ok().body(reservationService.getUsersReservations(userEmail).stream().map(reservation -> {
-                    return new ReservationDetails(reservation.getId(), reservation.getCar_id().getId(), reservation.getParkingSpot().getId(), reservation.getStartTime(), reservation.getStopTime(), reservation.getStatus());
+                    String startTimestampWithoutMilliseconds = reservation.getStartTime().toString().substring(0, reservation.getStartTime().toString().length() - 2);
+                    String stopTimestampWithoutMilliseconds = reservation.getStopTime().toString().substring(0, reservation.getStopTime().toString().length() - 2);
+
+                    return new ReservationDetails(reservation.getId(), reservation.getCar_id().getId(), reservation.getParkingSpot().getId(), startTimestampWithoutMilliseconds, stopTimestampWithoutMilliseconds, reservation.getStatus());
                 }));
             }
             else {
@@ -87,12 +93,30 @@ public class ReservationController {
             if(parkingSpotService.checkParkingSpotAvailability(reservationRequest.spotID, startTimestamp, endTimestamp)) {
                 int reservationCost = parkingSpotService.calculateReservationCost(startTimestamp, endTimestamp, reservationRequest.spotID);
                 if(reservationCost < userAuthorized.getBalance()) {
-                    Car userCar = new Car(reservationRequest.carPlate, reservationRequest.carCapacity, reservationRequest.carType, userAuthorized);
-                    carService.addNewCar(userCar);
+                    Car userCar;
+                    if(carService.existsByPlate(reservationRequest.carPlate)) {
+                        userCar = carService.getByPlate(reservationRequest.carPlate);
+                    }
+                    else {
+                        userCar = new Car(reservationRequest.carPlate, reservationRequest.carCapacity, reservationRequest.carType, userAuthorized);
+                        carService.addNewCar(userCar);
+                    }
                     return reservationService.createReservation(userAuthorized, reservationRequest.spotID, startTimestamp, endTimestamp, reservationCost, userCar);
                 }
                 else {
-                    return ResponseEntity.badRequest().body("User does not have enough money in his balance");
+                    ///// COMMENT THIS IN PRODUCTION, RIGHT NOW ALL RESERVATIONS ARE FREE
+                    Car userCar;
+                    if(carService.existsByPlate(reservationRequest.carPlate)) {
+                        userCar = carService.getByPlate(reservationRequest.carPlate);
+                    }
+                    else {
+                        userCar = new Car(reservationRequest.carPlate, reservationRequest.carCapacity, reservationRequest.carType, userAuthorized);
+                        carService.addNewCar(userCar);
+                    }
+                    return reservationService.createReservation(userAuthorized, reservationRequest.spotID, startTimestamp, endTimestamp, reservationCost, userCar);
+                    /////
+
+//                    return ResponseEntity.badRequest().body("User does not have enough money in his balance");
                 }
 
             }
@@ -119,7 +143,10 @@ public class ReservationController {
                     return parkingSpots.stream().anyMatch(parkingSpot -> Objects.equals(parkingSpot.getId(), reservation.getParkingSpot().getId()));
                 }).findFirst().get();
 
-                return new ReservationDetailsWithNameAndCoordinates(reservation.getId(), reservation.getCar_id().getId(), reservation.getParkingSpot().getId(), reservation.getStartTime(), reservation.getStopTime(), reservation.getStatus(), parkingLot.getName(), parkingLot.getLatitude(), parkingLot.getLongitude());
+                String startTimestampWithoutMilliseconds = reservation.getStartTime().toString().substring(0, reservation.getStartTime().toString().length() - 2);
+                String stopTimestampWithoutMilliseconds = reservation.getStopTime().toString().substring(0, reservation.getStopTime().toString().length() - 2);
+
+                return new ReservationDetailsWithNameAndCoordinates(reservation.getId(), reservation.getCar_id().getId(), reservation.getParkingSpot().getId(), startTimestampWithoutMilliseconds, stopTimestampWithoutMilliseconds, reservation.getStatus(), parkingLot.getName(), parkingLot.getLatitude(), parkingLot.getLongitude());
             }));
         }
         else {
@@ -144,10 +171,8 @@ public class ReservationController {
         private Long id;
         private Long car_id;
         private Long parking_spot_id;
-        @JsonFormat(pattern="dd-MM-yyyy HH:mm:ss")
-        private Timestamp start_time;
-        @JsonFormat(pattern="dd-MM-yyyy HH:mm:ss")
-        private Timestamp stop_time;
+        private String start_time;
+        private String stop_time;
         private String status;
     }
 
@@ -157,10 +182,8 @@ public class ReservationController {
         private Long id;
         private Long car_id;
         private Long parking_spot_id;
-        @JsonFormat(pattern="dd-MM-yyyy HH:mm:ss")
-        private Timestamp start_time;
-        @JsonFormat(pattern="dd-MM-yyyy HH:mm:ss")
-        private Timestamp stop_time;
+        private String start_time;
+        private String stop_time;
         private String status;
         private String name;
         private BigDecimal latitude;

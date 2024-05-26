@@ -26,6 +26,7 @@ export default function useReservations() {
     .then(data => {
       const reservations: Reservation[] = [];
       for (const reservationData of data) {
+        console.log(reservationData);
         reservations.push(
           {
             id: reservationData.id,
@@ -48,5 +49,41 @@ export default function useReservations() {
     });
   }, []);
 
-  return { getOwnActiveReservations };
+  const reserveParkingSpot = useCallback((baseUrl: string, parkingSpotId: number, startTime: string, stopTime: string, carPlate: string, carCapacity: number, carType: string): Promise<string> => {
+    const cookies = document.cookie.split(';').map(cookie => cookie.trim().split('='));
+    const authToken = cookies.find(cookie => cookie[0].includes('authToken'));
+
+    if (!authToken) {
+      // Ensure that we return a Promise even if there is no auth token
+      return Promise.resolve("Not logged in");
+    }
+
+    return fetch(`${baseUrl}/reservation/reserve`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${authToken[1]}`,
+      },
+      body: JSON.stringify({
+        spotID: parkingSpotId,
+        startTime: startTime,
+        endTime: stopTime,
+        carPlate: carPlate,
+        carCapacity: carCapacity,
+        carType: carType,
+      }),
+    })
+    .then(response => {
+      return response.text();
+    })
+    .then(data => {
+      return data;
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      return "Internal Server error. Try again later";
+    });
+  }, []);
+
+  return { getOwnActiveReservations, reserveParkingSpot };
 }
