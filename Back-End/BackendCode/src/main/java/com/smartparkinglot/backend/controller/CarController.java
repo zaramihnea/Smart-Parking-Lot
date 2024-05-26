@@ -57,6 +57,22 @@ public class CarController {
         }
     }
 
+    @DeleteMapping("/delete-car")
+    public ResponseEntity<String> deleteCar(@RequestHeader("Authorization") String authorizationHeader, @RequestBody CarDetails car) {
+        String token = authorizationHeader.substring(7);// Assuming the scheme is "Bearer "
+        if (tokenService.validateToken(token)) {
+            User userAuthorized = tokenService.getUserByToken(token);
+            boolean success = carService.deleteCarByPlateAndUser(car.getPlate(), userAuthorized);
+            if (success) {
+                return ResponseEntity.ok().body("Car deleted successfully");
+            } else {
+                return ResponseEntity.badRequest().body("Failed to delete car");
+            }
+        } else {
+            return ResponseEntity.badRequest().body("Authentication token invalid. Protected resource could not be accessed");
+        }
+    }
+
     @Getter @Setter
     @AllArgsConstructor
     public static class CarDetails {

@@ -37,11 +37,17 @@ public class CarService {
         return car.getPlate();
     }
 
+
     public boolean existsByPlate(String plate) {
         return carRepository.existsByPlate(plate);
     }
 
     public Car getByPlate(String plate) {
         return carRepository.getByPlate(plate);
+    }
+
+    public boolean deleteCarByPlateAndUser(String plate, User user){
+        int deletedCount = carRepository.deleteByPlateAndUser(plate, user);
+        return deletedCount > 0;
     }
 }

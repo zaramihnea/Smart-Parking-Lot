@@ -1,6 +1,7 @@
 package com.smartparkinglot.backend.service;
 
 import com.smartparkinglot.backend.DTO.PaymentDetailsDTO;
+import com.smartparkinglot.backend.DTO.RefundRequest;
 import com.smartparkinglot.backend.DTO.TransactionDTO;
 import com.smartparkinglot.backend.DTO.PaymentResponseDTO;
 import com.smartparkinglot.backend.configuration.StripeConfig;
@@ -140,7 +141,7 @@ public class PaymentService {
 
                         charge.update(params);
                     }
-                    yield paymentStatus;
+                    yield "success";
                 }
                 case "processing" -> {
                     log.info("Payment is processing");
@@ -276,6 +277,18 @@ public class PaymentService {
         }
     }
 
+    public String refundPayment(RefundRequest refundRequest) {
+        TransactionDTO transactionDTO = refundRequest.getTransactionDTO();
+        String userEmail = refundRequest.getEmail();
+
+        if(transactionDTO.getObject().equals("charge"))
+            return createCardPaymentRefund(transactionDTO.getId(), userEmail);
+        else if (transactionDTO.getObject().equals("customer_balance_transaction"))
+            return refundCustomerBalanceTransaction(transactionDTO.getId(), userEmail);
+
+        return "error refunding";
+    }
+
     public String createCardPaymentRefund(String chargeId, String userEmail) {
         Stripe.apiKey = stripeConfig.getApiKey();
 
@@ -314,7 +327,9 @@ public class PaymentService {
                         .build();
                 charge.update(updateParams);
 
-                return refund.getStatus();
+                if (refund.getStatus().equals("succeeded"))
+                    return "success";
+                else return refund.getStatus();
             } else return "Error refunding the associated balance transaction: " + response;
         } catch (StripeException e) {
             throw new PaymentException(e.getMessage());

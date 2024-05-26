@@ -1,4 +1,5 @@
 package com.smartparkinglot.backend.controller;
+import com.smartparkinglot.backend.DTO.RefundRequest;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -16,12 +17,14 @@ public class AdminController {
     private final UserService userService;
     private final TokenService tokenService;
     private final ParkingLotService parkingLotService;
+    private final PaymentService paymentService;
 
     @Autowired
-    public AdminController(UserService userService, TokenService tokenService, ParkingLotService parkingLotService) {
+    public AdminController(UserService userService, TokenService tokenService, ParkingLotService parkingLotService, PaymentService paymentService) {
         this.userService = userService;
         this.tokenService = tokenService;
         this.parkingLotService = parkingLotService;
+        this.paymentService = paymentService;
     }
 
     @GetMapping(value = "/all-users")
@@ -148,6 +151,21 @@ public class AdminController {
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred");
+        }
+    }
+
+
+    @PostMapping("/refund")
+    public ResponseEntity<?> refundPayment(@RequestBody RefundRequest refundRequest) {
+        try {
+            String refundSuccess = paymentService.refundPayment(refundRequest);
+            if (refundSuccess.equals("success")) {
+                return ResponseEntity.ok("Refund processed successfully");
+            } else {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Refund processing failed");
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
     }
 
