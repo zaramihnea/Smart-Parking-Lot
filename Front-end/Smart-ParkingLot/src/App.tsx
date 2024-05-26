@@ -6,7 +6,6 @@ import SignupPage from './pages/SignupPage';
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
 import AdminPanelPage from './pages/AdminPanelPage';
 import ProfileAdminPage from './pages/ProfileAdminPage';
-import AdminParkingPage from './pages/AdminParkingPage';
 import SeeAllUsersAdmin from './pages/SeeAllUsersAdmin';
 import AdminQuestions from './pages/AdminQuestions';
 import AddParkingLotPage from './pages/AddParkingLotPage';
@@ -62,7 +61,7 @@ const App: React.FC = () => {
     }
 
     const fetchUserType = async () => {
-      const fetchedUserType = 3; // 1: normal user, 2: parking manager, 3: app admin
+      const fetchedUserType = 1; // 1: normal user, 2: parking manager, 3: app admin
       setUserType(fetchedUserType);
     };
 
