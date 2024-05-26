@@ -1,4 +1,5 @@
 package com.smartparkinglot.backend.controller;
+import com.smartparkinglot.backend.DTO.*;
 import com.smartparkinglot.backend.customexceptions.EmailExistsException;
 import com.smartparkinglot.backend.customexceptions.UsernameExistsException;
 import com.stripe.model.issuing.Authorization;
@@ -21,12 +22,14 @@ public class UserController {
     private final UserService userService;
     private final TokenService tokenService;
     private final EmailService emailService;
+    private final PaymentService paymentService;
 
     @Autowired
-    public UserController(UserService userService, TokenService tokenService, EmailService emailService) {
+    public UserController(UserService userService, TokenService tokenService, EmailService emailService, PaymentService paymentService) {
         this.userService = userService;
         this.tokenService = tokenService;
         this.emailService = emailService;
+        this.paymentService = paymentService;
     }
 
     @GetMapping(value = "/username")
@@ -53,7 +56,7 @@ public class UserController {
         }
     }
 
-    @GetMapping(value = "/balance")
+    @GetMapping( "/balance")
     public ResponseEntity<Double> getUserBalance(@RequestHeader("Authorization") String authorizationHeader) {
         String token = authorizationHeader.substring(7);// Assuming the scheme is "Bearer "
         if(tokenService.validateToken(token)) {
@@ -108,7 +111,7 @@ public class UserController {
 
             emailService.sendResetPasswordEmail(user.getEmail(), resetPasswordLink);
 
-            return ResponseEntity.ok("Email send");
+            return ResponseEntity.ok("Email sent");
 
         }
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Email not found");
@@ -126,6 +129,42 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid or expired token");
     }
 
+
+    // Payment endpoints
+    @GetMapping(value = "/get-stripe-balance")
+    public ResponseEntity<?> getCustomerBalance(@RequestParam("email") String customerEmail) {
+        Double balance = paymentService.retrieveCustomerBalance(customerEmail);
+        return ResponseEntity.ok(balance);
+    }
+
+    @GetMapping(value = "/get-transactions-history")
+    public ResponseEntity<?> getCustomerTransactionsHistory(@RequestParam("email") String customerEmail) {
+        try {
+            List<TransactionDTO> transactions = paymentService.getTransactionsHistory(customerEmail);
+            return ResponseEntity.ok(transactions);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/pay-for-parking-spot")
+    public ResponseEntity<?> payForParkingSpot(@RequestBody PaymentDetailsDTO paymentDetails) {
+        String response = paymentService.payForParkingSpot(paymentDetails.getEmail(), paymentDetails.getAmount());
+        return ResponseEntity.ok(response);
+    }
+
+    //we dont access these directly
+    @PostMapping("/create-payment-intent")
+    public ResponseEntity<PaymentResponseDTO> createPaymentIntent(@RequestBody PaymentDetailsDTO paymentRequest) {
+        PaymentResponseDTO response = paymentService.createPaymentIntent(paymentRequest);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/after-payment-processing")
+    public ResponseEntity<?> handlePaymentStatus(@RequestParam("payment_intent") String paymentIntentId) {
+        String result = paymentService.handlePaymentResult(paymentIntentId);
+        return ResponseEntity.ok(result);
+    }
 
     @Getter
     @Setter
