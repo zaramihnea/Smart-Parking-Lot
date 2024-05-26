@@ -36,4 +36,12 @@ public class CarService {
         Car car = carRepository.getCarById(id);
         return car.getPlate();
     }
+
+    public boolean existsByPlate(String plate) {
+        return carRepository.existsByPlate(plate);
+    }
+
+    public Car getByPlate(String plate) {
+        return carRepository.getByPlate(plate);
+    }
 }

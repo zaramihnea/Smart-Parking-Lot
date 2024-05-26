@@ -10,7 +10,6 @@ import useReservations from "./hooks/useReservations"
 import { Car } from './types/Car';
 import { Reservation } from './types/Reservation';
 import useSavedCars from './hooks/useSavedCars';
-import useParkingLots from './hooks/useParkingLots';
 
 
 const Homepage: React.FC = () => {
@@ -48,28 +47,10 @@ const Homepage: React.FC = () => {
   // Fetch reservations
   useEffect(() => {
     getOwnActiveReservations(baseUrlString).then((reservations) => {
+      console.log(reservations);
       setReservations(reservations);
     });
-  }, [baseUrlString, getOwnActiveReservations]); // Dependencies
-
-  const { getParkingLotsAndClosestLot } = useParkingLots();
-
-  // Fetch parking lots
-  useEffect(() => {
-    const radius = 1000;
-    const latitude = 47.1741024;
-    const longitude = 27.5724613;
-    const startTime = '2024-05-24T12:00:00Z';
-    const stopTime = '2024-05-27T23:00:00Z';
-
-    getParkingLotsAndClosestLot(baseUrlString, radius, latitude, longitude, startTime, stopTime).then((parkingLots) => {
-      console.log(parkingLots.parkingLots);
-      console.log(parkingLots.closestLot);
-    });
-  }, [baseUrlString, getParkingLotsAndClosestLot]);
-
-
-  
+  }, [baseUrlString, getOwnActiveReservations]); // Dependencies 
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 p-4 pb-16">
@@ -90,6 +71,7 @@ const Homepage: React.FC = () => {
 
       <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md mb-8">
         <h2 className="text-xl font-medium mb-4">Reservations</h2>
+        {reservations.length === 0 && <p className='text-gray-400'>No active reservations. Hurry up and give us your money</p>}
         {reservations.map((reservation, index) => (
           <div key={index} className="flex flex-col md:flex-row justify-between items-start md:items-center bg-gray-200 dark:bg-gray-700 p-3 rounded-lg mb-2">
             <div className="flex-1 mb-2 md:mb-0">
@@ -130,6 +112,7 @@ const Homepage: React.FC = () => {
       <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md">
         <h2 className="text-xl font-medium mb-4">Saved Cars</h2>
         <div>
+          {savedCars.length === 0 && <p className='text-gray-400'>No saved cars</p>}
           {savedCars.map((car, index) => (
             <div key={index} className="flex items-center justify-between bg-gray-200 dark:bg-gray-700 p-3 rounded-lg mb-2">
               <div>
