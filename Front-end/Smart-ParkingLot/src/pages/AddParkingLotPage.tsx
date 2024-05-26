@@ -39,6 +39,7 @@ const AddParkingLotPage: React.FC = () => {
   const [latitude, setLatitude] = useState<number | null>(null);
   const [longitude, setLongitude] = useState<number | null>(null);
   const [spaces, setSpaces] = useState(0);
+  const [price, setPrice] = useState(0);
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const navigate = useNavigate();
 
@@ -121,6 +122,19 @@ const AddParkingLotPage: React.FC = () => {
                 type="number"
                 value={spaces}
                 onChange={(e) => setSpaces(parseInt(e.target.value))}
+                className="mt-1 p-2 w-full bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg"
+                required
+                min={1}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-200">
+                Price per Hour
+              </label>
+              <input
+                type="number"
+                value={price}
+                onChange={(e) => setPrice(parseInt(e.target.value))}
                 className="mt-1 p-2 w-full bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg"
                 required
                 min={1}
