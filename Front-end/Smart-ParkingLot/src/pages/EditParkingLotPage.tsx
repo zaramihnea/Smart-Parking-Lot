@@ -12,12 +12,19 @@ const EditParkingLotPage: React.FC = () => {
     { id: 1, name: 'A1' },
     { id: 2, name: 'A2' },
   ]);
+    const [price, setPrice] = useState(10);
 
   const handleDelete = () => {
     // Implement delete logic
     alert('Parking lot deleted!');
     navigate('/profile/admin-parking-panel');
   };
+
+  const handleSave = () => {
+    // Implement save logic
+    alert('Parking lot saved!');
+    navigate('/profile/admin-parking-panel');
+  }
 
   const handleSpaceNameChange = (id: number, name: string) => {
     setSpaces((prevSpaces) =>
@@ -64,6 +71,17 @@ const EditParkingLotPage: React.FC = () => {
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-200">
+                Price
+              </label>
+              <input
+                type="number"
+                value={price}
+                onChange={(e) => setPrice(parseInt(e.target.value))}
+                className="mt-1 p-2 w-full bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-200">
                 Parking Spaces
               </label>
               <p className="text-sm text-gray-500 dark:text-gray-400">
@@ -90,6 +108,12 @@ const EditParkingLotPage: React.FC = () => {
                 className="w-full px-4 py-2 bg-green-600 text-white font-bold rounded-lg shadow-md hover:bg-green-700 transition duration-300 mt-2"
               >
                 Add Parking Space
+              </button>
+              <button
+                onClick={handleSave}
+                className="w-full px-4 py-2 bg-green-600 text-white font-bold rounded-lg shadow-md hover:bg-green-700 transition duration-300 mt-2"
+              >
+                Save
               </button>
             </div>
             <button
