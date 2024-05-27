@@ -15,7 +15,7 @@ const Cars: React.FC = () => {
     const baseUrl = process.env.API_BASE_URL;
 
 
-    const token = Cookies.get('authToken');;
+    const token = Cookies.get('authToken');
 
     useEffect(() => {
         const fetchUserCars = async () => {
