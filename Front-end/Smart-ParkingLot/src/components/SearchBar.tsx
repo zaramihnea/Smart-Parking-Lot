@@ -1,4 +1,4 @@
-import React, { FormEvent, useEffect, useState } from "react";
+import React, { FormEvent, useEffect, useRef, useState } from "react";
 import { useImmer } from "use-immer";
 import { useNavigate } from "react-router-dom";
 import axios from 'axios';
@@ -25,6 +25,9 @@ interface AutocompletePrediction {
 }
 
 const SearchBar: React.FC<SearchBarProps> = ({ placeholder }) => {
+  // used to focus the input field when a suggestion is clicked
+  const inputRef = useRef<HTMLInputElement>(null);
+
   const navigate = useNavigate();
   
   const handleChangeInput = (value: string) => {
@@ -65,6 +68,11 @@ const SearchBar: React.FC<SearchBarProps> = ({ placeholder }) => {
     }
   }, [input]);
 
+  const focusInput = () => {
+    // Check if the input element exists and focus on it
+    inputRef.current?.focus();
+  };
+
   return (
     <div>
       <form
@@ -81,6 +89,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ placeholder }) => {
         <input
           className="h-full bg-gray-300 dark:bg-gray-700 flex-1 focus:outline-none pl-2 pr-4 text-2xl text-gray-900 dark:text-gray-100 placeholder-gray-600 dark:placeholder-gray-400"
           type="text"
+          ref={inputRef}
           value={input}
           onChange={(event) => handleChangeInput(event.target.value)}
           placeholder={placeholder}
@@ -88,9 +97,9 @@ const SearchBar: React.FC<SearchBarProps> = ({ placeholder }) => {
       </form>
       <div>
         {suggestions.length > 0 && (
-          <ul className="absolute grid gap-1 p-2 bg-gray-800 w-full rounded-lg">
+          <ul className="absolute grid gap-1 p-2 bg-gray-800 w-full rounded-lg cursor-pointer select-none">
             {suggestions.map(suggestion => (
-              <li className="p-3 rounded-lg bg-gray-700 " key={suggestion.id} onClick={() => setInput(suggestion.name)}>
+              <li className="p-3 rounded-lg bg-gray-700 hover:bg-gray-900 " key={suggestion.id} onClick={() => {setInput(suggestion.name); focusInput()}}>
                 {suggestion.name}
               </li>
             ))}
