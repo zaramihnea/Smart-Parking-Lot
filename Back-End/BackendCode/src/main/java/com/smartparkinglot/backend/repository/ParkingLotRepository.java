@@ -35,5 +35,5 @@ public interface ParkingLotRepository extends JpaRepository<ParkingLot, Long> {
    void updatePrice(@Param("id") Long id, @Param("price") Float price);
 
 
-
+    boolean existsByLatitudeAndLongitude(BigDecimal bigDecimal, BigDecimal bigDecimal1);
 }

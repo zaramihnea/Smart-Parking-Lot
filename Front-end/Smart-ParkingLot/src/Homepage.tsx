@@ -47,7 +47,6 @@ const Homepage: React.FC = () => {
   // Fetch reservations
   useEffect(() => {
     getOwnActiveReservations(baseUrlString).then((reservations) => {
-      console.log(reservations);
       setReservations(reservations);
     });
   }, [baseUrlString, getOwnActiveReservations]); // Dependencies 

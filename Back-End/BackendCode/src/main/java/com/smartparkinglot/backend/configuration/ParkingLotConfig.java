@@ -17,6 +17,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.data.domain.Example;
+
+import java.math.RoundingMode;
 import java.util.Random;
 
 
@@ -54,6 +56,8 @@ public class ParkingLotConfig {
 
                     locationIndex++;
                     // Process first page of results
+
+
                     addToDatabase(response, parkingLotRepository, parkingSpotRepository, userService);
 
                     // UNCOMMENT IN PRODUCTION
@@ -81,6 +85,10 @@ public class ParkingLotConfig {
 
             if(admin == null) {
                 return;
+            }
+
+            if(parkingLotRepository.existsByLatitudeAndLongitude(new BigDecimal(result.geometry.location.lat).setScale(7, RoundingMode.HALF_UP), new BigDecimal(result.geometry.location.lng).setScale(7, RoundingMode.HALF_UP))) {
+                continue;
             }
 
             ParkingLot parkingLotToSave = new ParkingLot(userService.getUserByEmail("baciu_elena@gmail.com"), result.name, nrOfSpots, price, new BigDecimal(result.geometry.location.lat), new BigDecimal(result.geometry.location.lng));

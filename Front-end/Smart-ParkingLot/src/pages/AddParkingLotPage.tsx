@@ -43,6 +43,7 @@ const AddParkingLotPage: React.FC = () => {
   const [name, setName] = useState('');
   const [price, setPrice] = useState(0);
   const [spaces, setSpaces] = useState(0);
+  const [price, setPrice] = useState(0);
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [showResponse, setShowResponse] = useState(false);
   const [message, setMessage] = useState('');
@@ -166,6 +167,7 @@ const AddParkingLotPage: React.FC = () => {
               />
             </div>
             <div>
+<<<<<<< main
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-200">Price</label>
               <input
                 type="number"
@@ -174,6 +176,19 @@ const AddParkingLotPage: React.FC = () => {
                 className="mt-1 p-2 w-full bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg"
                 required
                 />
+=======
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-200">
+                Price per Hour
+              </label>
+              <input
+                type="number"
+                value={price}
+                onChange={(e) => setPrice(parseInt(e.target.value))}
+                className="mt-1 p-2 w-full bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg"
+                required
+                min={1}
+              />
+>>>>>>> main
             </div>
             <button
               type="submit"
