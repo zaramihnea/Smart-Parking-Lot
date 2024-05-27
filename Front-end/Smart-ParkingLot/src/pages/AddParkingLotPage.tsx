@@ -5,6 +5,8 @@ import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import SearchBar from '../components/SearchBar';
 import Modal from 'react-modal';
+import { ParkingLot } from '../types/ParkingLot';
+import Cookies from 'js-cookie';
 
 // Custom styles for the modal
 const customStyles = {
@@ -30,7 +32,7 @@ const AddMarker: React.FC<{ setLatLng: (position: LatLng) => void }> = ({ setLat
   useMapEvents({
     click(e) {
       setLatLng(e.latlng);
-    }
+    },
   });
   return null;
 };
@@ -38,18 +40,51 @@ const AddMarker: React.FC<{ setLatLng: (position: LatLng) => void }> = ({ setLat
 const AddParkingLotPage: React.FC = () => {
   const [latitude, setLatitude] = useState<number | null>(null);
   const [longitude, setLongitude] = useState<number | null>(null);
+  const [name, setName] = useState('');
+  const [price, setPrice] = useState(0);
   const [spaces, setSpaces] = useState(0);
   const [price, setPrice] = useState(0);
   const [modalIsOpen, setModalIsOpen] = useState(false);
+  const [showResponse, setShowResponse] = useState(false);
+  const [message, setMessage] = useState('');
   const navigate = useNavigate();
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    console.log('Parking lot details:', { latitude, longitude, spaces });
-    alert('Parking lot added successfully!');
-    setLatitude(null);
-    setLongitude(null);
-    setSpaces(0);
+    const token = Cookies.get('authToken');
+    const baseURL = process.env.API_BASE_URL;
+
+    try {
+      const response = await fetch(`${baseURL}/parking_lot/save`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          name: name, // Modify as needed
+          nrSpots: spaces,
+          price: price, // Modify as needed
+          latitude: latitude,
+          longitude: longitude,
+        } as ParkingLot),
+      });
+
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+
+      const message = await response.text();
+      console.log(message);
+      setMessage(message);
+      setShowResponse(true);
+      setLatitude(null);
+      setLongitude(null);
+      setSpaces(0);
+    } catch (error) {
+      console.error('Error saving parking lot:', error);
+      alert('Failed to add parking lot. Please try again.');
+    }
   };
 
   const setLatLng = (position: LatLng) => {
@@ -84,9 +119,17 @@ const AddParkingLotPage: React.FC = () => {
           <h2 className="text-xl font-semibold mb-4">Add Parking Lot</h2>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-200">
-                Latitude
-              </label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-200">Name</label>
+                <input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="mt-1 p-2 w-full bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg"
+                required
+                />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-200">Latitude</label>
               <input
                 type="text"
                 value={latitude ?? ''}
@@ -96,9 +139,7 @@ const AddParkingLotPage: React.FC = () => {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-200">
-                Longitude
-              </label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-200">Longitude</label>
               <input
                 type="text"
                 value={longitude ?? ''}
@@ -115,9 +156,7 @@ const AddParkingLotPage: React.FC = () => {
               Pick Location on Map
             </button>
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-200">
-                Number of Parking Spaces
-              </label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-200">Number of Parking Spaces</label>
               <input
                 type="number"
                 value={spaces}
@@ -128,6 +167,16 @@ const AddParkingLotPage: React.FC = () => {
               />
             </div>
             <div>
+<<<<<<< main
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-200">Price</label>
+              <input
+                type="number"
+                value={price}
+                onChange={(e) => setPrice(parseFloat(e.target.value))}
+                className="mt-1 p-2 w-full bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-lg"
+                required
+                />
+=======
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-200">
                 Price per Hour
               </label>
@@ -139,6 +188,7 @@ const AddParkingLotPage: React.FC = () => {
                 required
                 min={1}
               />
+>>>>>>> main
             </div>
             <button
               type="submit"
@@ -152,14 +202,9 @@ const AddParkingLotPage: React.FC = () => {
       <div className="sticky bottom-0 z-50 w-full bg-gray-100 dark:bg-gray-900">
         <Navbar />
       </div>
-      <Modal
-        isOpen={modalIsOpen}
-        onRequestClose={closeModal}
-        style={customStyles}
-        contentLabel="Pick Location on Map"
-      >
+      <Modal isOpen={modalIsOpen} onRequestClose={closeModal} style={customStyles} contentLabel="Pick Location on Map">
         <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md h-full flex flex-col">
-          <h2 className="text-xl font-semibold mb-4 text-white">Pick Location</h2>
+          <h2 className="text-xl font-semibold mb-4 text-gray-100">Pick Location</h2>
           <div className="flex-grow mb-4">
             <MapContainer center={[47.1621, 27.5886]} zoom={14} style={{ height: '100%', width: '100%' }}>
               <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
@@ -181,6 +226,25 @@ const AddParkingLotPage: React.FC = () => {
           </button>
         </div>
       </Modal>
+      {showResponse && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white dark:bg-gray-800 p-8 rounded-lg shadow-lg">
+            <h2 className="text-xl font-bold mb-4">Response</h2>
+            <p>{message}</p>
+            <div className="flex justify-end gap-4 mt-4">
+              <button
+                className="bg-gray-300 dark:bg-gray-700 text-gray-900 dark:text-gray-100 font-bold py-2 px-4 rounded-lg shadow-lg"
+                onClick={() => {
+                            setShowResponse(false);
+                            navigate(-1);
+                          }}
+              >
+                OK
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
