@@ -43,7 +43,6 @@ const AddParkingLotPage: React.FC = () => {
   const [name, setName] = useState('');
   const [price, setPrice] = useState(0);
   const [spaces, setSpaces] = useState(0);
-  const [price, setPrice] = useState(0);
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [showResponse, setShowResponse] = useState(false);
   const [message, setMessage] = useState('');
