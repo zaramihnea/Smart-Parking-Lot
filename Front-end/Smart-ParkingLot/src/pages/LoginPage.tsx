@@ -58,7 +58,7 @@ const LoginPage: React.FC = () => {
                   const { token } = data;
                   
                   // Set the cookie using document.cookie
-                  document.cookie = `authToken=${token}; path=/; max-age=3600; SameSite=Strict; Secure`;
+                  document.cookie = `authToken=${token}; path=/; max-age=3600;`;
 
                   // Or set the cookie using js-cookie
                   // Cookies.set('authToken', token, { expires: 1, path: '/', sameSite: 'Strict', secure: true }); // Expires in 1 day
