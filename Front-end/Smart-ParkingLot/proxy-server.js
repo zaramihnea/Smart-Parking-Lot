@@ -11,7 +11,7 @@ app.use(cors());
 app.get('/autocomplete', async (req, res) => {
   const { input } = req.query;
   const apiKey = 'AIzaSyC0c45KPuqZ2kVQcNWU89SLAj0m7DhKQ-A';
-  const url = `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${encodeURIComponent(input)}&key=${apiKey}`;
+  const url = `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${encodeURIComponent(input)}&location=47.1585,27.6014&radius=10000&key=${apiKey}`;
 
   try {
     const response = await axios.get(url);

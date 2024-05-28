@@ -17,7 +17,6 @@ const Homepage: React.FC = () => {
 
   const [baseUrlString]= useState<string>(baseUrl || 'http://localhost:8081');
   const navigate = useNavigate();
-  const [isMapVisible, setIsMapVisible] = useState(false);
   const [username, setUsername] = useState('username');
   const [savedCars, setSavedCars] = useState<Car[]>([]);
   const [reservations, setReservations] = useState<Reservation[]>([]);
@@ -39,10 +38,6 @@ const Homepage: React.FC = () => {
       setSavedCars(cars);
     });
   }, [baseUrlString, getUserCars]); 
-
-  const toggleMapVisibility = () => {
-    setIsMapVisible(!isMapVisible);
-  };
 
   // Fetch reservations
   useEffect(() => {
@@ -67,7 +62,11 @@ const Homepage: React.FC = () => {
           </button>
         </div>
       </div>
-
+        <div className="flex justify-center items-center flex-grow mt-4 mb-4 px-4">
+          <div className="w-full max-w-4xl h-96 bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden z-0 space-y">
+            <Map />
+          </div>
+        </div>
       <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md mb-8">
         <h2 className="text-xl font-medium mb-4">Reservations</h2>
         {reservations.length === 0 && <p className='text-gray-400'>No active reservations. Hurry up and give us your money</p>}
@@ -93,21 +92,6 @@ const Homepage: React.FC = () => {
           </div>
         ))}
       </div>
-      <div className="flex justify-center items-center flex-grow mt-4 mb-4 px-4">
-        <button
-          onClick={toggleMapVisibility}
-          className="bg-purple-600 text-white px-4 py-2 rounded-lg shadow-md hover:bg-purple-700 transition duration-300 mb-4"
-        >
-          {isMapVisible ? 'Hide Map' : 'Show Map'}
-        </button>
-      </div>
-      {isMapVisible && (
-        <div className="flex justify-center items-center flex-grow mt-4 mb-4 px-4">
-          <div className="w-full max-w-4xl h-96 bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden z-0 space-y">
-            <Map />
-          </div>
-        </div>
-      )}
       <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md">
         <h2 className="text-xl font-medium mb-4">Saved Cars</h2>
         <div>

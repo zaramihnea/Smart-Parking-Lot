@@ -40,49 +40,31 @@ const orangeIcon = new L.Icon({
     shadowSize: [41, 41]
 });
 
-// temporary function to get coordonates for parking lots when clicking the map
-// function LocationMarker() {
-//     useMapEvents({
-//         click(e: any) {
-//             alert(`Latitude: ${e.latlng.lat}, Longitude: ${e.latlng.lng}`);
-//         },
-//     });
-//     return null;
-// }
-
 function Map() {
     const baseUrl = process.env.API_BASE_URL;
     const [baseUrlString]= useState<string>(baseUrl || 'http://localhost:8081');
-
+    
     // center of the map, currently set on Iasi
     // wrap the centerOfIasi in a useMemo hook to avoid recalculating it on every render
-    const centerOfIasi: LatLngExpression = useMemo(() => [47.16212698716967, 27.588606476783752], []);
+    const centerOfIasi: LatLngExpression = useMemo(() => [47.151146, 27.574344], []);
     
     // const [parkingLots, setParkingLots] = useState<ParkingLot[]>([]);
     const [availableParkingLots, setAvailableParkingLots] = useState<ParkingLot[]>([]);
     const {getAvailableParkingLotsAndClosestLot } = useParkingLots();
-
     
-    // fetching parkingLots (backend documentation item nr.6)
-    // useEffect(() => {
-    //     const fetchData = async () => {
-    //         try {
-    //             const radius = 3000;
-    //             const startTime = new Date(); // Current time
-    //             const stopTime = new Date(startTime.getTime() + 15 * 60 * 60 * 1000); // 15 hours from now
-    //             startTime.setMilliseconds(0);
-    //             stopTime.setMilliseconds(0);
+    
+    const [modalIsOpen, setModalIsOpen] = useState(false);
+    const [modalMessage, setModalMessage] = useState('');
+    const [modalTitle, setModalTitle] = useState('');
+    
+    const [lotToReserve, setLotToReserve] = useState<number>(-1);
 
-    //             const data = await getParkingLots(baseUrlString, radius, centerOfIasi[0], centerOfIasi[1]);
-    //             setParkingLots(data);
-    //             console.log(data);
-    //         } catch (error) {
-    //             console.error('Fetch error:', error);
-    //         }
-    //     }
-    //     fetchData();
-    // }, [baseUrlString, getParkingLots, centerOfIasi]);
-        
+
+    const [cars , setCars] = useState<Car[]>([]);
+
+    const { getUserCars } = useSavedCars();
+
+    const { reserveParkingSpot } = useReservations();
 
     // fetching availableParkingLots (backend documentation item nr.7)
     
@@ -90,15 +72,10 @@ function Map() {
         const fetchData = async () => {
             try {
                 const radius = 3000;
-                const startTime = new Date(); // Current time
-                const stopTime = new Date(startTime.getTime() + 15 * 60 * 60 * 1000); // 15 hours from now
-                startTime.setMilliseconds(0);
-                stopTime.setMilliseconds(0);
+                const startTime = new Date(new Date().getTime() + 3 * 60 * 60 * 1000).toISOString().slice(0, 19) + 'Z';
+                const stopTime = new Date(new Date().getTime() + 15 * 60 * 60 * 1000).toISOString().slice(0, 19) + 'Z'; 
 
-                const formattedStartTime = startTime.toISOString().slice(0, 19) + 'Z';
-                const formattedStopTime = stopTime.toISOString().slice(0, 19) + 'Z';
-
-                const data = await getAvailableParkingLotsAndClosestLot(baseUrlString, radius, centerOfIasi[0], centerOfIasi[1], formattedStartTime, formattedStopTime);
+                const data = await getAvailableParkingLotsAndClosestLot(baseUrlString, radius, centerOfIasi[0], centerOfIasi[1], startTime, stopTime);
                 setAvailableParkingLots(data.parkingLots);
                 console.log(data);
             } catch (error) {
@@ -108,13 +85,6 @@ function Map() {
         fetchData();
     }, [baseUrlString, getAvailableParkingLotsAndClosestLot, centerOfIasi]);
 
-
-    const [modalIsOpen, setModalIsOpen] = useState(false);
-    const [modalMessage, setModalMessage] = useState('');
-    const [modalTitle, setModalTitle] = useState('');
-    // TODO: action when user clicks 'Reserve' button
-
-    const [lotToReserve, setLotToReserve] = useState<number>(-1);
     const handleReserveClick = async (lotId: number) => {
         console.log("Reserving spot at lot", lotId);
         setLotToReserve(lotId);
@@ -124,9 +94,6 @@ function Map() {
     };
 
 
-    const [cars , setCars] = useState<Car[]>([]);
-
-    const { getUserCars } = useSavedCars();
 
     useEffect(() => {
         getUserCars(baseUrlString).then((fetchedCars: Car[]) => {
@@ -134,12 +101,8 @@ function Map() {
         });
     }, [baseUrlString, getUserCars]);
 
-    const { reserveParkingSpot } = useReservations();
     const confirmReservation = async (hoursToReserve: number, carId: number) => {
         setModalIsOpen(false);
-        // Place your reservation logic here
-        alert(`Reserved spot at lot ${lotToReserve}`); // Replace this alert with another modal for a nicer experience
-
 
         const now = new Date();
 
@@ -164,14 +127,10 @@ function Map() {
 
         const result = await reserveParkingSpot(baseUrlString, parkingSpotIdToReserve, startTime, stopTime, car.plate, car.capacity, car.model);
 
-        console.log(baseUrlString, lotToReserve, startTime, stopTime, car.plate, car.capacity, car.model);
-
-        console.log(result);
-
         if (result === 'Spot reserved successfully') {
-            alert('Reservation successful');
+            window.location.reload()
         } else {
-            alert('Reservation failed');
+            alert('Reservation failed: ' + result);
         }
       };
 
@@ -186,10 +145,10 @@ function Map() {
                 availabilityPercentage = 0;
             }
             else {
-                availabilityPercentage = lot.parkingSpotsIds.length / lot.nrSpots * 100;
+                availabilityPercentage = lot.parkingSpotsIds.length /  lot.nrSpots * 100;
             }
 
-            const spotsAvailable = `${lot.nrSpots} / ${lot.parkingSpotsIds.length}`;
+            const spotsAvailable = `${lot.parkingSpotsIds.length} / ${lot.nrSpots}`;
             let icon = greenIcon;
             if (availabilityPercentage === 0) {
                 icon = redIcon;
@@ -208,7 +167,7 @@ function Map() {
                         <p>Spots: {spotsAvailable}</p>
                         <p>Price per hour: {lot.price} RON</p>
                         {availabilityPercentage !== 0 && (
-                            <button className='bg-purple-500 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-full
+                            <button className='bg-purple-500 hover:bg-purple-700 transition duration-300 text-white font-bold py-2 px-4 rounded-full
                             ' onClick={() => handleReserveClick(lot.id)}>Reserve</button>
                         )}
                     </Popup>
