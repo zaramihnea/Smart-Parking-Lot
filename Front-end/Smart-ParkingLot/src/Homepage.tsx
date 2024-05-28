@@ -11,7 +11,6 @@ import { Car } from './types/Car';
 import { Reservation } from './types/Reservation';
 import useSavedCars from './hooks/useSavedCars';
 
-
 const Homepage: React.FC = () => {
   const baseUrl = process.env.API_BASE_URL;
 
@@ -64,6 +63,7 @@ const Homepage: React.FC = () => {
       </div>
         <div className="flex justify-center items-center flex-grow mt-4 mb-4 px-4">
           <div className="w-full max-w-4xl h-96 bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden z-0 space-y">
+            
             <Map />
           </div>
         </div>

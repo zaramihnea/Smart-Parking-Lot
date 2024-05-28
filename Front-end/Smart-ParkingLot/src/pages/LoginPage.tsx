@@ -4,7 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 
 // some user
-// baciu_elena@gmail.com 84732saf
+// cosmina_baciu@gmail.com 84732saf
 
 const LoginPage: React.FC = () => {
   const navigate = useNavigate();
