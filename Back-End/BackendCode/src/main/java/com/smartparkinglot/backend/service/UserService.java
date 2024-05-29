@@ -78,5 +78,22 @@ public class UserService {
         userRepository.addToBannedUsers(user.getEmail());
     }
 
+    @Transactional
+    public void updateStripeAccountId(String email, String stripeAccountId) {
+        User user = userRepository.findByEmail(email).orElse(null);
+        if (user != null) {
+            user.setStripeAccountId(stripeAccountId);
+            userRepository.save(user);
+        }
+    }
+
+    public String getUserInfoByEmail(String email) {
+        User user = userRepository.findById(email).orElse(null);
+        if (user != null) {
+            return user.toString();
+        } else {
+            return "No user found with email: " + email;
+        }
+    }
 
 }

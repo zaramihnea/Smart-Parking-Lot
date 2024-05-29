@@ -45,4 +45,14 @@ public class ParkingSpot {
     public void setId(Long id) {
         this.id = id;
     }
+
+    @Override
+    public String toString() {
+        return "ParkingSpot{" +
+                "id=" + id +
+                ", parkingLot=" + parkingLot +
+                ", status='" + status + '\'' +
+                ", plate='" + plate + '\'' +
+                '}';
+    }
 }

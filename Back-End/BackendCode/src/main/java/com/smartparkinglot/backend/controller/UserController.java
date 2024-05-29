@@ -152,7 +152,7 @@ public class UserController {
 
     @PostMapping("/pay-for-parking-spot")
     public ResponseEntity<?> payForParkingSpot(@RequestBody PaymentDetailsDTO paymentDetails) {
-        String response = paymentService.payForParkingSpot(paymentDetails.getEmail(), paymentDetails.getAmount());
+        String response = paymentService.payForParkingSpot(paymentDetails);
         return ResponseEntity.ok(response);
     }
 
@@ -168,6 +168,23 @@ public class UserController {
         String result = paymentService.handlePaymentResult(paymentIntentId);
         return ResponseEntity.ok(result);
     }
+
+    //stripe onboarding endpoints
+    @PostMapping("/create-stripe-account")
+    public ResponseEntity<?> createAccount(@RequestBody PaymentService.CreateAccountRequest request) {
+        return paymentService.createStripeAccount(request);
+    }
+
+    @PostMapping("/create-account-link")
+    public ResponseEntity<?> createAccountLink(@RequestBody PaymentService.CreateAccountLinkRequest request) {
+        return paymentService.createStripeAccountLink(request);
+    }
+
+    @GetMapping("/return")
+    public ResponseEntity<?> handleStripeRedirect(@RequestParam(value = "accountId", required = false) String accountId) {
+        return paymentService.handleStripeReturn(accountId);
+    }
+
 
     @GetMapping(value = "/details")
     public ResponseEntity<?> getUserDetails(@RequestHeader("Authorization") String authorizationHeader) {

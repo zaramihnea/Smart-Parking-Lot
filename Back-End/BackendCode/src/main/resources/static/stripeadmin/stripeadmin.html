@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>Connect Onboarding Quickstart</title>
+    <meta
+            name="description"
+            content="This is a sample app for Stripe-hosted Connect onboarding."
+    />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="../stripeadmin/stripeadmin.css" />
+    <script type="module" src="../stripeadmin/stripeadmin.js" defer></script>
+</head>
+<body>
+<div id="container">
+    <div class="container">
+        <div class="banner">
+            <h2>SmartParkingLot</h2>
+        </div>
+        <div class="content">
+            <h2 id="title">Complete your Stripe account</h2>
+            <h2 id="add-information-title" class="hidden">Add information to start accepting money</h2>
+            <p id="add-information-subtitle" class="hidden">SmartParkingLot partners with Stripe to help you receive payments while keeping your personal and bank details secure.</p>
+            <div>
+                <input type="email" id="email-input" placeholder="Enter your email" required />
+                <button id="sign-up-button">
+                    Sign up
+                </button>
+            </div>
+            <div>
+                <button id="add-information-button" class="hidden">
+                    Add information
+                </button>
+            </div>
+            <h2 id="details-submitted-title" class="hidden">Details submitted</h2>
+            <p id="details-submitted-subtitle" class="hidden">That's everything we need for now</p>
+            <p id="error" class="error hidden">Something went wrong!</p>
+            <div id="dev-callout" class="dev-callout hidden">
+                <p id="connected-account-id" class="hidden"></p>
+                <p id="creating-connected-account" class="hidden">Creating a connected account...</p>
+                <p id="adding-onboarding-information" class="hidden">Adding some onboarding information...</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="error" hidden>Something went wrong!</div>
+</body>
+</html>
