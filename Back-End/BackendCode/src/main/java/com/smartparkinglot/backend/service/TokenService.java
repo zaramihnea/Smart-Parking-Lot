@@ -56,6 +56,15 @@ public class TokenService {
         return token;
     }
 
+    public String getTokenByUser(User user){
+        List<Token> tokens = tokenRepository.findByUser(user);
+        if(!tokens.isEmpty()) {
+            Token tokenFound = tokens.get(0);
+            return tokenFound.getToken();
+        }
+        return null;
+    }
+
     @Transactional
     public Boolean validateToken(String token) {
         Optional<Token> jwtTokenOpt = tokenRepository.findByToken(token);
