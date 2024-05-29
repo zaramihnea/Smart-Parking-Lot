@@ -58,4 +58,12 @@ public class ParkingSpotService {
     public List<ParkingSpot> getParkingSpotsByParkingLot(ParkingLot parkingLot) {
         return parkingSpotRepository.getParkingSpotsByParkingLot(parkingLot).orElse(null);
     }
+
+    public String getAdminStripeIdByParkingSpotId(Long parkingSpotId) {
+        ParkingSpot parkingSpot = getById(parkingSpotId);
+        if (parkingSpot != null) {
+            return parkingSpot.getParkingLot().getUser().getStripeAccountId();
+        }
+        return null;
+    }
 }

@@ -6,6 +6,9 @@ import com.smartparkinglot.backend.DTO.TransactionDTO;
 import com.smartparkinglot.backend.DTO.PaymentResponseDTO;
 import com.smartparkinglot.backend.configuration.StripeConfig;
 import com.smartparkinglot.backend.customexceptions.PaymentException;
+import com.smartparkinglot.backend.entity.ParkingSpot;
+import com.smartparkinglot.backend.entity.User;
+import com.smartparkinglot.backend.repository.ParkingSpotRepository;
 import com.stripe.Stripe;
 import com.stripe.exception.InvalidRequestException;
 import com.stripe.exception.StripeException;
@@ -15,6 +18,8 @@ import jakarta.annotation.PostConstruct;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -27,6 +32,12 @@ public class PaymentService {
 
     @Autowired
     private EmailService emailService;
+
+    @Autowired
+    private ParkingSpotRepository parkingSpotRepository;
+
+    @Autowired
+    private UserService userService;
 
     @PostConstruct
     public void init() {
@@ -43,7 +54,7 @@ public class PaymentService {
 
             validatePaymentDetails(paymentDetailsDTO);
             Customer customer = getOrCreateCustomer(paymentDetailsDTO.getEmail());
-            PaymentIntent paymentIntent = createStripePaymentIntent(customer, paymentDetailsDTO.getAmount());
+            PaymentIntent paymentIntent = createStripePaymentIntent(customer, paymentDetailsDTO.getAmount(), paymentDetailsDTO.getParkingSpotId());
 
             log.info("Payment intent created: {}", paymentIntent.getId());
             return new PaymentResponseDTO(paymentIntent.getClientSecret(), paymentIntent.getId());
@@ -59,6 +70,9 @@ public class PaymentService {
         }
         if (paymentDetailsDTO.getAmount() < 2) {
             throw new PaymentException("Amount must be greater than 2.");
+        }
+        if (paymentDetailsDTO.getParkingSpotId() == null) {
+            throw new PaymentException("Parking spot ID is required.");
         }
         // Add more validation as needed
     }
@@ -77,12 +91,20 @@ public class PaymentService {
         return customers.get(0);
     }
 
-    private PaymentIntent createStripePaymentIntent(Customer customer, Double amount) throws StripeException {
+    private PaymentIntent createStripePaymentIntent(Customer customer, Double amount, Long parkingSpotId) throws StripeException {
+        String stripeAccountId = getAdminStripeAccountIdByParkingSpotId(parkingSpotId);
+
+
         PaymentIntentCreateParams paymentParams = PaymentIntentCreateParams.builder()
                 .setAmount((long)(amount*100))
                 .setCustomer(customer.getId())
                 .setCurrency("ron")
                 .setReceiptEmail(customer.getEmail())
+                .setTransferData(
+                        PaymentIntentCreateParams.TransferData.builder()
+                                .setDestination(stripeAccountId)
+                                .build()
+                )
                 .setAutomaticPaymentMethods(
                         PaymentIntentCreateParams.AutomaticPaymentMethods
                                 .builder()
@@ -92,6 +114,16 @@ public class PaymentService {
                 .build();
 
         return PaymentIntent.create(paymentParams);
+    }
+
+    private String getAdminStripeAccountIdByParkingSpotId(Long parkingSpotId) {
+        ParkingSpot parkingSpot = parkingSpotRepository.findById(parkingSpotId)
+                .orElseThrow(() -> new PaymentException("Parking spot not found"));
+        String admin = new ParkingSpotService(parkingSpotRepository).getAdminStripeIdByParkingSpotId(parkingSpotId);
+        if (admin == null) {
+            throw new PaymentException("Admin or Stripe account ID not found for this parking lot");
+        }
+        return admin;
     }
 
     public String handlePaymentResult(String paymentIntentId) {
@@ -393,27 +425,32 @@ public class PaymentService {
         }
     }
 
-    public String payForParkingSpot(String customerEmail, Double amount) {
+    public String payForParkingSpot(PaymentDetailsDTO paymentDetailsDTO) {
         Stripe.apiKey = stripeConfig.getApiKey();
 
         try {
+            String stripeAccountId = getAdminStripeAccountIdByParkingSpotId(paymentDetailsDTO.getParkingSpotId());
+            if (stripeAccountId == null || stripeAccountId.isEmpty()) {
+                return "The payment cannot be processed because the administrator has not set up a Stripe account.";
+            }
+
             CustomerListParams customerListParams = CustomerListParams.builder()
-                    .setEmail(customerEmail)
+                    .setEmail(paymentDetailsDTO.getEmail())
                     .build();
 
             List<Customer> customers = Customer.list(customerListParams).getData();
             if (customers.isEmpty()) {
-                throw new RuntimeException("No customer found with email: " + customerEmail);
+                throw new RuntimeException("No customer found with email: " + paymentDetailsDTO.getEmail());
             } else {
                 Customer customer = customers.get(0);
                 Double currentBalance = customer.getBalance() / 100.0;
 
-                if ((currentBalance - amount) < 0) {
+                if ((currentBalance - paymentDetailsDTO.getAmount()) < 0) {
                     return "insufficient-balance";
                 } else {
                     CustomerBalanceTransactionCollectionCreateParams params =
                             CustomerBalanceTransactionCollectionCreateParams.builder()
-                                    .setAmount((long) (amount * -100)) // Negative to decrease
+                                    .setAmount((long) (paymentDetailsDTO.getAmount() * -100)) // Negative to decrease
                                     .setCurrency("ron")
                                     .setDescription("Payment for parking spot")
                                     .build();
@@ -425,6 +462,127 @@ public class PaymentService {
             }
         } catch (StripeException e) {
             throw new RuntimeException("Error creating customer balance transaction for parking spot", e);
+        }
+    }
+
+
+
+    public ResponseEntity<?> createStripeAccount(CreateAccountRequest request) {
+        User user = userService.getUserByEmail(request.getEmail());
+        if (user != null && !user.getStripeAccountId().equals("")) {
+            return ResponseEntity.ok(new CreateAccountLinkRequest(user.getStripeAccountId()));
+        }
+
+        try {
+            AccountCreateParams accountParams = AccountCreateParams.builder()
+                    .setType(AccountCreateParams.Type.EXPRESS)
+                    .setEmail(request.getEmail())
+                    .build();
+            Account account = Account.create(accountParams);
+
+            if (user != null) {
+                user.setStripeAccountId(account.getId());
+                userService.saveUser(user);
+            }
+
+            return ResponseEntity.ok(new CreateAccountLinkRequest(account.getId()));
+        } catch (Exception e) {
+            log.error("Failed to create account: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Failed to create account");
+        }
+    }
+
+    public ResponseEntity<?> createStripeAccountLink(CreateAccountLinkRequest request) {
+        try {
+            AccountLinkCreateParams linkParams = AccountLinkCreateParams.builder()
+                    .setAccount(request.getAccountId())
+                    .setRefreshUrl("http://localhost:8081/user/create-stripe-account")
+                    .setReturnUrl("http://localhost:8081/user/return?accountId=" + request.getAccountId())
+                    .setType(AccountLinkCreateParams.Type.ACCOUNT_ONBOARDING)
+                    .build();
+            AccountLink accountLink = AccountLink.create(linkParams);
+
+            return ResponseEntity.ok(new CreateAccountLinkResponse(accountLink.getUrl()));
+        } catch (Exception e) {
+            log.error("Failed to create account link: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Failed to create account link");
+        }
+    }
+
+    public ResponseEntity<?> handleStripeReturn(String accountId) {
+        try {
+            Account account = Account.retrieve(accountId);
+            String email = account.getEmail();
+
+            if (!account.getChargesEnabled()) {
+                return ResponseEntity.status(HttpStatus.FOUND)
+                        .header("Location", "http://localhost:8081/user/create-stripe-account")
+                        .build();
+            } else {
+                //Save the stripe account id in the user database
+                userService.updateStripeAccountId(email, accountId);
+                LoginLinkCreateOnAccountParams params =
+                        LoginLinkCreateOnAccountParams.builder().build();
+                LoginLink loginLink = LoginLink.createOnAccount(accountId, params);
+                String dashboardUrl = loginLink.getUrl();
+                log.info(userService.getUserInfoByEmail(email));
+                return ResponseEntity.status(HttpStatus.FOUND)
+                        .header("Location", dashboardUrl)
+                        .build();
+            }
+        } catch (Exception e) {
+            log.error("Failed to retrieve account details: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Failed to retrieve account details");
+        }
+    }
+
+    public static class CreateAccountRequest {
+        private String email;
+
+        public String getEmail() {
+            return email;
+        }
+
+        public void setEmail(String email) {
+            this.email = email;
+        }
+    }
+
+    public static class CreateAccountLinkRequest {
+        private String accountId;
+
+        public CreateAccountLinkRequest() {
+        }
+
+        public CreateAccountLinkRequest(String accountId) {
+            this.accountId = accountId;
+        }
+
+        public String getAccountId() {
+            return accountId;
+        }
+
+        public void setAccountId(String accountId) {
+            this.accountId = accountId;
+        }
+    }
+
+    public static class CreateAccountLinkResponse {
+        private String url;
+
+        public CreateAccountLinkResponse(String url) {
+            this.url = url;
+        }
+
+        public String getUrl() {
+            return url;
+        }
+
+        public void setUrl(String url) {
+            this.url = url;
         }
     }
 }

@@ -53,6 +53,11 @@ public class User {
     private int type;
 
 
+    @Getter @Setter
+    @Column(name = "stripe_account_id")
+    private String stripeAccountId;
+
+
     public User() {
     }
 
@@ -67,6 +72,7 @@ public class User {
         this.city = city;
         this.balance = balance;
         this.name = name;
+        this.stripeAccountId = "";
     }
 
     public User(String email, String name, String password, Date dob, String country, String city, Double balance, int type) {
@@ -78,6 +84,21 @@ public class User {
         this.city = city;
         this.balance = balance;
         this.name = name;
+        this.stripeAccountId = "";
     }
 
+    @Override
+    public String toString() {
+        return "User{" +
+                "email='" + email + '\'' +
+                ", name='" + name + '\'' +
+                ", password='" + password + '\'' +
+                ", dob=" + dob +
+                ", country='" + country + '\'' +
+                ", city='" + city + '\'' +
+                ", balance=" + balance +
+                ", type=" + type +
+                ", stripeAccountId='" + stripeAccountId + '\'' +
+                '}';
+    }
 }
