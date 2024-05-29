@@ -1,11 +1,37 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import SearchBar from '../components/SearchBar';
 import Navbar from '../components/Navbar';
+import { User } from '../types/User';
+import Cookies from 'js-cookie';
 
 const AccountBalance = () => {
   const [showInput, setShowInput] = useState(false);
   const [amount, setAmount] = useState('');
-  const [balance, setBalance] = useState(30);
+  const [balance, setBalance] = useState<User['balance']>(0);
+
+  useEffect(() => {
+    const fetchUserBalance = async () => {
+      const token = Cookies.get('authToken');
+      const baseURL = process.env.API_BASE_URL;
+      try {
+        const response = await fetch(`${baseURL}/user/balance`, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+
+        const data: User['balance'] = await response.json();
+        setBalance(data);
+      } catch (error) {
+        console.error('Error fetching parking lots:', error);
+      }
+    };
+    fetchUserBalance();
+  }, []);
 
   const handleToggleInput = () => {
     setShowInput((prevShowInput) => !prevShowInput);
@@ -13,9 +39,7 @@ const AccountBalance = () => {
 
   const handleAddAmount = () => {
     if (parseFloat(amount) > 0) {
-      setBalance(balance + parseFloat(amount));
-      setShowInput(false);
-      setAmount(''); // Clear the input field after adding the amount
+      console.log('Adding amount:', amount); //TODO: Implement call to API to add amount to user balance
     }
   };
 
