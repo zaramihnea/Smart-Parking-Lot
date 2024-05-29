@@ -8,7 +8,6 @@ const ForgotPasswordPage: React.FC = () => {
   const [errorMessage, setUIErrorMessage] = useState('');
 
   const [emailSentBool, setemailSentBool] = useState(false);
-  const [emailSentMessage, setemailSentMessage] = useState('An email has been successfully sent');
   const baseUrl = process.env.API_BASE_URL;
 
   const handleFP = async () => {
@@ -27,14 +26,8 @@ const ForgotPasswordPage: React.FC = () => {
 
         if (response.ok) {
           const textResponse = await response.text();
-          if(textResponse === 'Email found'){
-            setemailSentBool(true);
-            setemailErrorPopup(false);
-            
-            navigate('/');
-            
-          }
-
+          setemailSentBool(true);
+          setemailErrorPopup(false);     
         }
         else {
           const textResponse = await response.text();
@@ -75,7 +68,7 @@ const ForgotPasswordPage: React.FC = () => {
             className="w-full max-w-xs px-4 py-2 mb-4 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:border-purple-500"
           />
           {emailErrorPopup && <p className="text-red-500 text-center mb-4">{errorMessage}</p>}
-          {emailSentBool && <p className="text-green-500 text-center mb-4">{emailSentMessage}</p>}
+          {emailSentBool && <p className="text-green-500 text-center mb-4">An email has been successfully sent</p>}
           <button
             onClick={handleFP}
             className="w-full max-w-xs px-4 py-2 mb-4 bg-purple-600 text-white font-bold rounded-lg shadow-md hover:bg-purple-700 transition duration-300"
