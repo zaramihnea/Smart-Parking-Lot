@@ -33,25 +33,27 @@ const ResetPasswordPage: React.FC = () => {
                 setErrorMessage("Password is invalid! (should be 5+ characters and have at least 1 number & one special character)");
             } else {
                 try {
-                    const response = await fetch(`${baseUrl}/user/after-reset-password-request`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            token: token,
-                            password: newPassword
-                        }),
-                    });
-                    const result = await response.text();
-                    setErrorMessage(result);
-
+                  const response = await fetch(`${baseUrl}/user/after-reset-password-request`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                      token: token,
+                      password: newPassword
+                    }),
+                  });
+                  const result = await response.text();
+                  if(result === 'Invalid or expired token'){
+                    setErrorMessage(result); 
+                  }
+                  else if(result === 'Password reseted successfully'){
                     navigate('/');
-                
-                
+                  }
+
                 } catch (error) {
-                    setErrorMessage('An error occurred while resetting your password');
+                  setErrorMessage('An error occurred while resetting your password');
                 }
             }
-        }
+       }
     };
 
     const isValidPassword = (password: string) => {
