@@ -17,13 +17,10 @@ CREATE TABLE users (
     country VARCHAR(50),
     city VARCHAR(50),
     balance NUMERIC(10, 2) DEFAULT 0,
-	------------------------ new -----------------------------------
 	type INTEGER DEFAULT 1
-	----------------------------------------------------------------
 );
 
 
----------------------------- new -----------------------------------
 
 CREATE TABLE banned_users (
 	email VARCHAR(50) PRIMARY KEY
@@ -39,7 +36,6 @@ CREATE TABLE messages (
 	status BOOLEAN DEFAULT FALSE-- true = seen
 );
 
---------------------------------------------------------------------
 
 CREATE TABLE cars (
 	id BIGSERIAL PRIMARY KEY,
@@ -50,12 +46,14 @@ CREATE TABLE cars (
 	UNIQUE (email, plate)
 );
 
+
 CREATE TABLE cards (
 	id BIGSERIAL PRIMARY KEY,
     email VARCHAR(50) REFERENCES users(email) ON DELETE CASCADE,
     card VARCHAR(16),
 	UNIQUE (email, card)
 );
+
 
 CREATE TABLE tokens (
     token VARCHAR(200),
@@ -65,6 +63,7 @@ CREATE TABLE tokens (
 
 CREATE TABLE parking_lots (
     id BIGSERIAL PRIMARY KEY,
+    name VARCHAR(100),
     admin_email VARCHAR(50) REFERENCES users(email) ON DELETE CASCADE,
     nr_spots INTEGER,
 	price NUMERIC,
@@ -74,7 +73,9 @@ CREATE TABLE parking_lots (
 
 CREATE TABLE parking_spots (
     id BIGSERIAL PRIMARY KEY,
-    parking_lot_id BIGINT REFERENCES parking_lots(id) ON DELETE CASCADE
+    parking_lot_id BIGINT REFERENCES parking_lots(id) ON DELETE CASCADE,
+    status VARCHAR(15) DEFAULT 'free',
+    plate VARCHAR(7)
 );
 
 CREATE TABLE reservations (
@@ -108,7 +109,6 @@ BEGIN
     FROM banned_users
     WHERE email = p_email;
 
-    -- Check if the user exists and the password matches
     IF v_count = 1 THEN
         return TRUE;
     ELSE
@@ -306,7 +306,6 @@ $$ LANGUAGE plpgsql;
 
 
 
---------------------------------- new ---------------------------------------
 CREATE OR REPLACE FUNCTION GetMostVisitedParkingLot()
 RETURNS BIGINT AS $$
 DECLARE
@@ -489,7 +488,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-------------------------------------------------------------------------
+
 
 
 -- Checking the recently created triggers and functions

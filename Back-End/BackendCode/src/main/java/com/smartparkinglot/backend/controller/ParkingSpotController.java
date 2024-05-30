@@ -48,4 +48,31 @@ public class ParkingSpotController {
 
         return ResponseEntity.ok("Parking spot updated successfully");
     }
+
+    @PutMapping("/update-name/{id}")
+    public ResponseEntity<String> updateParkingSpotName(@PathVariable("id") Long id, @RequestBody ParkingSpot updatedParkingSpot) {
+        ParkingSpot existingParkingSpot = parkingSpotService.getById(id);
+
+        if (existingParkingSpot == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        existingParkingSpot.setName(updatedParkingSpot.getName());
+        parkingSpotService.updateParkingSpot(existingParkingSpot);
+
+        return ResponseEntity.ok("Parking spot updated successfully");
+    }
+
+
+
+    @DeleteMapping("/delete")
+    public ResponseEntity<String> deleteParkingSpot(@RequestBody ParkingSpot parkingSpot) {
+        try {
+            parkingSpotService.deleteParkingSpot(parkingSpot);
+            return ResponseEntity.ok("Parking spot deleted successfully");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).body("Failed to delete parking spot");
+        }
+    }
 }
