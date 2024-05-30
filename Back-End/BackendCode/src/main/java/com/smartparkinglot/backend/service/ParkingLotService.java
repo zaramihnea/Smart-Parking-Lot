@@ -41,6 +41,12 @@ public class ParkingLotService {
         parkingLotRepository.save(parkingLot);
     }
 
+    @Transactional
+    public void updateLot(ParkingLot parkingLot){
+        parkingLotRepository.updatePrice(parkingLot.getId(), parkingLot.getPrice());
+        parkingLotRepository.updateName(parkingLot.getId(), parkingLot.getName());
+    }
+
     // Transactional <=> no need of verification queries
     @Transactional
     public void updateParkingLot(Long parkingLotId, int nrSpots, BigDecimal latitude, BigDecimal longitude){
