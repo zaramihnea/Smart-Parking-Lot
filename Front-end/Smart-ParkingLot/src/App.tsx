@@ -4,6 +4,7 @@ import Homepage from './Homepage';
 import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
 import ForgotPasswordPage from './pages/ForgotPasswordPage';
+import ResetPasswordPage from './pages/ResetPasswordPage';
 import AdminPanel from './pages/AdminPanel';
 import ParkingLotManagerPanel from './pages/ParkingLotManagerPanel';
 import SeeAllUsersAdmin from './pages/SeeAllUsersAdmin';
@@ -75,6 +76,7 @@ const App: React.FC = () => {
             <Route path="/" element={<LoginPage />} />
             <Route path="/signup" element={<SignupPage />} />
             <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+            <Route path="/reset-password" element={<ResetPasswordPage />} />
             <Route path="/home" element={<Homepage />} />
             <Route path="/profile" element={
               userType === 1 ? <Profiles /> :

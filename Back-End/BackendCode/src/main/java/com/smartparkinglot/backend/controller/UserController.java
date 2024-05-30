@@ -93,10 +93,10 @@ public class UserController {
             if (isAuthenticated) {
                 return ResponseEntity.ok(new JwtResponse(generatedToken, "Bearer"));
             } else {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Login Failed");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Incorrect password");
             }
         }
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Login Failed");
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User doesn't exist");
     }
 
     @PostMapping(value = "/reset-password-request")
@@ -104,10 +104,13 @@ public class UserController {
         if(userService.existsByEmail(resetPasswordRequest.getEmail())){
             //determin user-ul si generez un token unic pentru acesta
             User user = userService.getUserByEmail(resetPasswordRequest.getEmail());
-            String generatedToken = tokenService.generateToken(user);
+
+            // verificam daca exista deja un token pentru user-ul dat
+            String token = tokenService.getTokenByUser(user);
+            if(token == null)token = tokenService.generateToken(user);
 
             //construiesc linkul care va fi trimis prim email utilizatorului
-            String resetPasswordLink = "https://localhost:8081/reset_password?token=" + generatedToken;
+            String resetPasswordLink = "http://localhost:8888/reset-password?token=" + token;
 
             emailService.sendResetPasswordEmail(user.getEmail(), resetPasswordLink);
 
@@ -149,7 +152,7 @@ public class UserController {
 
     @PostMapping("/pay-for-parking-spot")
     public ResponseEntity<?> payForParkingSpot(@RequestBody PaymentDetailsDTO paymentDetails) {
-        String response = paymentService.payForParkingSpot(paymentDetails.getEmail(), paymentDetails.getAmount());
+        String response = paymentService.payForParkingSpot(paymentDetails);
         return ResponseEntity.ok(response);
     }
 
@@ -165,6 +168,23 @@ public class UserController {
         String result = paymentService.handlePaymentResult(paymentIntentId);
         return ResponseEntity.ok(result);
     }
+
+    //stripe onboarding endpoints
+    @PostMapping("/create-stripe-account")
+    public ResponseEntity<?> createAccount(@RequestBody PaymentService.CreateAccountRequest request) {
+        return paymentService.createStripeAccount(request);
+    }
+
+    @PostMapping("/create-account-link")
+    public ResponseEntity<?> createAccountLink(@RequestBody PaymentService.CreateAccountLinkRequest request) {
+        return paymentService.createStripeAccountLink(request);
+    }
+
+    @GetMapping("/return")
+    public ResponseEntity<?> handleStripeRedirect(@RequestParam(value = "accountId", required = false) String accountId) {
+        return paymentService.handleStripeReturn(accountId);
+    }
+
 
     @GetMapping(value = "/details")
     public ResponseEntity<?> getUserDetails(@RequestHeader("Authorization") String authorizationHeader) {

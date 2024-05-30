@@ -65,4 +65,12 @@ public class ParkingSpotService {
             parkingSpotRepository.delete(parkingSpot);
     }
 
+    public String getAdminStripeIdByParkingSpotId(Long parkingSpotId) {
+        ParkingSpot parkingSpot = getById(parkingSpotId);
+        if (parkingSpot != null) {
+            return parkingSpot.getParkingLot().getUser().getStripeAccountId();
+        }
+        return null;
+    }
+
 }
