@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.io.Serializable;
+
 @Entity
 @Table(name = "parking_spots")
 public class ParkingSpot {
@@ -24,12 +26,20 @@ public class ParkingSpot {
     @Column(name = "plate", length = 7)
     private String plate;
 
+    @Getter @Setter
+    @Column(name = "name", length = 15)
+    private String name;
+
     public ParkingSpot() {
     }
     public ParkingSpot(ParkingLot parkingLot) {
         this.parkingLot = parkingLot;
     }
 
+    public ParkingSpot(ParkingLot parkingLot, String name) {
+        this.parkingLot = parkingLot;
+        this.name = name;
+    }
     public ParkingLot getParkingLot() {
         return parkingLot;
     }
