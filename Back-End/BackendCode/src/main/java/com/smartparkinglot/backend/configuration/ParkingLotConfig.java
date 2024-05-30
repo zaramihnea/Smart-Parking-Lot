@@ -97,6 +97,7 @@ public class ParkingLotConfig {
             for(int i = 0; i < nrOfSpots; i++) {
                 ParkingSpot spotForThisParkingLot = new ParkingSpot(parkingLotToSave);
                 parkingSpotRepository.save(spotForThisParkingLot);
+                System.out.println(spotForThisParkingLot);
             }
 
         }

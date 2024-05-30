@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ParkingSpotService {
@@ -58,4 +59,18 @@ public class ParkingSpotService {
     public List<ParkingSpot> getParkingSpotsByParkingLot(ParkingLot parkingLot) {
         return parkingSpotRepository.getParkingSpotsByParkingLot(parkingLot).orElse(null);
     }
+
+    @Transactional
+    public void deleteParkingSpot(ParkingSpot parkingSpot){
+            parkingSpotRepository.delete(parkingSpot);
+    }
+
+    public String getAdminStripeIdByParkingSpotId(Long parkingSpotId) {
+        ParkingSpot parkingSpot = getById(parkingSpotId);
+        if (parkingSpot != null) {
+            return parkingSpot.getParkingLot().getUser().getStripeAccountId();
+        }
+        return null;
+    }
+
 }

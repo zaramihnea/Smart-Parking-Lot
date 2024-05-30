@@ -40,9 +40,7 @@ public class ParkingLotController {
     public ResponseEntity<?> getParkingLotById(@RequestParam Long id) {
         if(parkingLotService.existsById(id)) {
             List<ParkingSpot> spots = parkingSpotService.findByParkingLot(parkingLotService.getParkingLotById(id));
-            List<Long> spotsTrimmed = spots.stream().map(parkingSpot -> parkingSpot.getId()).toList();
-
-            return ResponseEntity.ok().body(new ParkingLotAndSpots(new ParkingLotDTO(parkingLotService.getParkingLotById(id)), spotsTrimmed));
+            return ResponseEntity.ok().body(new ParkingLotAndSpots(new ParkingLotDTO(parkingLotService.getParkingLotById(id)), spots));
         }
         else {
             return ResponseEntity.badRequest().body("Parking lot with specified id could not be found");
@@ -62,7 +60,7 @@ public class ParkingLotController {
 
             List<Long> spotsTrimmed = availableSpotsForThisLot.stream().map(parkingSpot -> parkingSpot.getId()).toList();
 
-            return ResponseEntity.ok().body(new ParkingLotAndSpots(new ParkingLotDTO(parkingLotService.getParkingLotById(id)), spotsTrimmed));
+            return ResponseEntity.ok().body(new ParkingLotAndSpotsId(new ParkingLotDTO(parkingLotService.getParkingLotById(id)), spotsTrimmed));
         }
         else {
             return ResponseEntity.badRequest().body("Parking lot with specified id could not be found");
@@ -73,7 +71,7 @@ public class ParkingLotController {
 
 
     @GetMapping("/available-spots-search")
-    public List<ParkingLotAndSpots> getParkingLots(@RequestParam BigDecimal latitude, @RequestParam BigDecimal longitude, @RequestParam long radius, @RequestParam Timestamp start_time, @RequestParam Timestamp stop_time) {
+    public List<ParkingLotAndSpotsId> getParkingLots(@RequestParam BigDecimal latitude, @RequestParam BigDecimal longitude, @RequestParam long radius, @RequestParam Timestamp start_time, @RequestParam Timestamp stop_time) {
         List<ParkingLot> parkingLots = parkingLotService.getParkingLotsWithinRadius(latitude, longitude, radius);
         List<ParkingSpot> availableParkingSpots = parkingSpotService.findAvailableParkingSpots(start_time, stop_time);
 
@@ -84,12 +82,12 @@ public class ParkingLotController {
 
             List<Long> spotsIds = availableSpots.stream().map(parkingSpot -> parkingSpot.getId()).toList();
             ParkingLotDTO parkingLotDTO = new ParkingLotDTO(parkingLot);
-            return new ParkingLotAndSpots(parkingLotDTO, spotsIds);
+            return new ParkingLotAndSpotsId(parkingLotDTO, spotsIds);
         }).collect(Collectors.toList());
     }
 
     @GetMapping("/search")
-    public List<ParkingLotAndSpots> getParkingLots(@RequestParam BigDecimal latitude, @RequestParam BigDecimal longitude, @RequestParam long radius) {
+    public List<ParkingLotAndSpotsId> getParkingLots(@RequestParam BigDecimal latitude, @RequestParam BigDecimal longitude, @RequestParam long radius) {
         List<ParkingLot> parkingLots = parkingLotService.getParkingLotsWithinRadius(latitude, longitude, radius);
         parkingLots.forEach(parkingLot -> {
             System.out.println(parkingLot.getId());
@@ -98,7 +96,7 @@ public class ParkingLotController {
             List<ParkingSpot> spots = parkingSpotService.findByParkingLot(parkingLot);
             ParkingLotDTO parkingLotDTO = new ParkingLotDTO(parkingLot);
             List<Long> spotsTrimmed = spots.stream().map(parkingSpot -> parkingSpot.getId()).toList();
-            return new ParkingLotAndSpots(parkingLotDTO, spotsTrimmed);
+            return new ParkingLotAndSpotsId(parkingLotDTO, spotsTrimmed);
         }).collect(Collectors.toList());
     }
 
@@ -106,30 +104,48 @@ public class ParkingLotController {
     @PostMapping("/save")
     public ResponseEntity<String> saveParkingLot(@RequestHeader("Authorization") String authorizationHeader,@RequestBody ParkingLotSaveReq parkingLotSaveReq) {
         String token = authorizationHeader.substring(7);// Assuming the scheme is "Bearer "
-        if(tokenService.validateToken(token)) {
+        if (tokenService.validateToken(token)) {
             User userAuthorized = tokenService.getUserByToken(token);
-            if(userAuthorized.getType() == 3 || userAuthorized.getType() == 2) {
-                if(parkingLotSaveReq.getName() == null || parkingLotSaveReq.getNrSpots() == null || parkingLotSaveReq.getPrice() == null || parkingLotSaveReq.getLatitude() == null || parkingLotSaveReq.getLongitude() == null)
+            if (userAuthorized.getType() == 3 || userAuthorized.getType() == 2) {
+                if (parkingLotSaveReq.getName() == null || parkingLotSaveReq.getNrSpots() == null || parkingLotSaveReq.getPrice() == null || parkingLotSaveReq.getLatitude() == null || parkingLotSaveReq.getLongitude() == null)
                     return ResponseEntity.badRequest().body("Invalid request body. All fields must be filled in.");
                 ParkingLot newParkingLot = new ParkingLot(userAuthorized, parkingLotSaveReq.getName(), parkingLotSaveReq.getNrSpots(), parkingLotSaveReq.getPrice(), parkingLotSaveReq.getLatitude(), parkingLotSaveReq.getLongitude());
 
                 parkingLotService.save(newParkingLot); // save the lot to give it an id
 
                 for (int i = 0; i < parkingLotSaveReq.getNrSpots(); i++) {
-                    ParkingSpot newParkingSpot = new ParkingSpot(newParkingLot);
+                    ParkingSpot newParkingSpot = new ParkingSpot(newParkingLot, Integer.toString(i+1));
                     parkingSpotService.addNewParkingSpot(newParkingSpot);
                 }
 
 
                 return ResponseEntity.ok().body("Parking lot has been saved");
-            }
-            else {
+            } else {
                 return ResponseEntity.badRequest().body("User is not admin");
             }
-        }
-        else {
+        } else {
             return ResponseEntity.badRequest().body("Authentication token invalid. Protected resource could not be accessed");
         }
+
+    }
+
+    @PutMapping("/update")
+    public ResponseEntity<String> updateParkingLot(@RequestBody ParkingLot updatedParkingLot) {
+        ParkingLot existingParkingLot = parkingLotService.getParkingLotById(updatedParkingLot.getId());
+
+
+        if (existingParkingLot == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        if( existingParkingLot != updatedParkingLot ){
+            existingParkingLot.setPrice(updatedParkingLot.getPrice());
+            existingParkingLot.setName(updatedParkingLot.getName());
+        }
+
+        parkingLotService.updateLot(existingParkingLot);
+
+        return ResponseEntity.ok("Parking spot updated successfully");
     }
 
 
@@ -141,10 +157,17 @@ public class ParkingLotController {
     }
     @AllArgsConstructor
     @Getter @Setter
-    public static class ParkingLotAndSpots {
+    public static class ParkingLotAndSpotsId {
         private ParkingLotDTO parkingLot;
         private List<Long> parkingSpotsIds;
 
+    }
+
+    @AllArgsConstructor
+    @Getter @Setter
+    public static class ParkingLotAndSpots {
+        private ParkingLotDTO parkingLot;
+        private List<ParkingSpot> parkingSpots;
     }
 
     @ToString
