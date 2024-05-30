@@ -36,6 +36,10 @@ public class ParkingSpot {
         this.parkingLot = parkingLot;
     }
 
+    public ParkingSpot(ParkingLot parkingLot, String name) {
+        this.parkingLot = parkingLot;
+        this.name = name;
+    }
     public ParkingLot getParkingLot() {
         return parkingLot;
     }
