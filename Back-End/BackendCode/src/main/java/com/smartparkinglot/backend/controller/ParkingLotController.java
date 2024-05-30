@@ -114,7 +114,7 @@ public class ParkingLotController {
                 parkingLotService.save(newParkingLot); // save the lot to give it an id
 
                 for (int i = 0; i < parkingLotSaveReq.getNrSpots(); i++) {
-                    ParkingSpot newParkingSpot = new ParkingSpot(newParkingLot);
+                    ParkingSpot newParkingSpot = new ParkingSpot(newParkingLot, Integer.toString(i+1));
                     parkingSpotService.addNewParkingSpot(newParkingSpot);
                 }
 
