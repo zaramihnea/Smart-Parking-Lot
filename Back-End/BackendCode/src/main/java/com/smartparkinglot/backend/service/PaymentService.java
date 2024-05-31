@@ -469,27 +469,33 @@ public class PaymentService {
 
     public ResponseEntity<?> createStripeAccount(CreateAccountRequest request) {
         User user = userService.getUserByEmail(request.getEmail());
-        if (user != null && !user.getStripeAccountId().equals("")) {
-            return ResponseEntity.ok(new CreateAccountLinkRequest(user.getStripeAccountId()));
+
+        if(user == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("User not found");
         }
 
-        try {
-            AccountCreateParams accountParams = AccountCreateParams.builder()
-                    .setType(AccountCreateParams.Type.EXPRESS)
-                    .setEmail(request.getEmail())
-                    .build();
-            Account account = Account.create(accountParams);
+        if (!user.getStripeAccountId().equals("")) {
+            return ResponseEntity.ok(new CreateAccountLinkRequest(user.getStripeAccountId()));
+        }
+        else {
+            try {
+                AccountCreateParams accountParams = AccountCreateParams.builder()
+                        .setType(AccountCreateParams.Type.EXPRESS)
+                        .setEmail(request.getEmail())
+                        .build();
+                Account account = Account.create(accountParams);
 
-            if (user != null) {
                 user.setStripeAccountId(account.getId());
                 userService.saveUser(user);
-            }
 
-            return ResponseEntity.ok(new CreateAccountLinkRequest(account.getId()));
-        } catch (Exception e) {
-            log.error("Failed to create account: {}", e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Failed to create account");
+
+                return ResponseEntity.ok(new CreateAccountLinkRequest(account.getId()));
+            } catch (Exception e) {
+                log.error("Failed to create account: {}", e.getMessage());
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                        .body("Failed to create account");
+            }
         }
     }
 
