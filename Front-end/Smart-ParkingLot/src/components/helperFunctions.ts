@@ -69,5 +69,9 @@ function calculateBearing(start: LatLngExpression, end: LatLngExpression): numbe
     return compassBearing;
 }
 
+function isDeviceOrientationSupported(): boolean {
+  return 'DeviceOrientationEvent' in window;
+}
 
-export {  getPointAtDistance, calculateBearing };
+
+export {  getPointAtDistance, calculateBearing, isDeviceOrientationSupported };
