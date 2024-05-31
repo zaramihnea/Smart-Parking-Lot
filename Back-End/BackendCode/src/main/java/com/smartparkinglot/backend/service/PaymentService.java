@@ -123,6 +123,8 @@ public class PaymentService {
         if (admin == null) {
             throw new PaymentException("Admin or Stripe account ID not found for this parking lot");
         }
+
+        log.info("Admin Stripe Account ID: {}", admin);
         return admin;
     }
 
@@ -470,9 +472,11 @@ public class PaymentService {
     public ResponseEntity<?> createStripeAccount(CreateAccountRequest request) {
         User user = userService.getUserByEmail(request.getEmail());
 
+
         if(user == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body("User not found");
+
         }
 
         if (!user.getStripeAccountId().equals("")) {
@@ -521,6 +525,8 @@ public class PaymentService {
         try {
             Account account = Account.retrieve(accountId);
             String email = account.getEmail();
+            User user = userService.getUserByEmail(email);
+            System.out.println("stripe account id in the return function: " + user.getStripeAccountId());
 
             if (!account.getChargesEnabled()) {
                 return ResponseEntity.status(HttpStatus.FOUND)
