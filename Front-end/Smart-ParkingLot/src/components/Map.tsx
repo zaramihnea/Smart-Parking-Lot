@@ -5,8 +5,9 @@ import { ConfirmationModal } from './ReservationModal';
 import useReservations from '../hooks/useReservations';
 import { Car } from '../types/Car';
 import useSavedCars from '../hooks/useSavedCars';
-import { getPointAtDistance, calculateBearing } from './helperFunctions';
+import { calculateBearing } from './helperFunctions';
 import { LatLngExpression } from '../types/LatLngExpression';
+import { LatLng } from 'leaflet';
 
 function Map() {
   const [googleMap, setGoogleMap] = useState<google.maps.Map | null>(null);
@@ -19,6 +20,10 @@ function Map() {
   const [userLocation, setUserLocation] = useState<google.maps.LatLng | null>(null);
   const userLocationLastMarkerRef = useRef<google.maps.Marker | null>(null);
   const userLocationRef = useRef<google.maps.LatLng | null>(userLocation);
+  const [lastRoutePoint, setLastRoutePoint] = useState<LatLngExpression | null>({lat: 47.169765, lng: 27.576554});
+  const [nextRoutePoint, setNextRoutePoint] = useState<LatLngExpression | null>({lat: 47.169765, lng: 27.576554});
+    const oldRoutePointRef = useRef(nextRoutePoint);
+  const newRoutePointRef = useRef(nextRoutePoint);
 
   // const [userPosition, setUserPosition] = useState<L.LatLngExpression | null>(null);
   // const [shouldCenter, setShouldCenter] = useState(true); // Controls whether the map should re-center
@@ -30,7 +35,7 @@ function Map() {
 
   // center of the map, currently set on Iasi
   // wrap the centerOfIasi in a useMemo hook to avoid recalculating it on every render
-  const centerOfIasi = useMemo(() => [47.169765, 27.576554], []);
+  const centerOfIasi = useMemo(() => new LatLng(47.169765, 27.576554), []);
   // const [parkingLots, setParkingLots] = useState<ParkingLot[]>([]);
   const [availableParkingLots, setAvailableParkingLots] = useState<ParkingLot[]>([]);
   const availableParkingLotsRef = useRef<ParkingLot[]>([]);
@@ -57,7 +62,7 @@ function Map() {
         const startTime = new Date(new Date().getTime() + 3 * 60 * 60 * 1000).toISOString().slice(0, 19) + 'Z';
         const stopTime = new Date(new Date().getTime() + 15 * 60 * 60 * 1000).toISOString().slice(0, 19) + 'Z';
 
-        const data = await getAvailableParkingLotsAndClosestLot(baseUrlString, radius, 47.169765, centerOfIasi[1], startTime, stopTime);
+        const data = await getAvailableParkingLotsAndClosestLot(baseUrlString, radius, centerOfIasi.lat, centerOfIasi.lng, startTime, stopTime);
         setAvailableParkingLots(data.parkingLots);
         availableParkingLotsRef.current = data.parkingLots;
       } catch (error) {
@@ -75,7 +80,28 @@ function Map() {
     setModalIsOpen(true);
   };
 
+  useEffect(() => {
+    userLocationRef.current = userLocation;
+  }, [userLocation])
 
+  // useEffect(() => {
+    
+  //   setUserLocation(ce));
+          
+  //         // const customSymbol = {
+  //         //   path: google.maps.SymbolPath.CIRCLE,
+  //         //   scale: 10,
+  //         //   fillColor: '#03cafc',
+  //         //   fillOpacity: 1,
+  //         //   strokeWeight: 1,
+  //         // };
+    
+  //         // const userMarker = new google.maps.Marker({
+  //         //   position: userLocation,
+  //         //   map: googleMapRef.current,
+  //         //   icon: customSymbol,
+  //         // });
+  // })
 
   useEffect(() => {
     getUserCars(baseUrlString).then((fetchedCars: Car[]) => {
@@ -124,10 +150,10 @@ function Map() {
   useEffect(() => {
     const loadGoogleMaps = async () => {
       // do not fix this error, this error good error
-      await import('https://maps.googleapis.com/maps/api/js?key=AIzaSyC0c45KPuqZ2kVQcNWU89SLAj0m7DhKQ-A&libraries=places');
+      const result = await import('https://maps.googleapis.com/maps/api/js?key=AIzaSyC0c45KPuqZ2kVQcNWU89SLAj0m7DhKQ-A&libraries=places');
       if (googleMapElementRef.current) {
         const map = new window.google.maps.Map(googleMapElementRef.current, {
-          center: { lat: centerOfIasi[0], lng: centerOfIasi[1] },
+          center: centerOfIasi,
           zoom: 14,
           mapId: '3f8a6f95f7f9e84e', // Add your mapId here
           mapTypeId: 'terrain',
@@ -152,6 +178,32 @@ function Map() {
         directionsRendererRef.current = new google.maps.DirectionsRenderer({
           map: map,
         });
+
+
+        googleMapRef.current.addListener('click', (e: google.maps.MapMouseEvent) => {
+          
+          if(userLocationLastMarkerRef.current) {
+            userLocationLastMarkerRef.current.setMap(null);
+          }
+          
+          setUserLocation(e.latLng);
+          
+          const customSymbol = {
+            path: google.maps.SymbolPath.CIRCLE,
+            scale: 10,
+            fillColor: '#03cafc',
+            fillOpacity: 1,
+            strokeWeight: 1,
+          };
+    
+          const userMarker = new google.maps.Marker({
+            position: userLocation,
+            map: googleMapRef.current,
+            icon: customSymbol,
+          });
+
+          userLocationLastMarkerRef.current = userMarker;
+        })
       }
     };
 
@@ -169,31 +221,50 @@ function Map() {
         return;
       }
 
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-          (pos) => {
-            setUserLocation(new google.maps.LatLng(pos.coords.latitude, pos.coords.longitude));
-          },
-          (err) => {
-            console.log('Error getting location:', err);
-          }
-        );
-      } else {
-        console.log('Geolocation is not supported by this browser.')
-      }
-      googleMapRef.current.panTo(new google.maps.LatLng(availableParkingLotsRef.current[0].latitude, availableParkingLotsRef.current[0].longitude));
-
-      // Delay setting heading, tilt, and zoom by 1 second
-      setTimeout(() => {
-        googleMapRef.current!.setHeading(80);
-        googleMapRef.current!.setTilt(60);
-        googleMapRef.current!.setZoom(17);
-      }, 1000);
+      // if (navigator.geolocation) {
+      //   navigator.geolocation.getCurrentPosition(
+      //     (pos) => {
+      //       userLocationRef.current = new google.maps.LatLng(pos.coords.latitude, pos.coords.longitude);
+      //     },
+      //     (err) => {
+      //       console.log('Error getting location:', err);
+      //     }
+      //   );
+      // } else {
+      //     console.log('Geolocation is not supported by this browser.')
+      //   }
 
       if(!userLocationRef.current) {
         console.log("No user location");
         return;
       }
+      calculateAndDisplayRoute(userLocationRef.current, new google.maps.LatLng(availableParkingLotsRef.current[0].latitude, availableParkingLotsRef.current[0].longitude));
+
+      
+      
+      console.log("In refresh");
+      if(oldRoutePointRef.current?.lat == newRoutePointRef.current?.lat
+        || oldRoutePointRef.current?.lng == newRoutePointRef.current?.lng
+      ) {
+        return;
+      }
+      if(newRoutePointRef == null) {
+        return;
+      }
+
+      const bearing = calculateBearing({ lat: userLocationRef.current.lat(), lng: userLocationRef.current.lng() }, newRoutePointRef.current!);
+
+        
+      googleMapRef.current.panTo(new google.maps.LatLng(userLocationRef.current.lat(), userLocationRef.current.lng()));
+        
+      googleMapRef.current!.setHeading(bearing);
+      googleMapRef.current!.setTilt(60);
+      console.log("Centering");
+      // Delay setting heading, tilt, and zoom by 1 second
+      // setTimeout(() => {
+      //   // googleMapRef.current!.setZoom(17);
+      // }, 1000);
+        
 
       //show the user location on the map
 
@@ -210,28 +281,25 @@ function Map() {
       };
 
       const userMarker = new google.maps.Marker({
-        position: userLocation,
+        position: userLocationRef.current,
         map: googleMapRef.current,
         icon: customSymbol,
       });
 
       userLocationLastMarkerRef.current = userMarker;
-      // googleMapRef.current.setCenter(userLocation);
 
-      calculateAndDisplayRoute(userLocationRef.current, new google.maps.LatLng(availableParkingLots[0].latitude, availableParkingLots[0].longitude));
       // center the map on the user location
 
 
       
-      const bearing = calculateBearing({ lat: userLocationRef.current.lat(), lng: userLocationRef.current.lng() }, { lat: availableParkingLots[0].latitude, lng: availableParkingLots[0].longitude });
 
       
-
+      oldRoutePointRef.current = newRoutePointRef.current;
     };
 
     // Update location immediately and then every 2.5 seconds
     updateLocation();
-    const intervalId = setInterval(updateLocation, 2500);
+    const intervalId = setInterval(updateLocation, 500);
 
     // Cleanup interval on component unmount
     return () => clearInterval(intervalId);
@@ -282,6 +350,26 @@ function Map() {
             suppressMarkers: true,
             preserveViewport: true,
           });
+          if(response == null) return;
+
+          const route = response.routes[0];
+          const points: LatLngExpression[] = [];
+
+          route.legs.forEach((leg) => {
+            leg.steps.forEach((step) => {
+              const path = step.path;
+              path.forEach((point) => {
+                points.push({ lat: point.lat(), lng: point.lng() });
+                if(points.length > 2) return;
+              });
+              if(points.length > 2) return;
+            });
+            if(points.length > 2) return;
+          });
+          if(points[2]) {
+            newRoutePointRef.current = points[2];
+          }
+
         } else {
           console.error(`Directions request failed due to ${status}`);
         }
