@@ -8,7 +8,8 @@ Modal.setAppElement('#root'); // Suppresses modal-related accessibility warnings
 export interface ConfirmationModalProps {
   isOpen: boolean;
   onRequestClose: () => void;
-  onConfirm: (hoursToReserve: number, carId: number) => Promise<void>; // Add this line
+  onConfirm: (hoursToReserve: number, carId: number, lotId: number) => Promise<void>; // Add this line
+  lotId: number;
   title: string;
   message: string;
 }
@@ -17,6 +18,7 @@ export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
   isOpen,
   onRequestClose,
   onConfirm,
+  lotId,
   title,
   message,
 }) => {
@@ -67,7 +69,7 @@ export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
         }
       }}
     >
-      <div className='text-white text-center bg-black bg-opacity-80 p-4 rounded-lg flex flex-col items-center'>
+      <div className='z-100000 text-white text-center bg-black bg-opacity-80 p-4 rounded-lg flex flex-col items-center'>
         <h2>{title}</h2>
         <p>{message}</p>
         <div>
@@ -93,7 +95,7 @@ export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
         </div>
         
         <div className='flex flex-row justify-evenly w-full'>
-          <button className='bg-purple-600 py-0.5 px-6 rounded-lg' onClick={() => onConfirm(hoursToReserve, inputCarId)}>Yes</button>
+          <button className='bg-purple-600 py-0.5 px-6 rounded-lg' onClick={() => onConfirm(hoursToReserve, inputCarId, lotId)}>Yes</button>
           <button className='bg-purple-600 py-0.5 px-6 rounded-lg' onClick={onRequestClose}>No</button>
         </div>
       </div>

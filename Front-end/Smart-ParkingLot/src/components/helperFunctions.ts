@@ -1,4 +1,5 @@
 import { LatLngExpression } from "../types/LatLngExpression";
+import { ParkingLot } from "../types/ParkingLot";
 
 // Function to calculate the distance between two points using the Haversine formula
 const calculateDistance = (point1: LatLngExpression, point2: LatLngExpression): number => {
@@ -73,5 +74,20 @@ function isDeviceOrientationSupported(): boolean {
   return 'DeviceOrientationEvent' in window;
 }
 
+function calculateNearestParkingLot(userLocation: LatLngExpression, parkingLots: ParkingLot[]): ParkingLot {
+  let nearestParkingLot = parkingLots[0];
+  let nearestDistance = calculateDistance(userLocation, { lat: nearestParkingLot.latitude, lng: nearestParkingLot.longitude });
 
-export {  getPointAtDistance, calculateBearing, isDeviceOrientationSupported };
+  for (let i = 1; i < parkingLots.length; i++) {
+    const distance = calculateDistance(userLocation, { lat: parkingLots[i].latitude, lng: parkingLots[i].longitude });
+
+    if (distance < nearestDistance) {
+      nearestParkingLot = parkingLots[i];
+      nearestDistance = distance;
+    }
+  }
+
+  return nearestParkingLot;
+}
+
+export { calculateDistance, calculateNearestParkingLot, getPointAtDistance, calculateBearing, isDeviceOrientationSupported };

@@ -32,3 +32,30 @@ body {
 .ui-button:hover {
   background: rgb(235, 235, 235);
 }
+
+/* property added when modal is open */
+.lower-map * {
+  z-index: 1;
+  display: none !important;
+  position: absolute;
+  pointer-events: none;
+
+}
+
+.ReactModalPortal * {
+  z-index: 1000000;
+}
+
+.hours-to-reserve {
+  margin-left: -10px;
+  width: 4rem;
+}
+
+.ui-button-active {
+  background: hsl(212, 75%, 55%);
+  color: white;
+}
+
+.ui-button-active:hover {
+  background: hsl(212, 75%, 48%);
+}

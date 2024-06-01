@@ -5,10 +5,10 @@ import { ConfirmationModal } from './ReservationModal';
 import useReservations from '../hooks/useReservations';
 import { Car } from '../types/Car';
 import useSavedCars from '../hooks/useSavedCars';
-import { calculateBearing } from './helperFunctions';
+import { calculateBearing, calculateDistance, calculateNearestParkingLot } from './helperFunctions';
 import { LatLngExpression } from '../types/LatLngExpression';
-import { LatLng } from 'leaflet';
 import '../styles/googlemap.css';
+import { control } from 'leaflet';
 
 function Map() {
   const googleMapElementRef = useRef<HTMLDivElement>(null);
@@ -25,6 +25,8 @@ function Map() {
     const oldRoutePointRef = useRef<LatLngExpression | null>(null);
   const newRoutePointRef = useRef<LatLngExpression | null>(null);
   const isDrivingBoolRef: React.MutableRefObject<boolean> = useRef(false);
+  const hoursforAutoReserveRef = useRef<number>(2);
+  const isAutoReserveOnRef = useRef<boolean>(false);
 
   // const [userPosition, setUserPosition] = useState<L.LatLngExpression | null>(null);
   // const [shouldCenter, setShouldCenter] = useState(true); // Controls whether the map should re-center
@@ -36,9 +38,7 @@ function Map() {
 
   // center of the map, currently set on Iasi
   // wrap the centerOfIasi in a useMemo hook to avoid recalculating it on every render
-  const centerOfIasi = useMemo(() => new LatLng(47.169765, 27.576554), []);
-  // const [parkingLots, setParkingLots] = useState<ParkingLot[]>([]);
-  const [availableParkingLots, setAvailableParkingLots] = useState<ParkingLot[]>([]);
+  const centerOfIasi = useMemo(() => ({ lat: 47.1585, lng: 27.6014 }), []);
   const availableParkingLotsRef = useRef<ParkingLot[]>([]);
   const { getAvailableParkingLotsAndClosestLot } = useParkingLots();
 
@@ -47,10 +47,10 @@ function Map() {
   const [modalMessage, setModalMessage] = useState('');
   const [modalTitle, setModalTitle] = useState('');
 
-  const [lotToReserve, setLotToReserve] = useState<number>(-1);
+  const lotToReserveRef = useRef<number>(-1);
 
 
-  const [cars, setCars] = useState<Car[]>([]);
+  const carsRef = useRef<Car[]>([]);
   const { getUserCars } = useSavedCars();
   const { reserveParkingSpot } = useReservations();
 
@@ -64,8 +64,10 @@ function Map() {
         const stopTime = new Date(new Date().getTime() + 15 * 60 * 60 * 1000).toISOString().slice(0, 19) + 'Z';
 
         const data = await getAvailableParkingLotsAndClosestLot(baseUrlString, radius, centerOfIasi.lat, centerOfIasi.lng, startTime, stopTime);
-        setAvailableParkingLots(data.parkingLots);
         availableParkingLotsRef.current = data.parkingLots;
+
+        updateMarkers(data.parkingLots);
+        
       } catch (error) {
         console.error('Fetch error:', error);
       }
@@ -75,19 +77,20 @@ function Map() {
 
   const handleReserveClick = useCallback(async (lotId: number) => {
     console.log("Reserving spot at lot", lotId);
-    setLotToReserve(lotId);
+    lotToReserveRef.current = lotId;
     setModalTitle('Confirmation');
     setModalMessage(`Reserve parking spot at this parking lot?`);
     setModalIsOpen(true);
+    document.exitFullscreen();
   }, []);
 
   useEffect(() => {
     getUserCars(baseUrlString).then((fetchedCars: Car[]) => {
-      setCars(fetchedCars);
+      carsRef.current = fetchedCars;
     });
   }, [baseUrlString, getUserCars]);
 
-  const confirmReservation = useCallback(async (hoursToReserve: number, carId: number) => {
+  const confirmReservation = useCallback(async (hoursToReserve: number, carId: number, lotId: number) => {
     setModalIsOpen(false);
 
     const now = new Date();
@@ -95,16 +98,18 @@ function Map() {
     const startTime = new Date(now.getTime() + 3 * 60 * 60 * 1000).toISOString().slice(0, 19) + 'Z';
     const stopTime = new Date(new Date().getTime() + (hoursToReserve + 3) * 60 * 60 * 1000).toISOString().slice(0, 19) + 'Z';
 
-    const car = cars.find(car => car.id === carId);
+    const car = carsRef.current.find(car => car.id === carId);
+    
 
-    if (!car) {
+    if (car == null) {
       alert('Car not found');
       return;
     }
 
-    const parkingLot: ParkingLot | undefined = availableParkingLots.find(lot => lot.id === lotToReserve);
+    const parkingLot: ParkingLot | undefined = availableParkingLotsRef.current.find(lot => lot.id === lotId);
 
-    if (!parkingLot) {
+    if (parkingLot == null) {
+      console.log('Parking lot not found');
       alert('Parking lot not found');
       return;
     }
@@ -114,16 +119,26 @@ function Map() {
     const result = await reserveParkingSpot(baseUrlString, parkingSpotIdToReserve, startTime, stopTime, car.plate, car.capacity, car.model);
 
     if (result === 'Spot reserved successfully') {
-      if (window.location.pathname !== '/home') {
-        window.location.href = '/home';
+      if(isAutoReserveOnRef.current) {
+        if(calculateDistance({lat: userLocationRef.current!.lat(), lng: userLocationRef.current!.lng()}, {lat: destinationLocationRef.current!.lat(), lng: destinationLocationRef.current!.lng()}) < 0.1) {
+          const autoReserveButton = document.querySelector('.ui-button-active');
+          if(autoReserveButton) {
+            // set the button value to 0 if reservation was succesful
+            autoReserveButton.innerHTML = "0";
+            hoursforAutoReserveRef.current = 0;
+          }
+
+          isAutoReserveOnRef.current = false;
+          drawButtons();
+        }
       }
       else {
         window.location.reload()
       }
     } else {
-      alert('Reservation failed: ' + result);
+      window.location.reload()
     }
-  }, [cars, availableParkingLots, lotToReserve, baseUrlString]);
+  }, [baseUrlString]);
 
   useEffect(() => {
     const loadGoogleMaps = async () => {
@@ -162,8 +177,8 @@ function Map() {
           setUserLocation(e.latLng);       
         })
 
-        
-      
+        drawButtons();
+        updateMarkers(availableParkingLotsRef.current);
       }
       
     };
@@ -171,20 +186,58 @@ function Map() {
     loadGoogleMaps();
   }, []);
 
-  useEffect(() => {
-    if(!googleMap) {
+  const drawButtons = useCallback(() => {
+    if(googleMapRef.current == null) {
       return;
     }
-    const buttons: [string, string, google.maps.ControlPosition][] = [
-      ["Center", "centerOnDriver", google.maps.ControlPosition.BOTTOM_LEFT],
-      ["Auto Reserve on Arrival", "autoReserve", google.maps.ControlPosition.BOTTOM_LEFT],
-      ["⬆", "resetPosition", google.maps.ControlPosition.RIGHT_TOP],
-      ["✖", "cancelDrive", google.maps.ControlPosition.BOTTOM_LEFT],
-    ];
-  
+    console.log("Drawing buttons");
+    googleMapRef.current.controls[google.maps.ControlPosition.BOTTOM_LEFT].clear();
+    googleMapRef.current.controls[google.maps.ControlPosition.RIGHT_TOP].clear();
+    
+    let buttons: [string, string, google.maps.ControlPosition][] = [];
+    if(isDrivingBoolRef.current) {
+      buttons.push(["Center", "centerOnDriver", google.maps.ControlPosition.BOTTOM_LEFT]);
+      buttons.push([`${hoursforAutoReserveRef.current != 0?( `Auto Reserve for ${hoursforAutoReserveRef.current} ${hoursforAutoReserveRef.current == 1? `hour` : `hours`} on Arrival`) : `Spot reserved succesfully`}`, "autoReserve", google.maps.ControlPosition.BOTTOM_LEFT]);
+      buttons.push(["⬆", "resetPosition", google.maps.ControlPosition.RIGHT_TOP]); 
+      buttons.push(["", "hoursToReserve", google.maps.ControlPosition.BOTTOM_LEFT]);
+      buttons.push(["✖", "cancelDrive", google.maps.ControlPosition.BOTTOM_LEFT]);
+    }
+    else {
+      buttons = [
+        ["Center", "centerOnDriver", google.maps.ControlPosition.BOTTOM_LEFT],
+        ["⬆", "resetPosition", google.maps.ControlPosition.RIGHT_TOP],
+        ["Go to nearest parking lot", "nearestLot", google.maps.ControlPosition.BOTTOM_LEFT]
+      ]; 
+    }
+
     buttons.forEach(([text, mode, position]) => {
       const controlDiv = document.createElement("div");
-      const controlUI = document.createElement("button");
+      let controlUI: HTMLButtonElement | HTMLInputElement;
+      if(mode == "hoursToReserve") {
+        controlUI = document.createElement("input");
+        controlUI.classList.add("hours-to-reserve");
+        controlUI.type = "number";
+        controlUI.min = "1";
+        controlUI.max = "72";
+        controlUI.value = `${hoursforAutoReserveRef.current}`;
+        controlUI.addEventListener("change", () => {
+          hoursforAutoReserveRef.current = (controlUI as HTMLInputElement).valueAsNumber;
+          drawButtons();
+        });
+      }
+      else {
+        controlUI = document.createElement("button");
+      }
+
+      if((mode == "autoReserve" || mode == "hoursToReserve") && isAutoReserveOnRef.current == true) {
+        controlUI.classList.add("ui-button-active");
+        console.log("Auto reserve is on");
+      }
+      else {
+        console.log("Auto reserve is off");
+      }
+
+      console.log(mode);
   
       controlUI.classList.add("ui-button");
       controlUI.innerText = `${text}`;
@@ -192,43 +245,86 @@ function Map() {
         adjustMap(mode);
       });
       controlDiv.appendChild(controlUI);
-      googleMap.controls[position].push(controlDiv);
+      googleMapRef.current?.controls[position].push(controlDiv);
     });
   
     const adjustMap = function (mode: string) {
       switch (mode) {
-        case "autoReserve":
-          console.log("Auto reserve");
-          break;
         case "resetPosition":
-          googleMap.setTilt(0);
-          googleMap.setHeading(0);
+            googleMapRef.current?.setTilt(0);
+            googleMapRef.current?.setHeading(0);
+            break;
+        case "autoReserve":
+          if(hoursforAutoReserveRef.current == 0) {
+            isAutoReserveOnRef.current = false;
+            hoursforAutoReserveRef.current = 1;
+            drawButtons();
+            return;
+          }
+          if(isAutoReserveOnRef.current) {
+            isAutoReserveOnRef.current = false;
+            drawButtons();
+            return;
+          }
+          isAutoReserveOnRef.current = true;
+          drawButtons();
           break;
         case "centerOnDriver":
           if(newRoutePointRef.current) {
-            // used to trigger re-centering
-            newRoutePointRef.current.lat += 0.00001;
-            if(userLocationRef.current) {
-              setTimeout(() => googleMapRef.current?.setZoom(18), 1000);
+            if(isDrivingBoolRef.current == true) {
+              // used to trigger re-centering
+              newRoutePointRef.current.lat += 0.00001;
+              if(userLocationRef.current) {
+                setTimeout(() => googleMapRef.current?.setZoom(17), 1000);
+              }  
+            }
+            else {
+              if(userLocationRef.current) {
+                googleMapRef.current?.panTo(userLocationRef.current);
+              }
+              else {
+                drawButtons();
+              }
             }
           } 
+          else {
+            if(userLocationRef.current) {
+              googleMapRef.current?.panTo(userLocationRef.current);
+            }
+            else {
+              drawButtons();
+            }
+          }
           break;
         case "cancelDrive":
           if(userLocationRef.current) {
-            googleMap.setHeading(0);
-            googleMap.setTilt(0);
-            googleMap.setZoom(14);
+            googleMapRef.current?.setHeading(0);
+            googleMapRef.current?.setTilt(0);
           }
           isDrivingBoolRef.current = false;
+
           directionsRendererRef.current?.setMap(null);
           directionsRendererRef.current = null;
-          
+          drawButtons();
           break;
+        case "nearestLot": {
+          if(userLocationRef.current == null) {
+            alert("No user location");
+            return;
+          }
+          if(availableParkingLotsRef.current.length == 0) {
+            alert("No available parking lots");
+            return;
+          }
+          const nearestLot = calculateNearestParkingLot({lat: userLocationRef.current.lat(), lng: userLocationRef.current.lng()}, availableParkingLotsRef.current);
+          handleDrive(nearestLot.id);
+          break;
+        }
         default:
           break;
       }
     };
-  }, [googleMap]);
+  }, []);
 
   const calculateAndDisplayRoute = useCallback((start: google.maps.LatLng, end: google.maps.LatLng) => {
     if (directionsRendererRef.current == null) {
@@ -239,7 +335,10 @@ function Map() {
         });
         console.log("Creating new renderer");
     }
-    if (!directionsServiceRef.current) {
+    if(directionsRendererRef.current == null) {
+      return;
+    }
+    if (directionsServiceRef.current == null) {
       directionsServiceRef.current = new google.maps.DirectionsService();
     }
     directionsServiceRef.current.route(
@@ -283,9 +382,10 @@ function Map() {
     );
   }, [directionsServiceRef, directionsRendererRef, newRoutePointRef]);
 
-  useEffect(() => {
-    const updateMarkers = (parkingLots: ParkingLot[]) => {
-      if (!googleMap || !parkingLots.length) {
+  const updateMarkers = useCallback((parkingLots: ParkingLot[]) => {
+    console.log("Updating markers");
+      if (!googleMapRef.current || !parkingLots.length) {
+        console.log("No google map or parking lots");
         return;
       }
       // Clear existing markers
@@ -305,7 +405,7 @@ function Map() {
 
         const marker = new google.maps.marker.AdvancedMarkerElement({
           position: new google.maps.LatLng(lot.latitude, lot.longitude),
-          map: googleMap,
+          map: googleMapRef.current,
           title: lot.name,
           content: customIcon
         });
@@ -330,17 +430,21 @@ function Map() {
             infoWindowRef.current.close();
           }
 
-          infoWindow.open(googleMap, marker);
+          infoWindow.open(googleMapRef.current, marker);
           infoWindowRef.current = infoWindow;
 
           google.maps.event.addListenerOnce(infoWindow, 'domready', () => {
-            document.getElementById(`reserve-button-${lot.id}`)?.addEventListener('click', () => handleReserveClick(lot.id));
+            document.getElementById(`reserve-button-${lot.id}`)?.addEventListener('click', () => {
+              handleReserveClick(lot.id)
+              lotToReserveRef.current = lot.id;
+          });
           });
 
           google.maps.event.addListenerOnce(infoWindow, 'domready', () => {
             document.getElementById(`drive-button-${lot.id}`)?.addEventListener('click', () => 
               {
                 handleDrive(lot.id);
+                lotToReserveRef.current = lot.id;
                 if (infoWindowRef.current) {
                   infoWindowRef.current.close();
                 }
@@ -357,14 +461,14 @@ function Map() {
 
       markersRef.current = newMarkers;
 
-      if (googleMap) {
-        googleMap.addListener('click', () => {
+      if (googleMapRef.current) {
+        googleMapRef.current.addListener('click', () => {
           if (infoWindowRef.current) {
             infoWindowRef.current.close();
           }
         });
 
-        googleMap.addListener('drag', () => {
+        googleMapRef.current.addListener('drag', () => {
           if (infoWindowRef.current) {
             infoWindowRef.current.close();
           }
@@ -373,12 +477,29 @@ function Map() {
 
 
 
-    };
+  }, []);
 
-    if (googleMap) {
-      updateMarkers(availableParkingLots);
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.watchPosition(
+        (pos) => {
+          userLocationRef.current = new google.maps.LatLng(pos.coords.latitude, pos.coords.longitude);
+          setUserLocation(new google.maps.LatLng(pos.coords.latitude, pos.coords.longitude));
+          console.log("User location updated");
+        },
+        (err) => {
+          console.log('Error getting location:', err);
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: Infinity,
+          maximumAge: 0,
+        }
+      );
+    } else {
+      console.log('Geolocation is not supported by this browser.')
     }
-  }, [availableParkingLots, markersRef, centerOfIasi, googleMap]);
+  }, []);
 
   useEffect(() => {
     if(!googleMapRef.current) {
@@ -451,29 +572,8 @@ function Map() {
         return;
       }
       if(isDrivingBoolRef.current == false) {
-        console.log("Not driving");
         return;
       }
-
-      if (navigator.geolocation) {
-        navigator.geolocation.watchPosition(
-          (pos) => {
-            userLocationRef.current = new google.maps.LatLng(pos.coords.latitude, pos.coords.longitude);
-            setUserLocation(new google.maps.LatLng(pos.coords.latitude, pos.coords.longitude));
-            
-          },
-          (err) => {
-            console.log('Error getting location:', err);
-          },
-          {
-            enableHighAccuracy: true,
-            timeout: Infinity,
-            maximumAge: 0,
-          }
-        );
-      } else {
-          console.log('Geolocation is not supported by this browser.')
-        }
 
       if(!userLocationRef.current) {
         console.log("No user location");
@@ -485,7 +585,24 @@ function Map() {
         return;
       }
       calculateAndDisplayRoute(userLocationRef.current, destinationLocationRef.current);
+
+      // if user is 100 meters away from destination, reserve the spot
+      if(isAutoReserveOnRef.current) {
+        if(calculateDistance({lat: userLocationRef.current.lat(), lng: userLocationRef.current.lng()}, {lat: destinationLocationRef.current.lat(), lng: destinationLocationRef.current.lng()}) < 0.1) {
+          if(carsRef.current[0] == null) {
+            alert("No cars available for auto reservation");
+            isAutoReserveOnRef.current = false;
+            drawButtons();
+            return;
+          }
+          console.log(carsRef.current);
+          console.log(lotToReserveRef.current);
+          confirmReservation(hoursforAutoReserveRef.current, carsRef.current[0].id, lotToReserveRef.current);
+        }
+
+      }
       
+      // used to stop re-centering if the point to look forward to didnt refresh yet
       if(oldRoutePointRef.current?.lat == newRoutePointRef.current?.lat
         && oldRoutePointRef.current?.lng == newRoutePointRef.current?.lng
       ) {
@@ -503,70 +620,6 @@ function Map() {
       googleMapRef.current!.setHeading(bearing);
       googleMapRef.current!.setTilt(60);
       console.log("Centering");
-      // Delay setting heading, tilt, and zoom by 1 second
-      // setTimeout(() => {
-      //   // googleMapRef.current!.setZoom(17);
-      // }, 1000);
-        
-
-      //show the user location on the map
-
-      // if(userLocationLastMarkerRef.current) {
-      //   console.log("Removing marker");
-      //   userLocationLastMarkerRef.current.map = null;
-      // }
-      
-      // console.log("Generating marker");
-
-      // const glyphImg = document.createElement('img');
-      // glyphImg.src = 'https://developers.google.com/maps/documentation/javascript/examples/full/images/google_logo_g.svg';
-
-      // // Create the outer circle
-      // const outerCircle = document.createElement('div');
-      // outerCircle.style.display = 'flex';
-      // outerCircle.style.justifyContent = 'center';
-      // outerCircle.style.alignItems = 'center';
-      // outerCircle.style.width = '1.5rem';
-      // outerCircle.style.height = '1.5rem';
-      // outerCircle.style.backgroundColor = 'rgba(0, 123, 255, 0.2)'; // Light blue with some transparency
-      // outerCircle.style.borderRadius = '50%';
-      // outerCircle.style.transform = 'translateY(50%)';
-
-      // // Create the middle circle
-      // const middleCircle = document.createElement('div');
-      // middleCircle.style.display = 'flex';
-      // middleCircle.style.justifyContent = 'center';
-      // middleCircle.style.alignItems = 'center';
-      // middleCircle.style.width = '1rem';
-      // middleCircle.style.height = '1rem';
-      // middleCircle.style.backgroundColor = 'rgba(0, 123, 255, 0.5)'; // Slightly darker blue
-      // middleCircle.style.borderRadius = '50%';
-
-      // // Create the inner circle
-      // const innerCircle = document.createElement('div');
-      // innerCircle.style.width = '0.5rem';
-      // innerCircle.style.height = '0.5rem';
-      // innerCircle.style.backgroundColor = '#007bff'; // Solid blue
-      // innerCircle.style.borderRadius = '50%';
-
-      // // Append the circles to create the desired structure
-      // middleCircle.appendChild(innerCircle);
-      // outerCircle.appendChild(middleCircle);
-      
-
-      // const userMarker = new google.maps.marker.AdvancedMarkerElement({
-      //   position: userLocationRef.current,
-      //   map: googleMapRef.current,
-      //   content: outerCircle,
-      //   // content: customPinElement,
-      //   // icon: customSymbol,
-      // });
-
-      // userLocationLastMarkerRef.current = userMarker;
-
-
-      
-
       
       oldRoutePointRef.current = newRoutePointRef.current;
     };
@@ -585,8 +638,9 @@ function Map() {
       return;
     }
     isDrivingBoolRef.current = true;
+    drawButtons();
     console.log("Driving");
-    const parkingLot = availableParkingLots.find((parkingLot) => parkingLot.id == key)
+    const parkingLot = availableParkingLotsRef.current.find((parkingLot) => parkingLot.id == key)
     if(!parkingLot) {
       console.log("Cant drive to non existent parking lot");
       return;
@@ -597,23 +651,27 @@ function Map() {
       oldRoutePointRef.current.lat += 0.000001;
     }
     if(userLocationRef.current) {
-      setTimeout(() => googleMapRef.current?.setZoom(18), 1000);
+      setTimeout(() => googleMapRef.current?.setZoom(17), 1000);
     }
     
-  }, [availableParkingLots])
+  }, [])
 
   
 
   return (
     <div style={{ height: '100%', width: '100%' }}>
       <div ref={googleMapElementRef} style={{ height: '100%', width: '100%' }} />
-      <ConfirmationModal
-        isOpen={modalIsOpen}
-        onRequestClose={() => setModalIsOpen(false)}
-        onConfirm={confirmReservation}
-        title={modalTitle}
-        message={modalMessage}
-      />
+      
+      <div className='z-2000000'>
+        <ConfirmationModal
+          isOpen={modalIsOpen}
+          onRequestClose={() => setModalIsOpen(false)}
+          onConfirm={confirmReservation}
+          lotId={lotToReserveRef.current}
+          title={modalTitle}
+          message={modalMessage}
+        />
+      </div>
     </div>
 
   );
