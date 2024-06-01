@@ -87,7 +87,6 @@ const App: React.FC = () => {
             <Route path="/profile/messages" element={<Messages />} />
             <Route path="/profile/cars" element={<Cars />} />
             <Route path="/profile/details" element={<Details />} />
-            <Route path="/profile/reserve" element={<Reserve1 />} />
             <Route path="/profile/admin-parking-panel" element={<ParkingLotManagerPanel />} />
             <Route path="/profile/admin-parking-panel/add-parking-lot" element={<AddParkingLotPage />} />
             <Route path="/profile/admin-parking-panel/edit-parking-lot/:id" element={<EditParkingLotPage />} />
@@ -95,8 +94,6 @@ const App: React.FC = () => {
             <Route path="/profile/admin/see-all-users" element={<SeeAllUsersAdmin />} />
             <Route path="/profile/admin/questions" element={<AdminQuestions />} />
             <Route path="/balance" element={<AccountBalance />} />
-            <Route path="/home/reserve1" element={<Reserve1 />} />
-            <Route path="/home/reserve1/reserve2" element={<MapPage />} />
             <Route path="/help" element={<HelpPage />} />
             <Route path="/loading" element={<LoadingPage />} />
             <Route path="/results" element={<ResultsPage />} />
