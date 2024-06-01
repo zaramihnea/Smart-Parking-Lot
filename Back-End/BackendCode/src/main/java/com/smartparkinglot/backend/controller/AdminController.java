@@ -45,14 +45,13 @@ public class AdminController {
     }
 
 
-    @PostMapping(value = "/ban/{email}")
-    public ResponseEntity<String> banUser(@RequestHeader("Authorization") String authorizationHeader, @PathVariable("email") String email) {
+    @PostMapping(value = "/ban")
+    public ResponseEntity<String> banUser(@RequestHeader("Authorization") String authorizationHeader, @RequestBody User user) {
         String token = authorizationHeader.substring(7);// Assuming the scheme is "Bearer "
         if(tokenService.validateToken(token)) {
             User userAuthorized = tokenService.getUserByToken(token);
             if(userAuthorized.getType() == 3) {
                 try {
-                    User user = userService.getUserByEmail(email);
                     userService.banUser(user);
                     return ResponseEntity.ok("User banned successfully");
                 } catch (Exception e) {
