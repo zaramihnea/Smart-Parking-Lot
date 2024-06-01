@@ -57,11 +57,14 @@ const Homepage: React.FC = () => {
           <h1 className="text-2xl font-semibold">Welcome, {username}!</h1>
         </div>
       </div>
-        <div className="flex justify-center items-center flex-grow mt-4 mb-4 px-4">
-          <div className="w-full max-w-4xl h-96 bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden z-0 space-y">
-            <GoogleMap />
-          </div>
+      <div className='m-auto'>
+        <p>Click on map to set user location</p>
+        </div>   
+      <div className="flex justify-center items-center flex-grow mt-4 mb-4 px-4">
+        <div className="w-full max-w-4xl h-96 bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden z-0 space-y">
+          <GoogleMap />
         </div>
+      </div>
       <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md mb-8">
         <h2 className="text-xl font-medium mb-4">Reservations</h2>
         {reservations.length === 0 && <p className='text-gray-400'>No active reservations. Hurry up and give us your money</p>}
