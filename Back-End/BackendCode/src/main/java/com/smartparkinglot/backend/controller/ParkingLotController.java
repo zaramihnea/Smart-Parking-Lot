@@ -141,6 +141,7 @@ public class ParkingLotController {
         if( existingParkingLot != updatedParkingLot ){
             existingParkingLot.setPrice(updatedParkingLot.getPrice());
             existingParkingLot.setName(updatedParkingLot.getName());
+            existingParkingLot.setNrSpots(updatedParkingLot.getNrSpots());
         }
 
         parkingLotService.updateLot(existingParkingLot);
