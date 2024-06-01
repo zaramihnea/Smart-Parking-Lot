@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import SearchBar from './components/SearchBar';
 import Navbar from './components/Navbar';
-import Map from './components/Map';
+import GoogleMap from './components/Map';
 import useUsername from "./hooks/useUsername"
 import useReservations from "./hooks/useReservations"
 
@@ -64,7 +64,7 @@ const Homepage: React.FC = () => {
       </div>
         <div className="flex justify-center items-center flex-grow mt-4 mb-4 px-4">
           <div className="w-full max-w-4xl h-96 bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden z-0 space-y">
-            <Map />
+            <GoogleMap />
           </div>
         </div>
       <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md mb-8">
