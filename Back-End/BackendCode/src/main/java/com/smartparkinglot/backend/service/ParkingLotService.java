@@ -45,6 +45,7 @@ public class ParkingLotService {
     public void updateLot(ParkingLot parkingLot){
         parkingLotRepository.updatePrice(parkingLot.getId(), parkingLot.getPrice());
         parkingLotRepository.updateName(parkingLot.getId(), parkingLot.getName());
+        parkingLotRepository.updateNrSpots(parkingLot.getId(), parkingLot.getNrSpots());
     }
 
     // Transactional <=> no need of verification queries

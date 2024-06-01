@@ -21,6 +21,7 @@ const EditParkingLotPage: React.FC = () => {
   const [parkingLot, setParkingLot] = useState(null);
   const [name, setName] = useState('');
   const [price, setPrice] = useState(0);
+  const [nrSpots, setNrSpots] = useState(0);
   const [spaces, setSpaces] = useState<ParkingSpot[]>([]);
   const [initialSpots, setInitialSpots] = useState<ParkingSpot[]>([]);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -43,6 +44,7 @@ const EditParkingLotPage: React.FC = () => {
         setSpaces(data.parkingSpots);
         setInitialSpots(data.parkingSpots);  // Correctly set initial spots
         setParkingLot(data.parkingLot);
+        setNrSpots(data.parkingLot.nrSpots);
       } catch (error) {
         alert('Failed to fetch parking lot details.');
       }
@@ -115,6 +117,14 @@ const EditParkingLotPage: React.FC = () => {
         });
       }
 
+      const lot = {
+        id: id,
+        name: name,
+        price: price,
+        nrSpots: spaces.length
+      };
+
+
       // Update Parking lot info
       await fetch(`${baseURL}/parking_lot/update`, {
         method: 'PUT',
@@ -122,7 +132,7 @@ const EditParkingLotPage: React.FC = () => {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
         },
-        body: JSON.stringify({ id, name, price }),
+        body: JSON.stringify(lot),
       });
 
     setMessage('Parking lot was successfully updated!');

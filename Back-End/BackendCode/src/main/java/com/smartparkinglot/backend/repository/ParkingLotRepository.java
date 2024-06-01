@@ -39,6 +39,11 @@ public interface ParkingLotRepository extends JpaRepository<ParkingLot, Long> {
    @Query("UPDATE ParkingLot p SET p.name = :name WHERE p.id = :id")
    void updateName(@Param("id") Long id, @Param("name") String name);
 
+   @Modifying
+   @Transactional
+   @Query("UPDATE ParkingLot p SET p.nrSpots = :nrSpots WHERE p.id = :id")
+   void updateNrSpots(@Param("id") Long id, @Param("nrSpots") Integer nrSpots);
+
 
     boolean existsByLatitudeAndLongitude(BigDecimal bigDecimal, BigDecimal bigDecimal1);
 }

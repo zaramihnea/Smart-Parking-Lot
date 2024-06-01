@@ -61,7 +61,7 @@ const App: React.FC = () => {
     }
 
     const fetchUserType = async () => {
-      const fetchedUserType = 3; // 1: normal user, 2: parking manager, 3: app admin
+      const fetchedUserType = 2; // 1: normal user, 2: parking manager, 3: app admin
       setUserType(fetchedUserType);
     };
 
