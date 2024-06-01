@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useRef } from 'react';
+import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { ParkingLot } from '../types/ParkingLot';
 import useParkingLots from '../hooks/useParkingLots';
 import { ConfirmationModal } from './ReservationModal';
@@ -8,22 +8,23 @@ import useSavedCars from '../hooks/useSavedCars';
 import { calculateBearing } from './helperFunctions';
 import { LatLngExpression } from '../types/LatLngExpression';
 import { LatLng } from 'leaflet';
+import '../styles/googlemap.css';
 
 function Map() {
-  const [googleMap, setGoogleMap] = useState<google.maps.Map | null>(null);
   const googleMapElementRef = useRef<HTMLDivElement>(null);
   const googleMapRef = useRef<google.maps.Map | null>(null);
-  const markersRef = useRef<google.maps.Marker[]>([]);
+  const [googleMap, setGoogleMap] = useState<google.maps.Map | null>(null);
+  const markersRef = useRef<google.maps.marker.AdvancedMarkerElement[]>([]);
   const infoWindowRef = useRef<google.maps.InfoWindow | null>(null);
   const directionsRendererRef = useRef<google.maps.DirectionsRenderer | null>(null);
   const directionsServiceRef = useRef<google.maps.DirectionsService | null>(null);
   const [userLocation, setUserLocation] = useState<google.maps.LatLng | null>(null);
-  const userLocationLastMarkerRef = useRef<google.maps.Marker | null>(null);
-  const userLocationRef = useRef<google.maps.LatLng | null>(userLocation);
-  const [lastRoutePoint, setLastRoutePoint] = useState<LatLngExpression | null>({lat: 47.169765, lng: 27.576554});
-  const [nextRoutePoint, setNextRoutePoint] = useState<LatLngExpression | null>({lat: 47.169765, lng: 27.576554});
-    const oldRoutePointRef = useRef(nextRoutePoint);
-  const newRoutePointRef = useRef(nextRoutePoint);
+  const userLocationLastMarkerRef = useRef<google.maps.marker.AdvancedMarkerElement | null>(null);
+  const userLocationRef = useRef<google.maps.LatLng | null>(null);
+  const destinationLocationRef = useRef<google.maps.LatLng | null>(null);
+    const oldRoutePointRef = useRef<LatLngExpression | null>(null);
+  const newRoutePointRef = useRef<LatLngExpression | null>(null);
+  const isDrivingBoolRef: React.MutableRefObject<boolean> = useRef(false);
 
   // const [userPosition, setUserPosition] = useState<L.LatLngExpression | null>(null);
   // const [shouldCenter, setShouldCenter] = useState(true); // Controls whether the map should re-center
@@ -70,38 +71,15 @@ function Map() {
       }
     }
     fetchData();
-  }, [baseUrlString, getAvailableParkingLotsAndClosestLot, centerOfIasi]);
+  }, []);
 
-  const handleReserveClick = async (lotId: number) => {
+  const handleReserveClick = useCallback(async (lotId: number) => {
     console.log("Reserving spot at lot", lotId);
     setLotToReserve(lotId);
     setModalTitle('Confirmation');
     setModalMessage(`Reserve parking spot at this parking lot?`);
     setModalIsOpen(true);
-  };
-
-  useEffect(() => {
-    userLocationRef.current = userLocation;
-  }, [userLocation])
-
-  // useEffect(() => {
-    
-  //   setUserLocation(ce));
-          
-  //         // const customSymbol = {
-  //         //   path: google.maps.SymbolPath.CIRCLE,
-  //         //   scale: 10,
-  //         //   fillColor: '#03cafc',
-  //         //   fillOpacity: 1,
-  //         //   strokeWeight: 1,
-  //         // };
-    
-  //         // const userMarker = new google.maps.Marker({
-  //         //   position: userLocation,
-  //         //   map: googleMapRef.current,
-  //         //   icon: customSymbol,
-  //         // });
-  // })
+  }, []);
 
   useEffect(() => {
     getUserCars(baseUrlString).then((fetchedCars: Car[]) => {
@@ -109,7 +87,7 @@ function Map() {
     });
   }, [baseUrlString, getUserCars]);
 
-  const confirmReservation = async (hoursToReserve: number, carId: number) => {
+  const confirmReservation = useCallback(async (hoursToReserve: number, carId: number) => {
     setModalIsOpen(false);
 
     const now = new Date();
@@ -145,12 +123,14 @@ function Map() {
     } else {
       alert('Reservation failed: ' + result);
     }
-  };
+  }, [cars, availableParkingLots, lotToReserve, baseUrlString]);
 
   useEffect(() => {
     const loadGoogleMaps = async () => {
       // do not fix this error, this error good error
-      const result = await import('https://maps.googleapis.com/maps/api/js?key=AIzaSyC0c45KPuqZ2kVQcNWU89SLAj0m7DhKQ-A&libraries=places');
+      await import('https://maps.googleapis.com/maps/api/js?key=AIzaSyC0c45KPuqZ2kVQcNWU89SLAj0m7DhKQ-A&libraries=places');
+      const {AdvancedMarkerElement} = await google.maps.importLibrary("marker")
+
       if (googleMapElementRef.current) {
         const map = new window.google.maps.Map(googleMapElementRef.current, {
           center: centerOfIasi,
@@ -158,6 +138,8 @@ function Map() {
           mapId: '3f8a6f95f7f9e84e', // Add your mapId here
           mapTypeId: 'terrain',
         });
+
+        setGoogleMap(map);
 
         map.addListener('click', () => {
           if (infoWindowRef.current) {
@@ -171,170 +153,94 @@ function Map() {
           }
         });
 
-        setGoogleMap(map);
         googleMapRef.current = map;
 
         directionsServiceRef.current = new google.maps.DirectionsService();
-        directionsRendererRef.current = new google.maps.DirectionsRenderer({
-          map: map,
-        });
-
 
         googleMapRef.current.addListener('click', (e: google.maps.MapMouseEvent) => {
-          
-          if(userLocationLastMarkerRef.current) {
-            userLocationLastMarkerRef.current.setMap(null);
-          }
-          
-          setUserLocation(e.latLng);
-          
-          const customSymbol = {
-            path: google.maps.SymbolPath.CIRCLE,
-            scale: 10,
-            fillColor: '#03cafc',
-            fillOpacity: 1,
-            strokeWeight: 1,
-          };
-    
-          const userMarker = new google.maps.Marker({
-            position: userLocation,
-            map: googleMapRef.current,
-            icon: customSymbol,
-          });
-
-          userLocationLastMarkerRef.current = userMarker;
+          userLocationRef.current = e.latLng;   
+          setUserLocation(e.latLng);       
         })
+
+        
+      
       }
+      
     };
 
     loadGoogleMaps();
   }, []);
 
   useEffect(() => {
-    const updateLocation = () => {
-      if(!availableParkingLotsRef.current.length) {
-        console.log("No available parking lots");
-        return;
-      }
-      if(!googleMapRef.current) {
-        console.log("No google map");
-        return;
-      }
-
-      // if (navigator.geolocation) {
-      //   navigator.geolocation.getCurrentPosition(
-      //     (pos) => {
-      //       userLocationRef.current = new google.maps.LatLng(pos.coords.latitude, pos.coords.longitude);
-      //     },
-      //     (err) => {
-      //       console.log('Error getting location:', err);
-      //     }
-      //   );
-      // } else {
-      //     console.log('Geolocation is not supported by this browser.')
-      //   }
-
-      if(!userLocationRef.current) {
-        console.log("No user location");
-        return;
-      }
-      calculateAndDisplayRoute(userLocationRef.current, new google.maps.LatLng(availableParkingLotsRef.current[0].latitude, availableParkingLotsRef.current[0].longitude));
-
-      
-      
-      console.log("In refresh");
-      if(oldRoutePointRef.current?.lat == newRoutePointRef.current?.lat
-        || oldRoutePointRef.current?.lng == newRoutePointRef.current?.lng
-      ) {
-        return;
-      }
-      if(newRoutePointRef == null) {
-        return;
-      }
-
-      const bearing = calculateBearing({ lat: userLocationRef.current.lat(), lng: userLocationRef.current.lng() }, newRoutePointRef.current!);
-
-        
-      googleMapRef.current.panTo(new google.maps.LatLng(userLocationRef.current.lat(), userLocationRef.current.lng()));
-        
-      googleMapRef.current!.setHeading(bearing);
-      googleMapRef.current!.setTilt(60);
-      console.log("Centering");
-      // Delay setting heading, tilt, and zoom by 1 second
-      // setTimeout(() => {
-      //   // googleMapRef.current!.setZoom(17);
-      // }, 1000);
-        
-
-      //show the user location on the map
-
-      if(userLocationLastMarkerRef.current) {
-        userLocationLastMarkerRef.current.setMap(null);
-      }
-
-      const customSymbol = {
-        path: google.maps.SymbolPath.CIRCLE,
-        scale: 10,
-        fillColor: '#03cafc',
-        fillOpacity: 1,
-        strokeWeight: 1,
-      };
-
-      const userMarker = new google.maps.Marker({
-        position: userLocationRef.current,
-        map: googleMapRef.current,
-        icon: customSymbol,
-      });
-
-      userLocationLastMarkerRef.current = userMarker;
-
-      // center the map on the user location
-
-
-      
-
-      
-      oldRoutePointRef.current = newRoutePointRef.current;
-    };
-
-    // Update location immediately and then every 2.5 seconds
-    updateLocation();
-    const intervalId = setInterval(updateLocation, 500);
-
-    // Cleanup interval on component unmount
-    return () => clearInterval(intervalId);
-  }, []);
-
-  useEffect(() => {
-    if (userLocation) {
-      // Define custom symbol
-      const customSymbol = {
-        path: google.maps.SymbolPath.CIRCLE,
-        scale: 10, // Adjust scale as needed
-        fillColor: '#9333EA',
-        fillOpacity: 1,
-        strokeWeight: 1,
-      };
-
-      if (userLocationLastMarkerRef.current) {
-        // Update existing marker position
-        userLocationLastMarkerRef.current.setPosition(userLocation);
-      } else {
-        // Create new marker
-        const userMarker = new google.maps.Marker({
-          position: userLocation,
-          map: googleMapRef.current,
-          icon: customSymbol,
-        });
-
-        userLocationLastMarkerRef.current = userMarker;
-      }
-    }
-  }, [userLocation]);
-
-  const calculateAndDisplayRoute = (start: google.maps.LatLng, end: google.maps.LatLng) => {
-    if (!directionsServiceRef.current || !directionsRendererRef.current) {
+    if(!googleMap) {
       return;
+    }
+    const buttons: [string, string, google.maps.ControlPosition][] = [
+      ["Center", "centerOnDriver", google.maps.ControlPosition.BOTTOM_LEFT],
+      ["Auto Reserve on Arrival", "autoReserve", google.maps.ControlPosition.BOTTOM_LEFT],
+      ["⬆", "resetPosition", google.maps.ControlPosition.RIGHT_TOP],
+      ["✖", "cancelDrive", google.maps.ControlPosition.BOTTOM_LEFT],
+    ];
+  
+    buttons.forEach(([text, mode, position]) => {
+      const controlDiv = document.createElement("div");
+      const controlUI = document.createElement("button");
+  
+      controlUI.classList.add("ui-button");
+      controlUI.innerText = `${text}`;
+      controlUI.addEventListener("click", () => {
+        adjustMap(mode);
+      });
+      controlDiv.appendChild(controlUI);
+      googleMap.controls[position].push(controlDiv);
+    });
+  
+    const adjustMap = function (mode: string) {
+      switch (mode) {
+        case "autoReserve":
+          console.log("Auto reserve");
+          break;
+        case "resetPosition":
+          googleMap.setTilt(0);
+          googleMap.setHeading(0);
+          break;
+        case "centerOnDriver":
+          if(newRoutePointRef.current) {
+            // used to trigger re-centering
+            newRoutePointRef.current.lat += 0.00001;
+            if(userLocationRef.current) {
+              setTimeout(() => googleMapRef.current?.setZoom(18), 1000);
+            }
+          } 
+          break;
+        case "cancelDrive":
+          if(userLocationRef.current) {
+            googleMap.setHeading(0);
+            googleMap.setTilt(0);
+            googleMap.setZoom(14);
+          }
+          isDrivingBoolRef.current = false;
+          directionsRendererRef.current?.setMap(null);
+          directionsRendererRef.current = null;
+          
+          break;
+        default:
+          break;
+      }
+    };
+  }, [googleMap]);
+
+  const calculateAndDisplayRoute = useCallback((start: google.maps.LatLng, end: google.maps.LatLng) => {
+    if (directionsRendererRef.current == null) {
+      directionsRendererRef.current = new google.maps.DirectionsRenderer(
+        {
+          map: googleMapRef.current,
+        
+        });
+        console.log("Creating new renderer");
+    }
+    if (!directionsServiceRef.current) {
+      directionsServiceRef.current = new google.maps.DirectionsService();
     }
     directionsServiceRef.current.route(
       {
@@ -375,7 +281,7 @@ function Map() {
         }
       }
     );
-  };
+  }, [directionsServiceRef, directionsRendererRef, newRoutePointRef]);
 
   useEffect(() => {
     const updateMarkers = (parkingLots: ParkingLot[]) => {
@@ -383,49 +289,67 @@ function Map() {
         return;
       }
       // Clear existing markers
-      markersRef.current.forEach(marker => marker.setMap(null));
+      markersRef.current.forEach(marker => marker.map = null);
 
 
 
       const newMarkers = parkingLots.map(lot => {
-        const customSymbol = {
-          path: "M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5S10.62 6.5 12 6.5 14.5 7.62 14.5 9 13.38 11.5 12 11.5z",
-          fillColor: '#9333EA', // Choose the color of the symbol
-          fillOpacity: 1,
-          strokeColor: 'black', // Choose the color of the stroke
-          strokeWeight: 2,
-          scale: 1.5, // Adjust the size of the symbol
-          anchor: new google.maps.Point(12, 22),
-        };
+        const customSymbolSVG = `
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="36" height="36">
+          <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5S10.62 6.5 12 6.5 14.5 7.62 14.5 9 13.38 11.5 12 11.5z" fill="#9333EA" stroke="black" stroke-width="2"/>
+        </svg>`;
 
-        const marker = new window.google.maps.Marker({
-          position: { lat: lot.latitude, lng: lot.longitude },
-          map: googleMapRef.current,
+        // Create the icon as a custom HTML element
+        const customIcon = document.createElement('div');
+        customIcon.innerHTML = customSymbolSVG;
+
+        const marker = new google.maps.marker.AdvancedMarkerElement({
+          position: new google.maps.LatLng(lot.latitude, lot.longitude),
+          map: googleMap,
           title: lot.name,
-          icon: customSymbol,
+          content: customIcon
         });
 
         const infoWindow = new window.google.maps.InfoWindow({
           content: `
                     <div class="p-4 text-black bg-white rounded-lg shadow-lg">
-                        <p class="text-lg font-bold">${lot.name}</p>
-                        <p class="mt-2 text-sm">Spots available: ${lot.parkingSpotsIds.length} / ${lot.nrSpots}</p>
-                        <p class="mt-2 text-sm">Price per hour: ${lot.price} RON</p>
-                        <button id="reserve-button-${lot.id}" class="mt-2 bg-purple-600 text-white px-3 py-2 rounded-lg shadow-md hover:bg-purple-700 transition duration-300">Reserve</button>
+                        <p class="text-lg font-bold -mt-5">${lot.name}</p>
+                        <p class="mt-1 text-sm">Spots available: ${lot.parkingSpotsIds.length} / ${lot.nrSpots}</p>
+                        <p class="mt-1 text-sm">Price per hour: ${lot.price} RON</p>
+                        <div class="flex justify-evenly">
+                          <button id="reserve-button-${lot.id}" class="mt-1 bg-purple-600 text-white px-3 py-2 rounded-lg shadow-md hover:bg-purple-700 transition duration-300">Reserve</button>
+                          <button id="drive-button-${lot.id}" class="mt-1 bg-purple-600 text-white px-3 py-2 rounded-lg shadow-md hover:bg-purple-700 transition duration-300">Drive To</button>
+                        </div>
                     </div>`,
         });
+
+        infoWindow.key = `${lot.id}`;
 
         marker.addListener('click', () => {
           if (infoWindowRef.current) {
             infoWindowRef.current.close();
           }
 
-          infoWindow.open(googleMapRef.current, marker);
+          infoWindow.open(googleMap, marker);
           infoWindowRef.current = infoWindow;
 
           google.maps.event.addListenerOnce(infoWindow, 'domready', () => {
             document.getElementById(`reserve-button-${lot.id}`)?.addEventListener('click', () => handleReserveClick(lot.id));
           });
+
+          google.maps.event.addListenerOnce(infoWindow, 'domready', () => {
+            document.getElementById(`drive-button-${lot.id}`)?.addEventListener('click', () => 
+              {
+                handleDrive(lot.id);
+                if (infoWindowRef.current) {
+                  infoWindowRef.current.close();
+                }
+              }
+            );
+            
+          })
+
+
         });
 
         return marker;
@@ -433,14 +357,14 @@ function Map() {
 
       markersRef.current = newMarkers;
 
-      if (googleMapRef.current) {
-        googleMapRef.current.addListener('click', () => {
+      if (googleMap) {
+        googleMap.addListener('click', () => {
           if (infoWindowRef.current) {
             infoWindowRef.current.close();
           }
         });
 
-        googleMapRef.current.addListener('drag', () => {
+        googleMap.addListener('drag', () => {
           if (infoWindowRef.current) {
             infoWindowRef.current.close();
           }
@@ -454,7 +378,231 @@ function Map() {
     if (googleMap) {
       updateMarkers(availableParkingLots);
     }
-  }, [googleMap, availableParkingLots, markersRef, centerOfIasi]);
+  }, [availableParkingLots, markersRef, centerOfIasi, googleMap]);
+
+  useEffect(() => {
+    if(!googleMapRef.current) {
+      return;
+    }
+
+    if(userLocationLastMarkerRef.current) {
+      console.log("Removing user marker");
+      userLocationLastMarkerRef.current.map = null;
+    }
+    
+    
+    const glyphImg = document.createElement('img');
+    glyphImg.src = 'https://developers.google.com/maps/documentation/javascript/examples/full/images/google_logo_g.svg';
+    
+    // Create the outer circle
+    const outerCircle = document.createElement('div');
+    outerCircle.style.display = 'flex';
+    outerCircle.style.justifyContent = 'center';
+    outerCircle.style.alignItems = 'center';
+    outerCircle.style.width = '1.5rem';
+    outerCircle.style.height = '1.5rem';
+    outerCircle.style.backgroundColor = 'rgba(0, 123, 255, 0.2)'; // Light blue with some transparency
+    outerCircle.style.borderRadius = '50%';
+    outerCircle.style.transform = 'translateY(50%)';
+    
+    // Create the middle circle
+    const middleCircle = document.createElement('div');
+    middleCircle.style.display = 'flex';
+    middleCircle.style.justifyContent = 'center';
+    middleCircle.style.alignItems = 'center';
+    middleCircle.style.width = '1rem';
+    middleCircle.style.height = '1rem';
+    middleCircle.style.backgroundColor = 'rgba(0, 123, 255, 0.5)'; // Slightly darker blue
+    middleCircle.style.borderRadius = '50%';
+    
+    // Create the inner circle
+    const innerCircle = document.createElement('div');
+    innerCircle.style.width = '0.5rem';
+    innerCircle.style.height = '0.5rem';
+    innerCircle.style.backgroundColor = '#007bff'; // Solid blue
+    innerCircle.style.borderRadius = '50%';
+    
+    // Append the circles to create the desired structure
+    middleCircle.appendChild(innerCircle);
+    outerCircle.appendChild(middleCircle);
+    
+    console.log("Generating user marker");
+
+    const userMarker = new google.maps.marker.AdvancedMarkerElement({
+      position: userLocationRef.current,
+      map: googleMapRef.current,
+      content: outerCircle,
+      // content: customPinElement,
+      // icon: customSymbol,
+    });
+
+    userLocationLastMarkerRef.current = userMarker;
+
+  }, [userLocation, googleMapRef, googleMap]);
+
+  useEffect(() => {
+    const updateLocation = () => {
+      if(!availableParkingLotsRef.current.length) {
+        console.log("No available parking lots");
+        return;
+      }
+      if(!googleMapRef.current) {
+        console.log("No google map");
+        return;
+      }
+      if(isDrivingBoolRef.current == false) {
+        console.log("Not driving");
+        return;
+      }
+
+      if (navigator.geolocation) {
+        navigator.geolocation.watchPosition(
+          (pos) => {
+            userLocationRef.current = new google.maps.LatLng(pos.coords.latitude, pos.coords.longitude);
+            setUserLocation(new google.maps.LatLng(pos.coords.latitude, pos.coords.longitude));
+            
+          },
+          (err) => {
+            console.log('Error getting location:', err);
+          },
+          {
+            enableHighAccuracy: true,
+            timeout: Infinity,
+            maximumAge: 0,
+          }
+        );
+      } else {
+          console.log('Geolocation is not supported by this browser.')
+        }
+
+      if(!userLocationRef.current) {
+        console.log("No user location");
+        return;
+      }
+      
+      if(!destinationLocationRef.current) {
+        console.log("No destination lcation");
+        return;
+      }
+      calculateAndDisplayRoute(userLocationRef.current, destinationLocationRef.current);
+      
+      if(oldRoutePointRef.current?.lat == newRoutePointRef.current?.lat
+        && oldRoutePointRef.current?.lng == newRoutePointRef.current?.lng
+      ) {
+        return;
+      }
+      if(newRoutePointRef == null) {
+        return;
+      }
+
+      const bearing = calculateBearing({ lat: userLocationRef.current.lat(), lng: userLocationRef.current.lng() }, newRoutePointRef.current!);
+
+        
+      googleMapRef.current.panTo(new google.maps.LatLng(userLocationRef.current.lat(), userLocationRef.current.lng()));
+        
+      googleMapRef.current!.setHeading(bearing);
+      googleMapRef.current!.setTilt(60);
+      console.log("Centering");
+      // Delay setting heading, tilt, and zoom by 1 second
+      // setTimeout(() => {
+      //   // googleMapRef.current!.setZoom(17);
+      // }, 1000);
+        
+
+      //show the user location on the map
+
+      // if(userLocationLastMarkerRef.current) {
+      //   console.log("Removing marker");
+      //   userLocationLastMarkerRef.current.map = null;
+      // }
+      
+      // console.log("Generating marker");
+
+      // const glyphImg = document.createElement('img');
+      // glyphImg.src = 'https://developers.google.com/maps/documentation/javascript/examples/full/images/google_logo_g.svg';
+
+      // // Create the outer circle
+      // const outerCircle = document.createElement('div');
+      // outerCircle.style.display = 'flex';
+      // outerCircle.style.justifyContent = 'center';
+      // outerCircle.style.alignItems = 'center';
+      // outerCircle.style.width = '1.5rem';
+      // outerCircle.style.height = '1.5rem';
+      // outerCircle.style.backgroundColor = 'rgba(0, 123, 255, 0.2)'; // Light blue with some transparency
+      // outerCircle.style.borderRadius = '50%';
+      // outerCircle.style.transform = 'translateY(50%)';
+
+      // // Create the middle circle
+      // const middleCircle = document.createElement('div');
+      // middleCircle.style.display = 'flex';
+      // middleCircle.style.justifyContent = 'center';
+      // middleCircle.style.alignItems = 'center';
+      // middleCircle.style.width = '1rem';
+      // middleCircle.style.height = '1rem';
+      // middleCircle.style.backgroundColor = 'rgba(0, 123, 255, 0.5)'; // Slightly darker blue
+      // middleCircle.style.borderRadius = '50%';
+
+      // // Create the inner circle
+      // const innerCircle = document.createElement('div');
+      // innerCircle.style.width = '0.5rem';
+      // innerCircle.style.height = '0.5rem';
+      // innerCircle.style.backgroundColor = '#007bff'; // Solid blue
+      // innerCircle.style.borderRadius = '50%';
+
+      // // Append the circles to create the desired structure
+      // middleCircle.appendChild(innerCircle);
+      // outerCircle.appendChild(middleCircle);
+      
+
+      // const userMarker = new google.maps.marker.AdvancedMarkerElement({
+      //   position: userLocationRef.current,
+      //   map: googleMapRef.current,
+      //   content: outerCircle,
+      //   // content: customPinElement,
+      //   // icon: customSymbol,
+      // });
+
+      // userLocationLastMarkerRef.current = userMarker;
+
+
+      
+
+      
+      oldRoutePointRef.current = newRoutePointRef.current;
+    };
+
+    // Update location immediately and then every 2.5 seconds
+    updateLocation();
+    const intervalId = setInterval(updateLocation, 500);
+
+    // Cleanup interval on component unmount
+    return () => clearInterval(intervalId);
+  }, []);
+
+  const handleDrive = useCallback((key: number) => {
+    if(userLocationRef.current == null) {
+      console.log("No user location");
+      return;
+    }
+    isDrivingBoolRef.current = true;
+    console.log("Driving");
+    const parkingLot = availableParkingLots.find((parkingLot) => parkingLot.id == key)
+    if(!parkingLot) {
+      console.log("Cant drive to non existent parking lot");
+      return;
+    }
+    destinationLocationRef.current = new google.maps.LatLng(parkingLot.latitude, parkingLot.longitude);
+    if(oldRoutePointRef.current) {
+      // used to trigger re-centering
+      oldRoutePointRef.current.lat += 0.000001;
+    }
+    if(userLocationRef.current) {
+      setTimeout(() => googleMapRef.current?.setZoom(18), 1000);
+    }
+    
+  }, [availableParkingLots])
+
+  
 
   return (
     <div style={{ height: '100%', width: '100%' }}>

@@ -55,11 +55,6 @@ const Homepage: React.FC = () => {
       <div className="mb-8">
         <div className="flex justify-between items-center mt-4">
           <h1 className="text-2xl font-semibold">Welcome, {username}!</h1>
-          <button 
-            onClick={() => navigate('/home/reserve1')}
-            className="bg-purple-600 text-white px-2 py-2 text-md rounded-lg shadow-md hover:bg-purple-700 transition duration-300 whitespace-nowrap">
-            Reserve Parking Spot
-          </button>
         </div>
       </div>
         <div className="flex justify-center items-center flex-grow mt-4 mb-4 px-4">
