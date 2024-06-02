@@ -16,7 +16,6 @@ const Homepage: React.FC = () => {
   const baseUrl = process.env.API_BASE_URL;
 
   const [baseUrlString]= useState<string>(baseUrl || 'http://localhost:8081');
-  const navigate = useNavigate();
   const [username, setUsername] = useState('username');
   const [savedCars, setSavedCars] = useState<Car[]>([]);
   const [reservations, setReservations] = useState<Reservation[]>([]);
