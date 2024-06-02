@@ -333,6 +333,7 @@ function Map() {
           }
           const nearestLot = calculateNearestParkingLot({lat: userLocationRef.current.lat(), lng: userLocationRef.current.lng()}, availableParkingLotsRef.current);
           destinationLocationRef.current = new google.maps.LatLng(nearestLot.latitude, nearestLot.longitude);
+          lotToReserveRef.current = nearestLot.id;
           handleDrive(nearestLot.id);
           break;
         }
