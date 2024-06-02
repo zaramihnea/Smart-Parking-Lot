@@ -193,58 +193,73 @@ function Map() {
     console.log("Drawing buttons");
     googleMapRef.current.controls[google.maps.ControlPosition.BOTTOM_LEFT].clear();
     googleMapRef.current.controls[google.maps.ControlPosition.RIGHT_TOP].clear();
-    
+    googleMapRef.current.controls[google.maps.ControlPosition.LEFT_BOTTOM].clear();
+    googleMapRef.current.controls[google.maps.ControlPosition.LEFT_TOP].clear();
+    googleMapRef.current.controls[google.maps.ControlPosition.TOP_LEFT].clear();
+
     let buttons: [string, string, google.maps.ControlPosition][] = [];
     if(isDrivingBoolRef.current) {
-      buttons.push(["Center", "centerOnDriver", google.maps.ControlPosition.BOTTOM_LEFT]);
-      buttons.push([`${hoursforAutoReserveRef.current != 0?( `Auto Reserve for ${hoursforAutoReserveRef.current} ${hoursforAutoReserveRef.current == 1? `hour` : `hours`} on Arrival`) : `Spot reserved succesfully`}`, "autoReserve", google.maps.ControlPosition.BOTTOM_LEFT]);
+      buttons.push(["Center", "centerOnDriver", google.maps.ControlPosition.LEFT_BOTTOM]);
+      buttons.push([`${hoursforAutoReserveRef.current != 0?( `Auto Reserve for ${hoursforAutoReserveRef.current} ${hoursforAutoReserveRef.current == 1? `hour` : `hours`} on Arrival`) : `Spot reserved succesfully`}`, "autoReserve", google.maps.ControlPosition.LEFT_TOP]);
       buttons.push(["⬆", "resetPosition", google.maps.ControlPosition.RIGHT_TOP]); 
-      buttons.push(["", "hoursToReserve", google.maps.ControlPosition.BOTTOM_LEFT]);
       buttons.push(["✖", "cancelDrive", google.maps.ControlPosition.BOTTOM_LEFT]);
     }
     else {
       buttons = [
-        ["Center", "centerOnDriver", google.maps.ControlPosition.BOTTOM_LEFT],
+        ["Center", "centerOnDriver", google.maps.ControlPosition.LEFT_BOTTOM],
         ["⬆", "resetPosition", google.maps.ControlPosition.RIGHT_TOP],
         ["Go to nearest parking lot", "nearestLot", google.maps.ControlPosition.BOTTOM_LEFT]
       ]; 
     }
 
+
     buttons.forEach(([text, mode, position]) => {
       const controlDiv = document.createElement("div");
-      let controlUI: HTMLButtonElement | HTMLInputElement;
-      if(mode == "hoursToReserve") {
-        controlUI = document.createElement("input");
-        controlUI.classList.add("hours-to-reserve");
-        controlUI.type = "number";
-        controlUI.min = "1";
-        controlUI.max = "72";
-        controlUI.value = `${hoursforAutoReserveRef.current}`;
-        controlUI.addEventListener("change", () => {
-          hoursforAutoReserveRef.current = (controlUI as HTMLInputElement).valueAsNumber;
-          drawButtons();
-        });
-      }
-      else {
-        controlUI = document.createElement("button");
+      const controlUI = document.createElement("button");
+
+      if(mode == "resetPosition") {
+        controlUI.classList.add("ui-button-reset");
+        controlDiv.classList.add("ui-button-reset");
       }
 
-      if((mode == "autoReserve" || mode == "hoursToReserve") && isAutoReserveOnRef.current == true) {
-        controlUI.classList.add("ui-button-active");
-        console.log("Auto reserve is on");
-      }
-      else {
-        console.log("Auto reserve is off");
+      if(mode == "centerOnDriver") {
+        controlUI.classList.add("ui-button-center");
+        controlDiv.classList.add("ui-button-center");
       }
 
-      console.log(mode);
-  
+      if(mode == "cancelDrive") {
+        controlUI.classList.add("ui-button-cancel-drive");
+        controlDiv.classList.add("ui-button-cancel-drive");
+      }
       controlUI.classList.add("ui-button");
       controlUI.innerText = `${text}`;
       controlUI.addEventListener("click", () => {
         adjustMap(mode);
       });
       controlDiv.appendChild(controlUI);
+      if(mode == "autoReserve") {
+        // controlUI.classList.add("ui-button-auto-reserve");
+        controlDiv.classList.add("ui-button-auto-reserve");
+
+        const controlUIInput = document.createElement("input");
+        controlUIInput.classList.add("hours-to-reserve");
+        controlUIInput.classList.add("ui-button");
+        controlUIInput.type = "number";
+        controlUIInput.min = "1";
+        controlUIInput.max = "72";
+        controlUIInput.value = `${hoursforAutoReserveRef.current}`;
+        controlUIInput.addEventListener("change", () => {
+          hoursforAutoReserveRef.current = (controlUIInput as HTMLInputElement).valueAsNumber;
+          drawButtons();
+        });
+
+        if(isAutoReserveOnRef.current) {
+          controlUIInput.classList.add("ui-button-active");
+          controlUI.classList.add("ui-button-active");
+
+        }
+        controlDiv.appendChild(controlUIInput);
+      }
       googleMapRef.current?.controls[position].push(controlDiv);
     });
   
