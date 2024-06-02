@@ -237,7 +237,7 @@ function Map() {
         adjustMap(mode);
       });
       controlDiv.appendChild(controlUI);
-      if(mode == "autoReserve") {
+      if(mode == "autoReserve" && hoursforAutoReserveRef.current != 0) {
         // controlUI.classList.add("ui-button-auto-reserve");
         controlDiv.classList.add("ui-button-auto-reserve");
 
@@ -332,6 +332,7 @@ function Map() {
             return;
           }
           const nearestLot = calculateNearestParkingLot({lat: userLocationRef.current.lat(), lng: userLocationRef.current.lng()}, availableParkingLotsRef.current);
+          destinationLocationRef.current = new google.maps.LatLng(nearestLot.latitude, nearestLot.longitude);
           handleDrive(nearestLot.id);
           break;
         }
