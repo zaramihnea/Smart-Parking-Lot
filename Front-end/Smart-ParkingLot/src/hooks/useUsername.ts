@@ -3,14 +3,14 @@ import { useCallback } from "react";
 export default function useUsername() {
   const getUsername = useCallback((baseUrl: string): Promise<string> => {
     const cookies = document.cookie.split(';').map(cookie => cookie.split('='));
-    const username = "user that is not logged in";
     let authToken = "";
     for (const cookie of cookies) {
       if (cookie[0] && cookie[0].includes('authToken')) {
         authToken = cookie[1];
       }
     }
-
+    
+    const username = "user that is not logged in";
     if(!authToken) {
       return Promise.resolve(username);
     }

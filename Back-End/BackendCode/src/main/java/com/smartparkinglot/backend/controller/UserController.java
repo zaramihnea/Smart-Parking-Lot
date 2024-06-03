@@ -2,6 +2,7 @@ package com.smartparkinglot.backend.controller;
 import com.smartparkinglot.backend.DTO.*;
 import com.smartparkinglot.backend.customexceptions.EmailExistsException;
 import com.smartparkinglot.backend.customexceptions.UsernameExistsException;
+import com.stripe.exception.StripeException;
 import com.stripe.model.issuing.Authorization;
 import lombok.Getter;
 import lombok.Setter;
@@ -106,8 +107,7 @@ public class UserController {
             User user = userService.getUserByEmail(resetPasswordRequest.getEmail());
 
             // verificam daca exista deja un token pentru user-ul dat
-            String token = tokenService.getTokenByUser(user);
-            if(token == null)token = tokenService.generateToken(user);
+            String token = tokenService.generateToken(user);
 
             //construiesc linkul care va fi trimis prim email utilizatorului
             String resetPasswordLink = "http://localhost:8888/reset-password?token=" + token;
@@ -136,8 +136,18 @@ public class UserController {
     // Payment endpoints
     @GetMapping(value = "/get-stripe-balance")
     public ResponseEntity<?> getCustomerBalance(@RequestParam("email") String customerEmail) {
-        Double balance = paymentService.retrieveCustomerBalance(customerEmail);
-        return ResponseEntity.ok(balance);
+        try {
+            Double balance = paymentService.retrieveCustomerBalance(customerEmail);
+            return ResponseEntity.ok(balance);
+        } catch (RuntimeException e) {
+            if (e.getMessage().contains("No customer found with email")) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+            } else if (e.getCause() instanceof StripeException) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error retrieving customer balance from Stripe");
+            } else {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred");
+            }
+        }
     }
 
     @GetMapping(value = "/get-transactions-history")
