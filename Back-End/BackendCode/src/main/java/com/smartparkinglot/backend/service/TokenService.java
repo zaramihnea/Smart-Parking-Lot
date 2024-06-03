@@ -37,6 +37,11 @@ public class TokenService {
         return null;
     }
     public String generateToken(User user) {
+        Optional<Token> existingTokenOptional = tokenRepository.findByUser(user).stream().findFirst();
+        if(existingTokenOptional.isPresent()) {
+            return existingTokenOptional.get().getToken();
+        }
+
         Timestamp now = new Timestamp(System.currentTimeMillis());
         Timestamp expiryDate = new Timestamp(now.getTime() + 1000 * 60 * 60 * 10); // 10 hours validity
 
