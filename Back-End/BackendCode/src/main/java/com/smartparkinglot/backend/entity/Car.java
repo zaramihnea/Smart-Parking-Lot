@@ -73,4 +73,15 @@ public class Car {
     public void setUser(User user) {
         this.user = user;
     }
+
+    @Override
+    public String toString() {
+        return "Car{" +
+                "id=" + id +
+                ", plate='" + plate + '\'' +
+                ", capacity=" + capacity +
+                ", type='" + type + '\'' +
+                ", user=" + user +
+                '}';
+    }
 }
