@@ -8,7 +8,6 @@ import useSavedCars from '../hooks/useSavedCars';
 import { calculateBearing, calculateDistance, calculateNearestParkingLot } from './helperFunctions';
 import { LatLngExpression } from '../types/LatLngExpression';
 import '../styles/googlemap.css';
-import { control } from 'leaflet';
 
 function Map() {
   const googleMapElementRef = useRef<HTMLDivElement>(null);
@@ -60,10 +59,10 @@ function Map() {
     const fetchData = async () => {
       try {
         const radius = 3000;
-        const startTime = new Date(new Date().getTime() + 3 * 60 * 60 * 1000).toISOString().slice(0, 19) + 'Z';
-        const stopTime = new Date(new Date().getTime() + 15 * 60 * 60 * 1000).toISOString().slice(0, 19) + 'Z';
+        const startTimeString = new Date(new Date().getTime() + 3 * 60 * 60 * 1000).toISOString().slice(0, 19) + 'Z';
+        const stopTimeString = new Date(new Date().getTime() + 15 * 60 * 60 * 1000).toISOString().slice(0, 19) + 'Z';
 
-        const data = await getAvailableParkingLotsAndClosestLot(baseUrlString, radius, centerOfIasi.lat, centerOfIasi.lng, startTime, stopTime);
+        const data = await getAvailableParkingLotsAndClosestLot(baseUrlString, radius, centerOfIasi.lat, centerOfIasi.lng, startTimeString, stopTimeString);
         availableParkingLotsRef.current = data.parkingLots;
 
         updateMarkers(data.parkingLots);
@@ -90,13 +89,18 @@ function Map() {
     });
   }, [baseUrlString, getUserCars]);
 
-  const confirmReservation = useCallback(async (hoursToReserve: number, carId: number, lotId: number) => {
+  const confirmReservation = useCallback(async (hoursToReserve: number, carId: number, lotId: number, startTimeString: string = (new Date(new Date().getTime() + (3) * 60 * 60 * 1000).toISOString().slice(0, 19) + 'Z')) => {
     setModalIsOpen(false);
 
-    const now = new Date();
+    // if the time string is not in the correct format, add the seconds
+    if(startTimeString.length < 18) {
+      startTimeString = startTimeString + ':00Z';
+    }
+    const startTime = new Date(startTimeString);
 
-    const startTime = new Date(now.getTime() + 3 * 60 * 60 * 1000).toISOString().slice(0, 19) + 'Z';
-    const stopTime = new Date(new Date().getTime() + (hoursToReserve + 3) * 60 * 60 * 1000).toISOString().slice(0, 19) + 'Z';
+    const stopTimeString = new Date(startTime.getTime() + hoursToReserve * 60 * 60 * 1000).toISOString().slice(0, 19) + 'Z';
+
+    console.log(startTimeString);
 
     const car = carsRef.current.find(car => car.id === carId);
     
@@ -116,7 +120,7 @@ function Map() {
 
     const parkingSpotIdToReserve = parkingLot.parkingSpotsIds[0];
 
-    const result = await reserveParkingSpot(baseUrlString, parkingSpotIdToReserve, startTime, stopTime, car.plate, car.capacity, car.model);
+    const result = await reserveParkingSpot(baseUrlString, parkingSpotIdToReserve, startTimeString, stopTimeString, car.plate, car.capacity, car.model);
 
     if (result === 'Spot reserved successfully') {
       if(isAutoReserveOnRef.current) {
@@ -142,7 +146,7 @@ function Map() {
 
   useEffect(() => {
     const loadGoogleMaps = async () => {
-      // do not fix this error, this error good error
+      // do not fix this errors, this errors good errors
       await import('https://maps.googleapis.com/maps/api/js?key=AIzaSyC0c45KPuqZ2kVQcNWU89SLAj0m7DhKQ-A&libraries=places');
       const {AdvancedMarkerElement} = await google.maps.importLibrary("marker")
 
