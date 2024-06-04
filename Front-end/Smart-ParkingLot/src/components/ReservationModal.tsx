@@ -31,22 +31,27 @@ export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = Number(event.target.value);
-    
     setHoursToReserve(value);
+    fetchAvailableCars();
   };
 
   const { getAvailableCars } = useSavedCars();
 
-  React.useEffect(() => {
-    getAvailableCars(baseUrlString, new Date(new Date().getTime() + 3 * 3600000).toISOString().slice(0, 19).replace('T', ' '), new Date(new Date().getTime() + (3 + hoursToReserve) * 3600000).toISOString().slice(0, 19).replace('T', ' ')).then((fetchedCars: Car[]) => {
-      setCars(fetchedCars);
-    });
-  }, [baseUrlString, getAvailableCars]);
+     const fetchAvailableCars = () => {
+        const startDateTime = new Date(new Date(reservationStartTime).getTime() + 3 * 3600000).toISOString().slice(0, 19).replace('T', ' ');
+        const endDateTime = new Date(new Date(reservationStartTime).getTime() + (hoursToReserve + 3) * 3600000).toISOString().slice(0, 19).replace('T', ' ');
 
-  // Set the first car as the default value
-  useEffect(() => {
-    setInputCar(cars[0]?.id || -1);
-  }, [cars]);
+        getAvailableCars(baseUrl, startDateTime, endDateTime).then((fetchedCars: Car[]) => {
+          setCars(fetchedCars);
+          setInputCar(fetchedCars[0]?.id || -1); // Set the first car as default selected if available
+        });
+      };
+
+      useEffect(() => {
+        fetchAvailableCars(); // Initial fetch and react to changes
+      }, [reservationStartTime, hoursToReserve]);
+
+
 
   return (
     <Modal
@@ -79,7 +84,7 @@ export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
           value={inputCarId}
           onChange={(event) => setInputCar(Number(event.target.value))}
           className="w-64 bg-gray-100 dark:bg-gray-800 text-white p-2 rounded-md mb-4"
-        > 
+        >
           {cars.length === 0 && <option value=''>No cars saved</option>}
           {cars.map((car: Car) => (
             <option key={car.id} value={car.id}>{car.model}, {car.plate}</option>
@@ -92,6 +97,7 @@ export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
             value={reservationStartTime}
             onChange={(event) => {
               setReservationStartTime(event.target.value);
+              fetchAvailableCars();
             }}
             type="datetime-local"
             className="w-64 bg-gray-100 dark:bg-gray-800 text-white p-2 rounded-md mb-4"
@@ -99,13 +105,13 @@ export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
         </div>
         <div className='flex flex-row items-center'>
           <p className="mb-4">Hours to reserve spot for:</p>
-          <input 
-          type="number" 
+          <input
+          type="number"
           value={hoursToReserve}
           onChange={handleInputChange}
           className="ml-3 w-16 grow border bg-gray-100 dark:bg-gray-800 text-white p-2 rounded-md mb-4 " />
         </div>
-        
+
         <div className='flex flex-row justify-evenly w-full'>
           <button className='bg-purple-600 py-0.5 px-6 rounded-lg' onClick={() => onConfirm(hoursToReserve, inputCarId, lotId, reservationStartTime)}>Yes</button>
           <button className='bg-purple-600 py-0.5 px-6 rounded-lg' onClick={onRequestClose}>No</button>
