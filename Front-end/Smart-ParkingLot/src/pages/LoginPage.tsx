@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
@@ -16,16 +16,16 @@ const LoginPage: React.FC = () => {
   const [errorMessage, setUIErrorMessage] = useState('');
   const baseUrl = process.env.API_BASE_URL;
 
-  // useEffect(() => {
-  //   const cookies = document.cookie.split(';').map(cookie => cookie.split('='));
-  //   for (const cookie of cookies) {
-  //     if (cookie[0] && cookie[0].includes('authToken')) {
-  //       console.log("User is already logged in");
-  //       navigate('/home');
-  //       break;
-  //     }
-  //   }
-  // }, [navigate]); // Add 'navigate' as a dependency
+  useEffect(() => {
+    const cookies = document.cookie.split(';').map(cookie => cookie.split('='));
+    for (const cookie of cookies) {
+      if (cookie[0] && cookie[0].includes('authToken')) {
+        console.log("User is already logged in");
+        navigate('/home');
+        break;
+      }
+    }
+  }, [navigate]); // Add 'navigate' as a dependency
 
   const handleLogin = async () => {
     if(email === '' && password === ''){
@@ -67,7 +67,7 @@ const LoginPage: React.FC = () => {
 
                   // Assuming the response contains a token
                   const { token } = data;
-                  
+          
                   // Set the cookie using document.cookie
                   document.cookie = `authToken=${token}; path=/; max-age=3600;`;
 

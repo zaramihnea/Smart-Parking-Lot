@@ -1,6 +1,5 @@
 // src/pages/Homepage.tsx
-import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useCallback, useEffect, useState } from 'react';
 import SearchBar from './components/SearchBar';
 import Navbar from './components/Navbar';
 import GoogleMap from './components/Map';
@@ -45,6 +44,10 @@ const Homepage: React.FC = () => {
     });
   }, [baseUrlString, getOwnActiveReservations]); // Dependencies 
 
+  const handleLogout = useCallback(() => {
+    document.cookie = 'authToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+  }, []);
+
   return (
     <div className="min-h-screen flex flex-col bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 p-4 pb-16">
       <div className="sticky top-0 z-50 bg-gray-100 dark:bg-gray-900">
@@ -54,6 +57,7 @@ const Homepage: React.FC = () => {
       <div className="mb-8">
         <div className="flex justify-between items-center mt-4">
           <h1 className="text-2xl font-semibold">Welcome, {username}!</h1>
+          <a href="/profile" className='bg-purple-600 text-white px-2 py-1 rounded-lg shadow-md hover:bg-blue-700 transition duration-300' onClick={handleLogout}>Logout</a>
         </div>
       </div>
       <div className='m-auto'>
