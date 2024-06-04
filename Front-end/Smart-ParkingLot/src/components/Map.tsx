@@ -66,7 +66,7 @@ function Map() {
         availableParkingLotsRef.current = data.parkingLots;
 
         updateMarkers(data.parkingLots);
-        
+
       } catch (error) {
         console.error('Fetch error:', error);
       }
@@ -103,7 +103,7 @@ function Map() {
     console.log(startTimeString);
 
     const car = carsRef.current.find(car => car.id === carId);
-    
+
 
     if (car == null) {
       alert('Car not found');
@@ -177,14 +177,14 @@ function Map() {
         directionsServiceRef.current = new google.maps.DirectionsService();
 
         googleMapRef.current.addListener('click', (e: google.maps.MapMouseEvent) => {
-          userLocationRef.current = e.latLng;   
-          setUserLocation(e.latLng);       
+          userLocationRef.current = e.latLng;
+          setUserLocation(e.latLng);
         })
 
         drawButtons();
         updateMarkers(availableParkingLotsRef.current);
       }
-      
+
     };
 
     loadGoogleMaps();
@@ -205,7 +205,7 @@ function Map() {
     if(isDrivingBoolRef.current) {
       buttons.push(["Center", "centerOnDriver", google.maps.ControlPosition.LEFT_BOTTOM]);
       buttons.push([`${hoursforAutoReserveRef.current != 0?( `Auto Reserve for ${hoursforAutoReserveRef.current} ${hoursforAutoReserveRef.current == 1? `hour` : `hours`} on Arrival`) : `Spot reserved succesfully`}`, "autoReserve", google.maps.ControlPosition.LEFT_TOP]);
-      buttons.push(["⬆", "resetPosition", google.maps.ControlPosition.RIGHT_TOP]); 
+      buttons.push(["⬆", "resetPosition", google.maps.ControlPosition.RIGHT_TOP]);
       buttons.push(["✖", "cancelDrive", google.maps.ControlPosition.BOTTOM_LEFT]);
     }
     else {
@@ -213,7 +213,7 @@ function Map() {
         ["Center", "centerOnDriver", google.maps.ControlPosition.LEFT_BOTTOM],
         ["⬆", "resetPosition", google.maps.ControlPosition.RIGHT_TOP],
         ["Go to nearest parking lot", "nearestLot", google.maps.ControlPosition.BOTTOM_LEFT]
-      ]; 
+      ];
     }
 
 
@@ -266,7 +266,7 @@ function Map() {
       }
       googleMapRef.current?.controls[position].push(controlDiv);
     });
-  
+
     const adjustMap = function (mode: string) {
       switch (mode) {
         case "resetPosition":
@@ -295,7 +295,7 @@ function Map() {
               newRoutePointRef.current.lat += 0.00001;
               if(userLocationRef.current) {
                 setTimeout(() => googleMapRef.current?.setZoom(17), 1000);
-              }  
+              }
             }
             else {
               if(userLocationRef.current) {
@@ -305,7 +305,7 @@ function Map() {
                 drawButtons();
               }
             }
-          } 
+          }
           else {
             if(userLocationRef.current) {
               googleMapRef.current?.panTo(userLocationRef.current);
@@ -352,7 +352,7 @@ function Map() {
       directionsRendererRef.current = new google.maps.DirectionsRenderer(
         {
           map: googleMapRef.current,
-        
+
         });
         console.log("Creating new renderer");
     }
@@ -462,7 +462,7 @@ function Map() {
           });
 
           google.maps.event.addListenerOnce(infoWindow, 'domready', () => {
-            document.getElementById(`drive-button-${lot.id}`)?.addEventListener('click', () => 
+            document.getElementById(`drive-button-${lot.id}`)?.addEventListener('click', () =>
               {
                 handleDrive(lot.id);
                 lotToReserveRef.current = lot.id;
@@ -471,7 +471,7 @@ function Map() {
                 }
               }
             );
-            
+
           })
 
 
@@ -531,11 +531,11 @@ function Map() {
       console.log("Removing user marker");
       userLocationLastMarkerRef.current.map = null;
     }
-    
-    
+
+
     const glyphImg = document.createElement('img');
     glyphImg.src = 'https://developers.google.com/maps/documentation/javascript/examples/full/images/google_logo_g.svg';
-    
+
     // Create the outer circle
     const outerCircle = document.createElement('div');
     outerCircle.style.display = 'flex';
@@ -546,7 +546,7 @@ function Map() {
     outerCircle.style.backgroundColor = 'rgba(0, 123, 255, 0.2)'; // Light blue with some transparency
     outerCircle.style.borderRadius = '50%';
     outerCircle.style.transform = 'translateY(50%)';
-    
+
     // Create the middle circle
     const middleCircle = document.createElement('div');
     middleCircle.style.display = 'flex';
@@ -556,18 +556,18 @@ function Map() {
     middleCircle.style.height = '1rem';
     middleCircle.style.backgroundColor = 'rgba(0, 123, 255, 0.5)'; // Slightly darker blue
     middleCircle.style.borderRadius = '50%';
-    
+
     // Create the inner circle
     const innerCircle = document.createElement('div');
     innerCircle.style.width = '0.5rem';
     innerCircle.style.height = '0.5rem';
     innerCircle.style.backgroundColor = '#007bff'; // Solid blue
     innerCircle.style.borderRadius = '50%';
-    
+
     // Append the circles to create the desired structure
     middleCircle.appendChild(innerCircle);
     outerCircle.appendChild(middleCircle);
-    
+
     console.log("Generating user marker");
 
     const userMarker = new google.maps.marker.AdvancedMarkerElement({
@@ -600,7 +600,7 @@ function Map() {
         console.log("No user location");
         return;
       }
-      
+
       if(!destinationLocationRef.current) {
         console.log("No destination lcation");
         return;
@@ -622,7 +622,7 @@ function Map() {
         }
 
       }
-      
+
       // used to stop re-centering if the point to look forward to didnt refresh yet
       if(oldRoutePointRef.current?.lat == newRoutePointRef.current?.lat
         && oldRoutePointRef.current?.lng == newRoutePointRef.current?.lng
@@ -635,13 +635,13 @@ function Map() {
 
       const bearing = calculateBearing({ lat: userLocationRef.current.lat(), lng: userLocationRef.current.lng() }, newRoutePointRef.current!);
 
-        
+
       googleMapRef.current.panTo(new google.maps.LatLng(userLocationRef.current.lat(), userLocationRef.current.lng()));
-        
+
       googleMapRef.current!.setHeading(bearing);
       googleMapRef.current!.setTilt(60);
       console.log("Centering");
-      
+
       oldRoutePointRef.current = newRoutePointRef.current;
     };
 
@@ -674,15 +674,15 @@ function Map() {
     if(userLocationRef.current) {
       setTimeout(() => googleMapRef.current?.setZoom(17), 1000);
     }
-    
+
   }, [])
 
-  
+
 
   return (
     <div style={{ height: '100%', width: '100%' }}>
       <div ref={googleMapElementRef} style={{ height: '100%', width: '100%' }} />
-      
+
       <div className='z-2000000'>
         <ConfirmationModal
           isOpen={modalIsOpen}
