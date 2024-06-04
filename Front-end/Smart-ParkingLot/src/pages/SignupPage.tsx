@@ -106,7 +106,7 @@ const SignupPage: React.FC = () => {
                     if (response.ok) {
                         const data = await response.text();
                         console.log("Registration successful:", data);
-                        navigate('/home');
+                        navigate('/');
                     } else {
                         const errorData = await response.text();
                         console.error("Registration failed:", errorData);
