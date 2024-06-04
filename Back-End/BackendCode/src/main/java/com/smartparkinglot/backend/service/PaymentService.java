@@ -274,8 +274,9 @@ public class PaymentService {
                     transactionDTO.setObject(transaction.getObject());
                     transactionDTO.setAmount(transaction.getAmount()/100.0);
                     transactionDTO.setCurrency(transaction.getCurrency());
-                    transactionDTO.setDescription(transaction.getDescription());
+                    transactionDTO.setDescription(transaction.getType() + " transaction");
                     transactionDTO.setCreatedFromTimestamp(transaction.getCreated());
+                    transactionDTO.setStatus("succeeded");
                     allTransactions.add(transactionDTO);
                 }
                 for (Charge charge : charges) {
@@ -284,9 +285,9 @@ public class PaymentService {
                     transactionDTO.setObject(charge.getObject());
                     transactionDTO.setAmount(charge.getAmount() / 100.0);
                     transactionDTO.setCurrency(charge.getCurrency());
-                    transactionDTO.setDescription(charge.getDescription());
+                    if(charge.getDescription() == null) transactionDTO.setDescription("charge transaction");
+                    else transactionDTO.setDescription(charge.getDescription());
                     transactionDTO.setCreatedFromTimestamp(charge.getCreated());
-                    transactionDTO.setStatus(charge.getStatus());
                     transactionDTO.setStatus(charge.getStatus());
                     allTransactions.add(transactionDTO);
                 }
@@ -416,6 +417,7 @@ public class PaymentService {
         }
     }
 
+    /*
     public String payForParkingSpot(PaymentDetailsDTO paymentDetailsDTO) {
         Stripe.apiKey = stripeConfig.getApiKey();
 
@@ -453,6 +455,56 @@ public class PaymentService {
             }
         } catch (StripeException e) {
             throw new RuntimeException("Error creating customer balance transaction for parking spot", e);
+        }
+    }
+    */
+
+    public String payForParkingSpot(PaymentDetailsDTO paymentDetailsDTO) {
+        Stripe.apiKey = stripeConfig.getApiKey();
+
+        try {
+            String stripeAccountId = getAdminStripeAccountIdByParkingSpotId(paymentDetailsDTO.getParkingSpotId());
+            if (stripeAccountId == null || stripeAccountId.isEmpty()) {
+                log.error("Admin Stripe account ID not found or empty for parking spot ID: {}", paymentDetailsDTO.getParkingSpotId());
+                return "The payment cannot be processed because the administrator has not set up a Stripe account.";
+            }
+
+            CustomerListParams customerListParams = CustomerListParams.builder()
+                    .setEmail(paymentDetailsDTO.getEmail())
+                    .build();
+            List<Customer> customers = Customer.list(customerListParams).getData();
+            if (customers.isEmpty()) {
+                log.error("No customer found with email: {}", paymentDetailsDTO.getEmail());
+                return "No customer found with the provided email.";
+            }
+            Customer customer = customers.get(0);
+            Double currentBalance = customer.getBalance() / 100.0;
+
+            if ((currentBalance - paymentDetailsDTO.getAmount()) < 0) {
+                log.warn("Insufficient balance for customer: {}", customer.getId());
+                return "insufficient-balance";
+            }
+
+            CustomerBalanceTransactionCollectionCreateParams balanceParams =
+                    CustomerBalanceTransactionCollectionCreateParams.builder()
+                            .setAmount((long) (paymentDetailsDTO.getAmount() * -100)) // Negative to decrease
+                            .setCurrency("ron")
+                            .setDescription("Payment for parking spot")
+                            .build();
+            CustomerBalanceTransaction balanceTransaction =
+                    customer.balanceTransactions().create(balanceParams);
+
+            TransferCreateParams transferParams = TransferCreateParams.builder()
+                    .setAmount((long) (paymentDetailsDTO.getAmount() * 100))
+                    .setCurrency("ron")
+                    .setDestination(stripeAccountId)
+                    .build();
+            Transfer transfer = Transfer.create(transferParams);
+            log.info("Transfer created: {}", transfer.getId());
+
+            return "success";
+        } catch (StripeException ex) {
+            throw new RuntimeException(ex);
         }
     }
 
