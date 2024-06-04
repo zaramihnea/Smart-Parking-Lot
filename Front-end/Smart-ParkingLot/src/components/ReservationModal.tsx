@@ -35,13 +35,13 @@ export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
     setHoursToReserve(value);
   };
 
-  const { getUserCars } = useSavedCars();
+  const { getAvailableCars } = useSavedCars();
 
   React.useEffect(() => {
-    getUserCars(baseUrlString).then((fetchedCars: Car[]) => {
+    getAvailableCars(baseUrlString, new Date(new Date().getTime() + 3 * 3600000).toISOString().slice(0, 19).replace('T', ' '), new Date(new Date().getTime() + (3 + hoursToReserve) * 3600000).toISOString().slice(0, 19).replace('T', ' ')).then((fetchedCars: Car[]) => {
       setCars(fetchedCars);
     });
-  }, [baseUrlString, getUserCars]);
+  }, [baseUrlString, getAvailableCars]);
 
   // Set the first car as the default value
   useEffect(() => {

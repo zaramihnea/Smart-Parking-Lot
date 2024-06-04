@@ -239,26 +239,29 @@ public class FunctionsAndTriggersConfig {
 
 
                 "CREATE OR REPLACE FUNCTION GetUsersAvailablePlates(\n" +
-                        "\tp_email users.email%TYPE,\n" +
-                        "\tp_start_time TIMESTAMP,\n" +
-                        "\tp_stop_time TIMESTAMP\n" +
+                        "    p_email users.email%TYPE,\n" +
+                        "    p_start_time TIMESTAMP,\n" +
+                        "    p_stop_time TIMESTAMP\n" +
                         ")\n" +
                         "RETURNS TABLE(\n" +
-                        "\tplate VARCHAR,\n" +
-                        "\tid BIGINT,\n" +
-                        "\tcapacity INTEGER,\n" +
-                        "\ttype VARCHAR,\n" +
-                        "\temail VARCHAR\n" +
+                        "    plate VARCHAR,\n" +
+                        "    id BIGINT,\n" +
+                        "    capacity INTEGER,\n" +
+                        "    type VARCHAR,\n" +
+                        "    email VARCHAR\n" +
                         ") AS $$\n" +
                         "BEGIN\n" +
                         "    RETURN QUERY\n" +
                         "    SELECT c.plate, c.id, c.capacity, c.type, c.email\n" +
-                        "    FROM reservations r\n" +
-                        "\tJOIN cars c\n" +
-                        "\tON c.id = r.car_id\n" +
-                        "\tAND p_email = c.email\n" +
-                        "\tWHERE (p_start_time >= r.stop_time OR p_stop_time <= r.start_time)\n" +
-                        "\tOR r.status <> 'active';\n" +
+                        "    FROM cars c\n" +
+                        "    WHERE c.email = p_email\n" +
+                        "    AND NOT EXISTS (\n" +
+                        "        SELECT 1\n" +
+                        "        FROM reservations r\n" +
+                        "        WHERE r.car_id = c.id\n" +
+                        "        AND r.status = 'active'\n" +
+                        "        AND (p_start_time < r.stop_time AND p_stop_time > r.start_time)\n" +
+                        "    );\n" +
                         "END;\n" +
                         "$$ LANGUAGE plpgsql;"
         );
