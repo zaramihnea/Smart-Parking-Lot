@@ -9,6 +9,7 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.sql.Timestamp;
 import java.util.List;
 
 @Service
@@ -30,6 +31,10 @@ public class CarService {
     }
     public List<Car> getCarsByUser(User user) {
         return carRepository.getCarsByUser(user);
+    }
+
+    public List<Car> getAvailableCarsByUser(String email, Timestamp start, Timestamp stop){
+        return carRepository.getAvailableCarsByUser(email, start, stop);
     }
 
     public String getPlateById(Long id){

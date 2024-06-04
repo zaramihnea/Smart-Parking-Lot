@@ -129,7 +129,7 @@ const Cars: React.FC = () => {
                             <div key={index} className="flex items-center bg-gray-300 dark:bg-gray-700 text-gray-900 dark:text-gray-100 font-bold py-4 px-8 rounded-lg shadow-lg mb-4">
                                 {car.plate}
                                 <img
-                                    src="/trash.png"
+                                    src="/bin.png"
                                     alt="trash icon"
                                     className="w-6 h-6 ml-auto cursor-pointer"
                                     onClick={() => {

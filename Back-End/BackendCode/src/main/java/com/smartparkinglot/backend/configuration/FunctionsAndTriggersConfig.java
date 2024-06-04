@@ -235,6 +235,31 @@ public class FunctionsAndTriggersConfig {
                         "\tON c.id = r.car_id\n" +
                         "\tAND c.email = p_email;\n" +
                         "END;\n" +
+                        "$$ LANGUAGE plpgsql;",
+
+
+                "CREATE OR REPLACE FUNCTION GetUsersAvailablePlates(\n" +
+                        "\tp_email users.email%TYPE,\n" +
+                        "\tp_start_time TIMESTAMP,\n" +
+                        "\tp_stop_time TIMESTAMP\n" +
+                        ")\n" +
+                        "RETURNS TABLE(\n" +
+                        "\tplate VARCHAR,\n" +
+                        "\tid BIGINT,\n" +
+                        "\tcapacity INTEGER,\n" +
+                        "\ttype VARCHAR,\n" +
+                        "\temail VARCHAR\n" +
+                        ") AS $$\n" +
+                        "BEGIN\n" +
+                        "    RETURN QUERY\n" +
+                        "    SELECT c.plate, c.id, c.capacity, c.type, c.email\n" +
+                        "    FROM reservations r\n" +
+                        "\tJOIN cars c\n" +
+                        "\tON c.id = r.car_id\n" +
+                        "\tAND p_email = c.email\n" +
+                        "\tWHERE (p_start_time >= r.stop_time OR p_stop_time <= r.start_time)\n" +
+                        "\tOR r.status <> 'active';\n" +
+                        "END;\n" +
                         "$$ LANGUAGE plpgsql;"
         );
 

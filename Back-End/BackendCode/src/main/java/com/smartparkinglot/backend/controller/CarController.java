@@ -14,7 +14,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.sql.Timestamp;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/car")
@@ -39,6 +41,27 @@ public class CarController {
             }));
         }
         else {
+            return ResponseEntity.badRequest().body("Authentication token invalid. Protected resource could not be accessed");
+        }
+    }
+
+    @GetMapping("/available")
+    public ResponseEntity<?> getAvailableCars(@RequestHeader("Authorization") String authorizationHeader,
+                                              @RequestParam("startTime") String startTime,
+                                              @RequestParam("stopTime") String stopTime) {
+        String token = authorizationHeader.substring(7); // Assuming the scheme is "Bearer "
+        if (tokenService.validateToken(token)) {
+            User userAuthorized = tokenService.getUserByToken(token);
+
+            List<Car> availableCars = carService.getAvailableCarsByUser(userAuthorized.getEmail(), Timestamp.valueOf(startTime), Timestamp.valueOf(stopTime));
+
+            List<CarDTO> carDTOs = availableCars.stream()
+                    .map(car -> new CarDTO(car.getId(), car.getPlate(), car.getCapacity(), car.getType()))
+                    .collect(Collectors.toList());
+
+
+            return ResponseEntity.ok().body(carDTOs);
+        } else {
             return ResponseEntity.badRequest().body("Authentication token invalid. Protected resource could not be accessed");
         }
     }
@@ -80,4 +103,13 @@ public class CarController {
         private int capacity;
         private String type;
     }
+
+    @Getter @Setter
+    @AllArgsConstructor
+    public static class ReservationTime {
+        private Timestamp startTime;
+        private Timestamp stopTime;
+    }
+
+
 }
