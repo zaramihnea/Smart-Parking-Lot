@@ -96,8 +96,10 @@ export default function ResultsPage() {
     }
     setErrorMessage('');
 
-    const startTimeString = reservationStartTime + ':00Z';
+    let startTimeString = reservationStartTime + ':00Z';
     const startTime = new Date(startTimeString);
+    startTime.setHours(startTime.getHours() + 2);
+    startTimeString = startTime.toISOString().slice(0, 19) + 'Z';
     
     const stopTimeString = new Date(startTime.getTime() + (hoursToReserve) * 60 * 60 * 1000).toISOString().slice(0, 19) + 'Z'; 
     
