@@ -97,6 +97,8 @@ function Map() {
       startTimeString = startTimeString + ':00Z';
     }
     const startTime = new Date(startTimeString);
+    startTime.setHours(startTime.getHours() + 3);
+    startTimeString = startTime.toISOString().slice(0, 19) + 'Z';
 
     const stopTimeString = new Date(startTime.getTime() + hoursToReserve * 60 * 60 * 1000).toISOString().slice(0, 19) + 'Z';
 
