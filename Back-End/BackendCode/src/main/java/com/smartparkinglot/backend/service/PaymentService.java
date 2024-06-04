@@ -54,7 +54,7 @@ public class PaymentService {
 
             validatePaymentDetails(paymentDetailsDTO);
             Customer customer = getOrCreateCustomer(paymentDetailsDTO.getEmail());
-            PaymentIntent paymentIntent = createStripePaymentIntent(customer, paymentDetailsDTO.getAmount(), paymentDetailsDTO.getParkingSpotId());
+            PaymentIntent paymentIntent = createStripePaymentIntent(customer, paymentDetailsDTO.getAmount());
 
             log.info("Payment intent created: {}", paymentIntent.getId());
             return new PaymentResponseDTO(paymentIntent.getClientSecret(), paymentIntent.getId());
@@ -70,9 +70,6 @@ public class PaymentService {
         }
         if (paymentDetailsDTO.getAmount() < 2) {
             throw new PaymentException("Amount must be greater than 2.");
-        }
-        if (paymentDetailsDTO.getParkingSpotId() == null) {
-            throw new PaymentException("Parking spot ID is required.");
         }
         // Add more validation as needed
     }
@@ -91,20 +88,12 @@ public class PaymentService {
         return customers.get(0);
     }
 
-    private PaymentIntent createStripePaymentIntent(Customer customer, Double amount, Long parkingSpotId) throws StripeException {
-        String stripeAccountId = getAdminStripeAccountIdByParkingSpotId(parkingSpotId);
-
-
+    private PaymentIntent createStripePaymentIntent(Customer customer, Double amount) throws StripeException {
         PaymentIntentCreateParams paymentParams = PaymentIntentCreateParams.builder()
                 .setAmount((long)(amount*100))
                 .setCustomer(customer.getId())
                 .setCurrency("ron")
                 .setReceiptEmail(customer.getEmail())
-                .setTransferData(
-                        PaymentIntentCreateParams.TransferData.builder()
-                                .setDestination(stripeAccountId)
-                                .build()
-                )
                 .setAutomaticPaymentMethods(
                         PaymentIntentCreateParams.AutomaticPaymentMethods
                                 .builder()
