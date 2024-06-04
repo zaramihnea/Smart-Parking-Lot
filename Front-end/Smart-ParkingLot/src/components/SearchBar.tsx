@@ -27,6 +27,9 @@ interface AutocompletePrediction {
 const SearchBar: React.FC<SearchBarProps> = ({ placeholder }) => {
   // used to focus the input field when a suggestion is clicked
   const inputRef = useRef<HTMLInputElement>(null);
+  const baseUrl = process.env.API_BASE_URL;
+
+  const [baseUrlString]= useState<string>(baseUrl || 'http://localhost:8081');
 
   const navigate = useNavigate();
   
@@ -45,7 +48,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ placeholder }) => {
 
   // Function to fetch suggestions
   const fetchSuggestions = (query : string) => {
-    axios.get(`http://localhost:5000/autocomplete?input=${query}`)
+    axios.get(`${baseUrlString}/autocomplete?input=${query}`)
       .then(response => {
         // Assuming the response structure matches the expected
         const suggestions = response.data.predictions.map((item: AutocompletePrediction) => ({

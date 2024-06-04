@@ -8,7 +8,7 @@ Modal.setAppElement('#root'); // Suppresses modal-related accessibility warnings
 export interface ConfirmationModalProps {
   isOpen: boolean;
   onRequestClose: () => void;
-  onConfirm: (hoursToReserve: number, carId: number, lotId: number) => Promise<void>; // Add this line
+  onConfirm: (hoursToReserve: number, carId: number, lotId: number, startTimeString: string) => Promise<void>; // Add this line
   lotId: number;
   title: string;
   message: string;
@@ -27,6 +27,7 @@ export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
   const [cars, setCars] = React.useState<Car[]>([]);
   const baseUrl = process.env.API_BASE_URL;
   const baseUrlString = baseUrl || 'http://localhost:8081';
+  const [reservationStartTime, setReservationStartTime] = React.useState(new Date(new Date().getTime() + 3 * 60 * 60 * 1000).toISOString().slice(0, 16));
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const value = Number(event.target.value);
@@ -85,17 +86,28 @@ export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
           ))}
         </select>
         </div>
+        <div>
+          <p>Reservation start time:</p>
+          <input
+            value={reservationStartTime}
+            onChange={(event) => {
+              setReservationStartTime(event.target.value);
+            }}
+            type="datetime-local"
+            className="w-64 bg-gray-100 dark:bg-gray-800 text-white p-2 rounded-md mb-4"
+          />
+        </div>
         <div className='flex flex-row items-center'>
           <p className="mb-4">Hours to reserve spot for:</p>
           <input 
-          type="text" 
+          type="number" 
           value={hoursToReserve}
           onChange={handleInputChange}
           className="ml-3 w-16 grow border bg-gray-100 dark:bg-gray-800 text-white p-2 rounded-md mb-4 " />
         </div>
         
         <div className='flex flex-row justify-evenly w-full'>
-          <button className='bg-purple-600 py-0.5 px-6 rounded-lg' onClick={() => onConfirm(hoursToReserve, inputCarId, lotId)}>Yes</button>
+          <button className='bg-purple-600 py-0.5 px-6 rounded-lg' onClick={() => onConfirm(hoursToReserve, inputCarId, lotId, reservationStartTime)}>Yes</button>
           <button className='bg-purple-600 py-0.5 px-6 rounded-lg' onClick={onRequestClose}>No</button>
         </div>
       </div>

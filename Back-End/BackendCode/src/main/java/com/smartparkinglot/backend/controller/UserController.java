@@ -86,10 +86,10 @@ public class UserController {
     @PostMapping(value = "/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
         if(userService.existsByEmail(loginRequest.getEmail())) {
+            User userToLog = userService.getUserByEmail(loginRequest.getEmail());
 
-            boolean isAuthenticated = userService.authenticateUser(loginRequest.getEmail(), loginRequest.getPassword());
-            User loggedInUser = userService.getUserByEmail(loginRequest.getEmail());
-            String generatedToken = tokenService.generateToken(loggedInUser);
+            boolean isAuthenticated = userService.authenticateUser(userToLog.getEmail(), loginRequest.getPassword());
+            String generatedToken = tokenService.generateToken(userToLog);
 
             if (isAuthenticated) {
                 return ResponseEntity.ok(new JwtResponse(generatedToken, "Bearer"));

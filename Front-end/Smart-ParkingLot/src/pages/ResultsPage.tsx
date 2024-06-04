@@ -17,6 +17,8 @@ export default function ResultsPage() {
   const locationURL = useLocation();
   const navigate = useNavigate();
   const searchParams = new URLSearchParams(locationURL.search);
+
+  const [reservationStartTime, setReservationStartTime] = useState(new Date(new Date().getTime() + 3 * 60 * 60 * 1000).toISOString().slice(0, 16));
   
   
   // get location adress from geocoding api conversion
@@ -46,7 +48,7 @@ export default function ResultsPage() {
     });
   }, [baseUrlString, getAvailableParkingLotsAndClosestLot, coordinates]);
 
-  const [hoursToReserve, setHoursToReserve] = useState('2');
+  const [hoursToReserve, setHoursToReserve] = useState(2);
   const [invalidHoursAlert, setErrorMessage] = useState('');
 
   const [cars, setCars] = useState<Car[]>([]);
@@ -76,11 +78,9 @@ export default function ResultsPage() {
     // request reservation for the parking spot from the server
     // if the reservation failed, show the correct error message
     // if the reservation was successful, navigate to the homepage
-    
-    const hours = parseInt(hoursToReserve, 10);
     // Handle invalid input
-    
-    if (!(!isNaN(hours) && hours >= 1 && hours <= 72)) {
+
+    if (!(!isNaN(hoursToReserve) && hoursToReserve >= 1 && hoursToReserve <= 72)) {
       setErrorMessage('Please enter a number between 1 and 72 for the reservation hours.');
       return; 
     }
@@ -96,14 +96,15 @@ export default function ResultsPage() {
     }
     setErrorMessage('');
 
-    const now = new Date();
-
-    const startTime = new Date(now.getTime() + 3 * 60 * 60 * 1000).toISOString().slice(0, 19) + 'Z';
-    const stopTime = new Date(new Date().getTime() + (hours + 3) * 60 * 60 * 1000).toISOString().slice(0, 19) + 'Z'; 
+    const startTimeString = reservationStartTime + ':00Z';
+    const startTime = new Date(startTimeString);
     
-    console.log(startTime, stopTime);
+    const stopTimeString = new Date(startTime.getTime() + (hoursToReserve) * 60 * 60 * 1000).toISOString().slice(0, 19) + 'Z'; 
+    
+    console.log(startTimeString, stopTimeString);
+    console.log(hoursToReserve);
     // Reserve the parking spot
-    reserveParkingSpot(baseUrlString, spotChosen, startTime, stopTime, car.plate, car.capacity, car.model).then((response) => {
+    reserveParkingSpot(baseUrlString, spotChosen, startTimeString, stopTimeString, car.plate, car.capacity, car.model).then((response) => {
       if (response === 'Spot reserved successfully') {
         navigate('/home');
       } else {
@@ -117,7 +118,7 @@ export default function ResultsPage() {
   };
 
   const handleInputChange = (event: { target: { value: SetStateAction<string>; }; }) => {
-    setHoursToReserve(event.target.value);
+    setHoursToReserve(Number(event.target.value));
   };
 
 
@@ -141,10 +142,21 @@ export default function ResultsPage() {
           ))}
         </select>
       </div>
+      <div>
+          <p>Reservation start time:</p>
+          <input
+            value={reservationStartTime}
+            onChange={(event) => {
+              setReservationStartTime(event.target.value);
+            }}
+            type="datetime-local"
+            className="w-64 bg-gray-100 dark:bg-gray-800 text-white p-2 rounded-md mb-4"
+          />
+        </div>
       <div className='flex flex-row items-center'>
         <p className="mb-4">Hours to reserve spot for:</p>
         <input 
-        type="text" 
+        type="number" 
         value={hoursToReserve}
         onChange={handleInputChange}
         className="ml-3 w-16 grow border bg-gray-100 dark:bg-gray-800 text-white p-2 rounded-md mb-4 " />
