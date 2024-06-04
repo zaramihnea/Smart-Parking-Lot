@@ -4,6 +4,7 @@ import com.smartparkinglot.backend.customexceptions.EmailExistsException;
 import com.smartparkinglot.backend.customexceptions.UsernameExistsException;
 import com.stripe.exception.StripeException;
 import com.stripe.model.issuing.Authorization;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import com.smartparkinglot.backend.service.*;
 import com.smartparkinglot.backend.entity.*;
 
+import java.net.URI;
 import java.util.Date;
 import java.util.List;
 
@@ -173,10 +175,24 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
+    /*
     @GetMapping("/after-payment-processing")
     public ResponseEntity<?> handlePaymentStatus(@RequestParam("payment_intent") String paymentIntentId) {
         String result = paymentService.handlePaymentResult(paymentIntentId);
         return ResponseEntity.ok(result);
+    }
+    */
+
+    @GetMapping("/after-payment-processing")
+    public ResponseEntity<?> handlePaymentStatus(@RequestParam("payment_intent") String paymentIntentId, HttpServletRequest request) {
+        String result = paymentService.handlePaymentResult(paymentIntentId);
+
+        if ("success".equals(result)) {
+            // Redirect to the homepage if the payment was successful
+            return ResponseEntity.status(HttpStatus.FOUND).location(URI.create("http://localhost:8888/balance")).build();
+        } else {
+            return ResponseEntity.ok(result);
+        }
     }
 
     //stripe onboarding endpoints
