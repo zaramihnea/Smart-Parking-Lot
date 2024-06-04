@@ -469,24 +469,32 @@ $$ LANGUAGE plpgsql;
 
 
 CREATE OR REPLACE FUNCTION GetUsersAvailablePlates(
-	p_email users.email%TYPE,
-	p_start_time reservations.start_time%TYPE,
-	p_stop_time reservations.stop_time%TYPE
+    p_email users.email%TYPE,
+    p_start_time TIMESTAMP,
+    p_stop_time TIMESTAMP
 )
 RETURNS TABLE(
-	plate VARCHAR
+    plate VARCHAR,
+    id BIGINT,
+    capacity INTEGER,
+    type VARCHAR,
+    email VARCHAR
 ) AS $$
 BEGIN
     RETURN QUERY
-    SELECT c.plate
-    FROM reservations r
-	JOIN cars c
-	ON c.id = r.car_id
-	AND p_email = c.email
-	WHERE (p_start_time >= r.stop_time OR p_stop_time <= r.start_time)
-	OR r.status <> 'active';
+    SELECT c.plate, c.id, c.capacity, c.type, c.email
+    FROM cars c
+    WHERE c.email = p_email
+    AND NOT EXISTS (
+        SELECT 1
+        FROM reservations r
+        WHERE r.car_id = c.id
+        AND r.status = 'active'
+        AND NOT (p_start_time >= r.stop_time OR p_stop_time <= r.start_time)
+    );
 END;
 $$ LANGUAGE plpgsql;
+
 
 
 
