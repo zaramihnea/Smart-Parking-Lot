@@ -19,19 +19,17 @@ async function fetchAndInitialize() {
     try {
         const urlParams = new URLSearchParams(window.location.search);
         const email = urlParams.get('email');
-        const parkingSpotId = urlParams.get('parkingSpotId');
         const amount = parseFloat(urlParams.get('amount'));
 
-        if (!email || isNaN(amount) || !parkingSpotId) {
-            throw new Error("Missing or invalid email, parkingSpotId or amount in URL");
+        if (!email || isNaN(amount)) {
+            throw new Error("Missing or invalid email or amount in URL");
         }
 
         document.querySelector("#button-text").textContent = `Pay now (${amount.toFixed(2)} RON)`;
 
         const paymentDetails = {
             email: email,
-            amount: amount,
-            parkingSpotId: parkingSpotId
+            amount: amount
         };
         const response = await fetch('/user/create-payment-intent', {
             method: 'POST',
