@@ -12,30 +12,33 @@ const SeeNotifications: React.FC = () => {
   const token = Cookies.get('authToken');
   const baseUrl = process.env.API_BASE_URL;
 
-  useEffect(() => {
-    const fetchNotifications = async () => {
-      try {
-        const response = await fetch(`${baseUrl}/admin/see-notifs`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          }
-        });
-
-        if (!response.ok) {
-          throw new Error('Failed to fetch notifications');
+  const fetchNotifications = async () => {
+    try {
+      const response = await fetch(`${baseUrl}/admin/see-notifs`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
         }
+      });
 
-        const notificationsData = await response.json();
-        notificationsData.sort((a: Notification, b: Notification) => b.messageId - a.messageId);
-        setNotifications(notificationsData);
-      } catch (error) {
-        console.error('Error fetching notifications:', error);
+      if (!response.ok) {
+        throw new Error('Failed to fetch notifications');
       }
-    };
 
+      const notificationsData = await response.json();
+      notificationsData.sort((a: Notification, b: Notification) => b.messageId - a.messageId);
+      setNotifications(notificationsData);
+    } catch (error) {
+      console.error('Error fetching notifications:', error);
+    }
+  };
+
+  useEffect(() => {
     fetchNotifications();
+    const interval = setInterval(fetchNotifications, 10000);
+
+    return () => clearInterval(interval);
   }, [baseUrl, token]);
 
   const markAsSeen = async (id: number) => {
@@ -92,7 +95,7 @@ const SeeNotifications: React.FC = () => {
   return (
     <div className="min-h-screen flex flex-col bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 p-4 pb-16">
       <div className="sticky top-0 z-50 bg-gray-100 dark:bg-gray-900">
-        <SearchBar placeholder="Search for notification" onChange={(e) => setSearchTerm(e.target.value)} />
+        <SearchBar placeholder="Search for parking spot" />
       </div>
       <div className="flex flex-col items-center flex-grow p-4 mb-16">
         <div className="w-full max-w-md p-8 bg-white dark:bg-gray-800 rounded-lg shadow-md">
