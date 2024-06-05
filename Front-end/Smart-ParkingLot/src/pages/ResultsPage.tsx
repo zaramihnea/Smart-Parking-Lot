@@ -54,14 +54,21 @@ export default function ResultsPage() {
   const [cars, setCars] = useState<Car[]>([]);
   const [inputCar, setInputCar] = useState(-1);
 
-  const { getUserCars } = useSavedCars();
+  const { getAvailableCars } = useSavedCars();
+
+  const fetchAvailableCars = () => {
+       const startDateTime = new Date(new Date(reservationStartTime).getTime() + 3 * 3600000).toISOString().slice(0, 19).replace('T', ' ');
+       const endDateTime = new Date(new Date(reservationStartTime).getTime() + (hoursToReserve + 3) * 3600000).toISOString().slice(0, 19).replace('T', ' ');
+
+       getAvailableCars(baseUrl, startDateTime, endDateTime).then((fetchedCars: Car[]) => {
+           setCars(fetchedCars);
+           setInputCar(fetchedCars[0]?.id || -1); // Set the first car as default selected if available
+       });
+  };
 
   useEffect(() => {
-    getUserCars(baseUrlString).then((fetchedCars: Car[]) => {
-      setCars(fetchedCars);
-
-    });
-  }, [baseUrlString, getUserCars]);
+    fetchAvailableCars(); // Initial fetch and react to changes
+  }, [reservationStartTime, hoursToReserve]);
   
   // set the first car as the default car
   useEffect(() => {
