@@ -74,9 +74,7 @@ public class ParkingLotService {
         parkingLotRepository.updatePrice(parkingLot.getId(), price);
     }
 
-
     public List<ParkingLot> findAllByAdminEmail(User admin){
         return parkingLotRepository.findAllByAdminEmail(admin);
     }
-
 }
