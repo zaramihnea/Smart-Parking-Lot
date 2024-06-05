@@ -263,6 +263,59 @@ public class FunctionsAndTriggersConfig {
                         "        AND (p_start_time < r.stop_time AND p_stop_time > r.start_time)\n" +
                         "    );\n" +
                         "END;\n" +
+                        "$$ LANGUAGE plpgsql;",
+
+                "CREATE OR REPLACE FUNCTION GetUsersFavoriteParkingLot(\n" +
+                        "    p_email users.email%TYPE\n" +
+                        ")\n" +
+                        "RETURNS BIGINT AS $$\n" +
+                        "DECLARE\n" +
+                        "    most_visited_lot BIGINT;\n" +
+                        "    lot BIGINT;\n" +
+                        "    max_count INT := 0;\n" +
+                        "    count INT;\n" +
+                        "    rec_row RECORD;\n" +
+                        "    car_cursor CURSOR FOR SELECT id FROM cars WHERE email = p_email;\n" +
+                        "BEGIN\n" +
+                        "\n" +
+                        "    OPEN car_cursor;\n" +
+                        "    LOOP\n" +
+                        "        FETCH car_cursor INTO rec_row;\n" +
+                        "        EXIT WHEN NOT FOUND;\n" +
+                        "\n" +
+                        "        SELECT INTO lot, count\n" +
+                        "            id, num_reservations\n" +
+                        "        FROM (\n" +
+                        "            SELECT\n" +
+                        "                p.id,\n" +
+                        "                COUNT(r.id) AS num_reservations\n" +
+                        "            FROM\n" +
+                        "                reservations r\n" +
+                        "            JOIN\n" +
+                        "                parking_spots s ON r.parking_spot_id = s.id\n" +
+                        "            JOIN\n" +
+                        "                parking_lots p ON s.parking_lot_id = p.id\n" +
+                        "            WHERE\n" +
+                        "                r.stop_time >= CURRENT_TIMESTAMP - INTERVAL '30 days'\n" +
+                        "                AND\n" +
+                        "                r.car_id = rec_row.id\n" +
+                        "            GROUP BY\n" +
+                        "                p.id\n" +
+                        "            ORDER BY\n" +
+                        "                num_reservations DESC\n" +
+                        "            LIMIT 1\n" +
+                        "        ) AS subquery;\n" +
+                        "\n" +
+                        "        IF count > max_count THEN\n" +
+                        "            max_count := count;\n" +
+                        "            most_visited_lot := lot;\n" +
+                        "        END IF;\n" +
+                        "    END LOOP;\n" +
+                        "\n" +
+                        "    CLOSE car_cursor;\n" +
+                        "\n" +
+                        "    RETURN most_visited_lot;\n" +
+                        "END;\n" +
                         "$$ LANGUAGE plpgsql;"
         );
 
