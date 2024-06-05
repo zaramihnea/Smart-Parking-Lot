@@ -9,6 +9,7 @@ const ForgotPasswordPage: React.FC = () => {
 
   const [emailSentBool, setemailSentBool] = useState(false);
   const baseUrl = process.env.API_BASE_URL;
+  const frontUrl = process.env.FRONT_END_URL;
 
   const handleFP = async () => {
     if (isValidEmail(email)) {
@@ -20,7 +21,8 @@ const ForgotPasswordPage: React.FC = () => {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                email: email
+                email: email,
+                baseUrl: frontUrl
             }),
         });
 
