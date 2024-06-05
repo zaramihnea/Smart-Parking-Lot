@@ -56,4 +56,11 @@ public class Reservation {
         this.stopTime = stopTime;
         this.status = status;
     }
+
+	@Override
+	public String toString()
+	{
+		return "Reservation [id=" + id + ", car_id=" + car_id + ", parkingSpot=" + parkingSpot + ", startTime="
+				+ startTime + ", stopTime=" + stopTime + ", status=" + status + "]";
+	}
 }

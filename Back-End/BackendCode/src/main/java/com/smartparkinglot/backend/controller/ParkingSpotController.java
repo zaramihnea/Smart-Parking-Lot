@@ -1,7 +1,11 @@
 package com.smartparkinglot.backend.controller;
 
 import com.smartparkinglot.backend.entity.ParkingSpot;
+import com.smartparkinglot.backend.entity.Reservation;
+import com.smartparkinglot.backend.repository.ReservationRepository;
 import com.smartparkinglot.backend.service.ParkingSpotService;
+import com.smartparkinglot.backend.service.ReservationService;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -9,15 +13,18 @@ import org.springframework.web.bind.annotation.*;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/parking_spots")
 public class ParkingSpotController {
     private final ParkingSpotService parkingSpotService;
+    private final ReservationService reservationService;
 
     @Autowired
-    public ParkingSpotController(ParkingSpotService parkingSpotService) {
+    public ParkingSpotController(ParkingSpotService parkingSpotService, ReservationService reservationService) {
         this.parkingSpotService = parkingSpotService;
+        this.reservationService = reservationService;
     }
 
     @GetMapping("/get-price")
@@ -35,19 +42,39 @@ public class ParkingSpotController {
 
     @PostMapping("/update/{id}")
     public ResponseEntity<String> updateParkingSpot(@PathVariable("id") Long id, @RequestBody ParkingSpot updatedParkingSpot) {
-        ParkingSpot existingParkingSpot = parkingSpotService.getById(id);
+        ParkingSpot existingParkingSpot = parkingSpotService.getById(updatedParkingSpot.getId());
 
         if (existingParkingSpot == null) {
             return ResponseEntity.notFound().build();
         }
-
-        existingParkingSpot.setStatus(updatedParkingSpot.getStatus());
-        existingParkingSpot.setPlate(updatedParkingSpot.getPlate());
-
-        parkingSpotService.updateParkingSpot(existingParkingSpot);
-
-        return ResponseEntity.ok("Parking spot updated successfully");
-    }
+        
+        if(updatedParkingSpot.getStatus().equals("unoccupied"))
+        {
+        	existingParkingSpot.setStatus(null);
+            existingParkingSpot.setPlate(null);
+            parkingSpotService.updateParkingSpot(existingParkingSpot);
+            return ResponseEntity.ok("Spot freed");
+        }
+        Reservation res = reservationService.getReservationById(updatedParkingSpot.getId());
+        if(res == null)
+        {
+        	return ResponseEntity.ok("There is no reservation on that parking spot");
+        }
+        else
+        {
+        	if(res.getCar_id().getPlate().equals(updatedParkingSpot.getPlate()))
+        	{
+        		existingParkingSpot.setStatus(updatedParkingSpot.getStatus());
+                existingParkingSpot.setPlate(updatedParkingSpot.getPlate());
+                parkingSpotService.updateParkingSpot(existingParkingSpot);
+                return ResponseEntity.ok("The correct plate is occupying the spot");
+        	}
+        	else
+        	{
+        		return ResponseEntity.ok("An incorrect plate is occupying the spot");
+        	}
+        }
+     }
 
     @PutMapping("/update-name/{id}")
     public ResponseEntity<String> updateParkingSpotName(@PathVariable("id") Long id, @RequestBody ParkingSpot updatedParkingSpot) {

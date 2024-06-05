@@ -32,7 +32,4 @@ public interface UserRepository extends JpaRepository<User, String> {
     @Query(value = "INSERT INTO banned_users (email) VALUES (:email)", nativeQuery = true)
     void addToBannedUsers(@Param("email") String email);
 
-    @Query(value = "SELECT GetUsersFavoriteParkingLot(:email)", nativeQuery = true)
-    Long getFavoriteLot(@Param("email") String email);
-
 }

@@ -83,18 +83,6 @@ public class UserController {
         }
     }
 
-    @GetMapping(value = "/favorite-lot")
-    public ResponseEntity<String> getFavoriteLot(@RequestHeader("Authorization") String authorizationHeader) {
-        String token = authorizationHeader.substring(7);// Assuming the scheme is "Bearer "
-        if(tokenService.validateToken(token)) {
-            User userAuthorized = tokenService.getUserByToken(token);
-            return ResponseEntity.ok(String.valueOf(userService.getFavoriteLot(userAuthorized)));
-        }
-        else {
-            return ResponseEntity.badRequest().body("Invalid token");
-        }
-    }
-
     // A post request to /user will register a user in the db
     @PostMapping(value = "/register")
     public ResponseEntity<String> registerNewUser(@RequestBody RegisterRequest registerRequest) {
