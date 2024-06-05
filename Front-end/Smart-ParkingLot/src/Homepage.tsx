@@ -5,6 +5,8 @@ import Navbar from './components/Navbar';
 import GoogleMap from './components/Map';
 import useUsername from "./hooks/useUsername"
 import useReservations from "./hooks/useReservations"
+import { useUserContext } from './UserContext';
+import useUserType from './hooks/useUserType';
 
 import { Car } from './types/Car';
 import { Reservation } from './types/Reservation';
@@ -14,11 +16,13 @@ import useSavedCars from './hooks/useSavedCars';
 const Homepage: React.FC = () => {
   const baseUrl = process.env.API_BASE_URL;
 
+  const { userType, setUserType } = useUserContext();
   const [baseUrlString]= useState<string>(baseUrl || 'http://localhost:8081');
   const [username, setUsername] = useState('username');
   const [savedCars, setSavedCars] = useState<Car[]>([]);
   const [reservations, setReservations] = useState<Reservation[]>([]);
 
+  const { getUserType } = useUserType();
   const { getUsername } = useUsername();
   const { getUserCars } = useSavedCars();
   const { getOwnActiveReservations } = useReservations();
@@ -42,7 +46,21 @@ const Homepage: React.FC = () => {
     getOwnActiveReservations(baseUrlString).then((reservations) => {
       setReservations(reservations);
     });
-  }, [baseUrlString, getOwnActiveReservations]); // Dependencies 
+  }, [baseUrlString, getOwnActiveReservations]); // Dependencies
+
+  useEffect(() => {
+      const fetchUserType = async () => {
+        try {
+          const fetchedUserType = await getUserType(baseUrl);
+          setUserType(fetchedUserType);
+        } catch (error) {
+          console.error('Error fetching user type:', error);
+        }
+      };
+
+      fetchUserType();
+    }, [getUserType, setUserType, baseUrl]);
+
 
   const handleLogout = useCallback(() => {
     document.cookie = 'authToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
