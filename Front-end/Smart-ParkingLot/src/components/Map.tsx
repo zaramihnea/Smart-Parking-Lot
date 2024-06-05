@@ -37,7 +37,7 @@ function Map() {
 
   // center of the map, currently set on Iasi
   // wrap the centerOfIasi in a useMemo hook to avoid recalculating it on every render
-  const centerOfIasi = useMemo(() => ({ lat: 47.1585, lng: 27.6014 }), []);
+  const centerOfIasi = useMemo(() => ({ lat: 47.16798, lng: 27.58320 }), []);
   const availableParkingLotsRef = useRef<ParkingLot[]>([]);
   const { getAvailableParkingLotsAndClosestLot } = useParkingLots();
 

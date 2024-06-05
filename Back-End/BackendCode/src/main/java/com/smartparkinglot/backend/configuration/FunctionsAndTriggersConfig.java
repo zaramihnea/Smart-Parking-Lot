@@ -78,7 +78,7 @@ public class FunctionsAndTriggersConfig {
                         "BEGIN\n" +
                         "    IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'encrypt_password_trigger') THEN\n" +
                         "        CREATE TRIGGER encrypt_password_trigger\n" +
-                        "        BEFORE INSERT OR UPDATE ON users\n" +
+                        "        BEFORE INSERT OR UPDATE OF password ON users\n" +
                         "        FOR EACH ROW EXECUTE FUNCTION EncryptPasswordFunction();\n" +
                         "    END IF;\n" +
                         "END $$;",

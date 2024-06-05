@@ -42,8 +42,6 @@ public class ReservationService {
     @Transactional
     public ResponseEntity<String> createReservation(User userAuthorized, Long spotId, Timestamp startTimestamp, Timestamp endTimestamp, int reservationCost, Car car) {
         try {
-            userAuthorized.setBalance(userAuthorized.getBalance() - reservationCost);
-            userService.saveUser(userAuthorized);  // Save the user's new balance
 
 
             ParkingSpot spot = parkingSpotService.getById(spotId);
