@@ -100,6 +100,8 @@ public class ParkingLot {
     public String getName() {
         return name;
     }
-    
-    
+
+    public String getAdminMail() {
+        return user.getEmail();
+    }
 }

@@ -23,7 +23,9 @@ import HelpPage from './pages/HelpPage';
 import LoadingPage from './pages/LoadingPage';
 import ResultsPage from './pages/ResultsPage';
 import SeeAllParkingSpots from './pages/SeeAllParkingSpots';
+import Notifs from './pages/Notifs';
 import './App.css';
+import SeeNotifications from './pages/Notifs';
 
 const InstallPrompt: React.FC<{ device: string }> = ({ device }) => {
   const installInstructions =
@@ -85,30 +87,30 @@ const App: React.FC = () => {
   return (
     <UserProvider>
       <div>
-      {isInstalled ? (
-      <div>
-        <Router>
-          <Routes>
-            <Route path="/" element={<LoginPage />} />
-            <Route path="/signup" element={<SignupPage />} />
-            <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-            <Route path="/reset-password" element={<ResetPasswordPage />} />
-            <Route path="/home" element={<Homepage />} />
-            <Route path="/profile/*" element={<PrivateRoute />} />
-            <Route path="/balance" element={<AccountBalance />} />
-            <Route path="/help" element={<HelpPage />} />
-            <Route path="/loading" element={<LoadingPage />} />
-            <Route path="/results" element={<ResultsPage />} />
-            <Route path="/see-all-parking-spots" element={<SeeAllParkingSpots />} />
-            <Route path="*" element={<Navigate to="/" />} />
-          </Routes>
-        </Router>
+        {isInstalled ? (
+          <div>
+            <Router>
+              <Routes>
+                <Route path="/" element={<LoginPage />} />
+                <Route path="/signup" element={<SignupPage />} />
+                <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+                <Route path="/reset-password" element={<ResetPasswordPage />} />
+                <Route path="/home" element={<Homepage />} />
+                <Route path="/profile/*" element={<PrivateRoute />} />
+                <Route path="/balance" element={<AccountBalance />} />
+                <Route path="/help" element={<HelpPage />} />
+                <Route path="/loading" element={<LoadingPage />} />
+                <Route path="/results" element={<ResultsPage />} />
+                <Route path="/see-all-parking-spots" element={<SeeAllParkingSpots />} />
+                <Route path="*" element={<Navigate to="/" />} />
+              </Routes>
+            </Router>
+          </div>
+        ) : (
+          <InstallPrompt device={device} />
+        )}
       </div>
-     ) : (
-       <InstallPrompt device={device} />
-       )}
-       </div>
-       </UserProvider>
+    </UserProvider>
   );
 };
 
@@ -123,9 +125,9 @@ const PrivateRoute = () => {
     <Routes>
       <Route path="/" element={
         userType === 1 ? <Profiles /> :
-        userType === 2 ? <ProfileParkingLotManager /> :
-        userType === 3 ? <ProfileAdmin /> :
-        <Navigate to="/" />
+          userType === 2 ? <ProfileParkingLotManager /> :
+            userType === 3 ? <ProfileAdmin /> :
+              <Navigate to="/" />
       } />
       <Route path="/messages" element={<Messages />} />
       <Route path="/cars" element={<Cars />} />
@@ -136,6 +138,7 @@ const PrivateRoute = () => {
       <Route path="/admin" element={<AdminPanel />} />
       <Route path="/admin/see-all-users" element={<SeeAllUsersAdmin />} />
       <Route path="/admin/questions" element={<AdminQuestions />} />
+      <Route path="/admin/see-lot-notifs" element={<SeeNotifications />} />
     </Routes>
   );
 };
