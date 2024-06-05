@@ -1,7 +1,6 @@
 package com.smartparkinglot.backend.service;
 
 import com.smartparkinglot.backend.entity.*;
-import com.smartparkinglot.backend.repository.CardRepository;
 import com.smartparkinglot.backend.repository.ReservationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -29,8 +28,8 @@ public class ReservationService {
         return reservationRepository.findAll();
     }
 
-    public Reservation getReservationById(Long id) {
-        return reservationRepository.getReservationById(id).orElse(null);
+    public Reservation getReservationByParkingSpotId(Long id) {
+        return reservationRepository.getReservationByParkingSpotId(id).orElse(null);
     }
     
     public void addNewReservation(Reservation reservation) {
@@ -46,8 +45,6 @@ public class ReservationService {
     @Transactional
     public ResponseEntity<String> createReservation(User userAuthorized, Long spotId, Timestamp startTimestamp, Timestamp endTimestamp, int reservationCost, Car car) {
         try {
-
-
             ParkingSpot spot = parkingSpotService.getById(spotId);
             if(spot == null) {
                 return ResponseEntity.badRequest().body("Spot could not be reserved. Spot not found");
@@ -60,5 +57,17 @@ public class ReservationService {
             e.printStackTrace();
         }
         return ResponseEntity.internalServerError().body("Spot could not be reserved");
+    }
+
+    public ResponseEntity<String> deleteReservation(User userAuthorized, Long id) {
+        Reservation reservation = reservationRepository.getReservationById(id);
+        if(reservation == null) {
+            return ResponseEntity.badRequest().body("Reservation not found");
+        }
+        if(!reservation.getCar_id().getUser().getEmail().equals(userAuthorized.getEmail())) {
+            return ResponseEntity.badRequest().body("You are not authorized to delete this reservation");
+        }
+        reservationRepository.delete(reservation);
+        return ResponseEntity.ok("Reservation deleted successfully");
     }
 }

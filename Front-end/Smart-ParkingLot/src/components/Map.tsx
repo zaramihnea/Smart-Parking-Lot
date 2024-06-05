@@ -34,6 +34,7 @@ const Map: React.FC<GoogleMapProps> = ({ onReservationConfirmed }: GoogleMapProp
   const isAutoReserveOnRef = useRef<boolean>(false);
   const [favoriteParkingLot, setFavoriteParkingLot] = useState<number>(-1);
   const [modalForceRefresh, setModalForceRefresh] = useState<number>(0);
+  const modalForceRefreshRef = useRef<number>(0);
 
   // const [userPosition, setUserPosition] = useState<L.LatLngExpression | null>(null);
   // const [shouldCenter, setShouldCenter] = useState(true); // Controls whether the map should re-center
@@ -89,6 +90,8 @@ const Map: React.FC<GoogleMapProps> = ({ onReservationConfirmed }: GoogleMapProp
     setModalTitle('Confirmation');
     setModalMessage(`Reserve parking spot at this parking lot?`);
     setModalIsOpen(true);
+    modalForceRefreshRef.current = modalForceRefreshRef.current + 1;
+    setModalForceRefresh(modalForceRefreshRef.current);
     document.exitFullscreen();
   }, []);
 
@@ -145,12 +148,13 @@ const Map: React.FC<GoogleMapProps> = ({ onReservationConfirmed }: GoogleMapProp
 
           isAutoReserveOnRef.current = false;
           drawButtons();
-          setModalForceRefresh(modalForceRefresh + 1);
-          onReservationConfirmed();
+          modalForceRefreshRef.current = modalForceRefreshRef.current + 1;
+          setModalForceRefresh(modalForceRefreshRef.current);
         }
       }
       else {
-        setModalForceRefresh(modalForceRefresh + 1);
+        modalForceRefreshRef.current = modalForceRefreshRef.current + 1;
+        setModalForceRefresh(modalForceRefreshRef.current);
         onReservationConfirmed();
       }
     } else {

@@ -37,19 +37,19 @@ export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
 
   const { getAvailableCars } = useSavedCars();
 
-     const fetchAvailableCars = () => {
-        const startDateTime = new Date(new Date(reservationStartTime).getTime() + 3 * 3600000).toISOString().slice(0, 19).replace('T', ' ');
-        const endDateTime = new Date(new Date(reservationStartTime).getTime() + (hoursToReserve + 3) * 3600000).toISOString().slice(0, 19).replace('T', ' ');
+  const fetchAvailableCars = () => {
+    const startDateTime = new Date(new Date(reservationStartTime).getTime() + 3 * 3600000).toISOString().slice(0, 19).replace('T', ' ');
+    const endDateTime = new Date(new Date(reservationStartTime).getTime() + (hoursToReserve + 3) * 3600000).toISOString().slice(0, 19).replace('T', ' ');
 
-        getAvailableCars(baseUrlString, startDateTime, endDateTime).then((fetchedCars: Car[]) => {
-          setCars(fetchedCars);
-          setInputCar(fetchedCars[0]?.id || -1); // Set the first car as default selected if available
-        });
-      };
+    getAvailableCars(baseUrlString, startDateTime, endDateTime).then((fetchedCars: Car[]) => {
+      setCars(fetchedCars);
+      setInputCar(fetchedCars[0]?.id || -1); // Set the first car as default selected if available
+    });
+  };
 
-      useEffect(() => {
-        fetchAvailableCars(); // Initial fetch and react to changes
-      }, [reservationStartTime, hoursToReserve]);
+  useEffect(() => {
+    fetchAvailableCars(); // Initial fetch and react to changes
+  }, [reservationStartTime, hoursToReserve]);
 
 
 

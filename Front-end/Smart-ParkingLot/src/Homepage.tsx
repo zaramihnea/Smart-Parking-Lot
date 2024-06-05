@@ -25,7 +25,7 @@ const Homepage: React.FC = () => {
   const { getUserType } = useUserType();
   const { getUsername } = useUsername();
   const { getUserCars } = useSavedCars();
-  const { getOwnActiveReservations } = useReservations();
+  const { getOwnActiveReservations, cancelReservation } = useReservations();
   
   // Fetch username
   useEffect(() => {
@@ -66,6 +66,11 @@ const Homepage: React.FC = () => {
       fetchUserType();
     }, [getUserType, setUserType, baseUrl]);
 
+    const cancelReservationHandler = useCallback((reservationId: number) => {
+      cancelReservation(baseUrlString, reservationId).then(() => {
+        refreshReservations();
+      });
+    }, [baseUrlString, cancelReservation, refreshReservations]);
 
   const handleLogout = useCallback(() => {
     document.cookie = 'authToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
@@ -96,8 +101,8 @@ const Homepage: React.FC = () => {
       <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md mb-8">
         <h2 className="text-xl font-medium mb-4">Reservations</h2>
         {reservations.length === 0 && <p className='text-gray-400'>No active reservations. Hurry up and give us your money</p>}
-        {reservations.map((reservation, index) => (
-          <div key={index} className="flex flex-col md:flex-row justify-between items-start md:items-center bg-gray-200 dark:bg-gray-700 p-3 rounded-lg mb-2">
+        {reservations.map((reservation) => (
+          <div key={reservation.id} className="flex flex-col md:flex-row justify-between items-start md:items-center bg-gray-200 dark:bg-gray-700 p-3 rounded-lg mb-2">
             <div className="flex-1 mb-2 md:mb-0">
               <p className="font-semibold">Address: {reservation.address}</p>
               <p className="text-sm">Spot: {reservation.spot_id}</p>
@@ -115,6 +120,12 @@ const Homepage: React.FC = () => {
             >
               Navigate to Parking
             </a>}
+            <button
+              onClick={() => cancelReservationHandler(reservation.id)}
+              className="bg-red-600 ml-2 text-white px-2 py-1 rounded-lg shadow-md hover:bg-red-700 transition duration-300"
+            >
+              Cancel
+            </button>
           </div>
         ))}
       </div>
