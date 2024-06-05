@@ -531,8 +531,7 @@ public class PaymentService {
                         .build();
                 Account account = Account.create(accountParams);
 
-                user.setStripeAccountId(account.getId());
-                userService.saveUser(user);
+                userService.updateStripeAccountId(request.getEmail(), account.getId());
 
 
                 return ResponseEntity.ok(new CreateAccountLinkRequest(account.getId()));

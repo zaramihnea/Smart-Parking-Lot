@@ -7,6 +7,7 @@ import com.smartparkinglot.backend.entity.ParkingLot;
 import com.smartparkinglot.backend.entity.User;
 import com.smartparkinglot.backend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jmx.access.InvalidInvocationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,10 +23,7 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
-    @Transactional
-    public User saveUser(User user){
-        return userRepository.save(user);
-    }
+
 
     public User getUserById(String id){
         return userRepository.findById(id).orElse(null);
@@ -68,8 +66,7 @@ public class UserService {
 
 
     public void changePassword(User user, String password){
-        user.setPassword(password);
-        userRepository.save(user);
+        userRepository.updatePassword(user.getEmail(), password);
     }
 
     @Transactional
@@ -78,12 +75,18 @@ public class UserService {
         userRepository.addToBannedUsers(user.getEmail());
     }
 
+    public void createUser(User user) {
+        if(userRepository.existsByEmail(user.getEmail())){
+            throw new InvalidInvocationException("User already exists");
+        }
+        userRepository.save(user);
+    }
+
     @Transactional
     public void updateStripeAccountId(String email, String stripeAccountId) {
         User user = userRepository.findByEmail(email).orElse(null);
         if (user != null) {
-            user.setStripeAccountId(stripeAccountId);
-            userRepository.save(user);
+            userRepository.updateStripeAccountId(email, stripeAccountId);
         }
     }
 

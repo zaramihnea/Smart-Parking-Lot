@@ -19,6 +19,17 @@ public interface UserRepository extends JpaRepository<User, String> {
     @Query(value = "SELECT TryLogin(:email, :password)", nativeQuery = true)
     boolean tryLogin(String email, String password);
 
+    @Modifying
+    @Transactional
+    @Query("UPDATE User u SET u.password = :password WHERE u.email = :email")
+    void updatePassword(@Param("email") String email, @Param("password") String password);
+
+    @Modifying
+    @Transactional
+    @Query("UPDATE User u SET u.stripeAccountId = :stripeAccountId WHERE u.email = :email")
+    void updateStripeAccountId(@Param("email") String email, @Param("stripeAccountId") String stripeAccountId);
+
+
     @Query(value = "SELECT IsBanned(:email)", nativeQuery = true)
     boolean isBanned(String email);
 
