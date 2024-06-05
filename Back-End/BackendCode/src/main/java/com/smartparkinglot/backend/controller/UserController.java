@@ -125,7 +125,7 @@ public class UserController {
             String token = tokenService.generateToken(user);
 
             //construiesc linkul care va fi trimis prim email utilizatorului
-            String resetPasswordLink = "http://localhost:8888/reset-password?token=" + token;
+            String resetPasswordLink = resetPasswordRequest.getBaseUrl() + "/reset-password?token=" + token;
 
             emailService.sendResetPasswordEmail(user.getEmail(), resetPasswordLink);
 
@@ -202,7 +202,7 @@ public class UserController {
 
         if ("success".equals(result)) {
             // Redirect to the homepage if the payment was successful
-            return ResponseEntity.status(HttpStatus.FOUND).location(URI.create("http://localhost:8888/balance")).build();
+            return ResponseEntity.status(HttpStatus.FOUND).location(URI.create("https://api.smartparkinglot.online/balance")).build();
         } else {
             return ResponseEntity.ok(result);
         }
@@ -290,6 +290,7 @@ public class UserController {
     @Getter @Setter
     public static class ResetPasswordRequest{
         private String email;
+        private String baseUrl;
     }
 
     @Getter @Setter
