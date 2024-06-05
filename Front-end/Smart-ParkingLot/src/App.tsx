@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
+import { UserProvider, useUserContext } from './UserContext';
 import Homepage from './Homepage';
 import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
@@ -46,7 +47,6 @@ const InstallPrompt: React.FC<{ device: string }> = ({ device }) => {
 const App: React.FC = () => {
   const [isInstalled, setIsInstalled] = useState<boolean>(false);
   const [device, setDevice] = useState<string>('other');
-  const [userType, setUserType] = useState<number | null>(null);
 
   useEffect(() => {
     if (window.matchMedia('(display-mode: standalone)').matches) {
@@ -59,18 +59,11 @@ const App: React.FC = () => {
     } else if (/android/i.test(userAgent)) {
       setDevice('Android');
     }
-
-    const fetchUserType = async () => {
-      const fetchedUserType = 2; // 1: normal user, 2: parking manager, 3: app admin
-      setUserType(fetchedUserType);
-    };
-
-    fetchUserType();
   }, []);
 
   return (
-    <div>
-      {/* {isInstalled ? ( */}
+    <UserProvider>
+      <div>
         <Router>
           <Routes>
             <Route path="/" element={<LoginPage />} />
@@ -78,21 +71,7 @@ const App: React.FC = () => {
             <Route path="/forgot-password" element={<ForgotPasswordPage />} />
             <Route path="/reset-password" element={<ResetPasswordPage />} />
             <Route path="/home" element={<Homepage />} />
-            <Route path="/profile" element={
-              userType === 1 ? <Profiles /> :
-              userType === 2 ? <ProfileParkingLotManager /> :
-              userType === 3 ? <ProfileAdmin /> :
-              <Navigate to="/" />
-            } />
-            <Route path="/profile/messages" element={<Messages />} />
-            <Route path="/profile/cars" element={<Cars />} />
-            <Route path="/profile/details" element={<Details />} />
-            <Route path="/profile/admin-parking-panel" element={<ParkingLotManagerPanel />} />
-            <Route path="/profile/admin-parking-panel/add-parking-lot" element={<AddParkingLotPage />} />
-            <Route path="/profile/admin-parking-panel/edit-parking-lot/:id" element={<EditParkingLotPage />} />
-            <Route path="/profile/admin" element={<AdminPanel />} />
-            <Route path="/profile/admin/see-all-users" element={<SeeAllUsersAdmin />} />
-            <Route path="/profile/admin/questions" element={<AdminQuestions />} />
+            <Route path="/profile/*" element={<PrivateRoute />} />
             <Route path="/balance" element={<AccountBalance />} />
             <Route path="/help" element={<HelpPage />} />
             <Route path="/loading" element={<LoadingPage />} />
@@ -101,10 +80,36 @@ const App: React.FC = () => {
             <Route path="*" element={<Navigate to="/" />} />
           </Routes>
         </Router>
-      {/* ) : ( */}
-       {/* <InstallPrompt device={device} /> */}
-       {/* )} */}
-    </div>
+      </div>
+    </UserProvider>
+  );
+};
+
+const PrivateRoute = () => {
+  const { userType } = useUserContext();
+
+  if (userType === null) {
+    return <Navigate to="/" />;
+  }
+
+  return (
+    <Routes>
+      <Route path="/" element={
+        userType === 1 ? <Profiles /> :
+        userType === 2 ? <ProfileParkingLotManager /> :
+        userType === 3 ? <ProfileAdmin /> :
+        <Navigate to="/" />
+      } />
+      <Route path="/messages" element={<Messages />} />
+      <Route path="/cars" element={<Cars />} />
+      <Route path="/details" element={<Details />} />
+      <Route path="/admin-parking-panel" element={<ParkingLotManagerPanel />} />
+      <Route path="/admin-parking-panel/add-parking-lot" element={<AddParkingLotPage />} />
+      <Route path="/admin-parking-panel/edit-parking-lot/:id" element={<EditParkingLotPage />} />
+      <Route path="/admin" element={<AdminPanel />} />
+      <Route path="/admin/see-all-users" element={<SeeAllUsersAdmin />} />
+      <Route path="/admin/questions" element={<AdminQuestions />} />
+    </Routes>
   );
 };
 

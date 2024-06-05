@@ -47,6 +47,18 @@ public class UserController {
         }
     }
 
+    @GetMapping(value = "/type")
+    public ResponseEntity<String> getUserType(@RequestHeader("Authorization") String authorizationHeader) {
+        String token = authorizationHeader.substring(7);// Assuming the scheme is "Bearer "
+        if(tokenService.validateToken(token)) {
+            User userAuthorized = tokenService.getUserByToken(token);
+            return ResponseEntity.ok(String.valueOf(userAuthorized.getType()));
+        }
+        else {
+            return ResponseEntity.badRequest().body("Invalid token");
+        }
+    }
+
     @GetMapping(value = "/email")
     public ResponseEntity<?> getUserID(@RequestHeader("Authorization") String authorizationHeader) {
         String token = authorizationHeader.substring(7);// Assuming the scheme is "Bearer "
