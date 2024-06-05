@@ -1,8 +1,11 @@
 package com.smartparkinglot.backend.controller;
 
+import com.smartparkinglot.backend.entity.Message;
 import com.smartparkinglot.backend.entity.ParkingSpot;
 import com.smartparkinglot.backend.entity.Reservation;
+import com.smartparkinglot.backend.entity.User;
 import com.smartparkinglot.backend.repository.ReservationRepository;
+import com.smartparkinglot.backend.service.MessageService;
 import com.smartparkinglot.backend.service.ParkingSpotService;
 import com.smartparkinglot.backend.service.ReservationService;
 
@@ -10,8 +13,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.PrivateKey;
 import java.sql.Time;
 import java.sql.Timestamp;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -20,11 +25,13 @@ import java.util.Optional;
 public class ParkingSpotController {
     private final ParkingSpotService parkingSpotService;
     private final ReservationService reservationService;
+    private final MessageService messageService;
 
     @Autowired
-    public ParkingSpotController(ParkingSpotService parkingSpotService, ReservationService reservationService) {
+    public ParkingSpotController(ParkingSpotService parkingSpotService, ReservationService reservationService, MessageService messageService) {
         this.parkingSpotService = parkingSpotService;
         this.reservationService = reservationService;
+        this.messageService = messageService;
     }
 
     @GetMapping("/get-price")
@@ -47,34 +54,36 @@ public class ParkingSpotController {
         if (existingParkingSpot == null) {
             return ResponseEntity.notFound().build();
         }
-        
-        if(updatedParkingSpot.getStatus().equals("unoccupied"))
-        {
-        	existingParkingSpot.setStatus(null);
+
+        if (updatedParkingSpot.getStatus().equals("unoccupied")) {
+            existingParkingSpot.setStatus(null);
             existingParkingSpot.setPlate(null);
             parkingSpotService.updateParkingSpot(existingParkingSpot);
             return ResponseEntity.ok("Spot freed");
         }
+
         Reservation res = reservationService.getReservationById(updatedParkingSpot.getId());
-        if(res == null)
-        {
-        	return ResponseEntity.ok("There is no reservation on that parking spot");
-        }
-        else
-        {
-        	if(res.getCar_id().getPlate().equals(updatedParkingSpot.getPlate()))
-        	{
-        		existingParkingSpot.setStatus(updatedParkingSpot.getStatus());
+        if (res == null) {
+            String message = String.format("A car with the plate %s is on parking spot %d here from parking lot %s WITHOUT A RESERVATION.",
+                    updatedParkingSpot.getPlate(), updatedParkingSpot.getId(), existingParkingSpot.getParkingLot().getName());
+            saveMessage(existingParkingSpot.getParkingLot().getUser(), message);
+            return ResponseEntity.ok(message);
+        } else {
+            if (res.getCar_id().getPlate().equals(updatedParkingSpot.getPlate())) {
+                existingParkingSpot.setStatus(updatedParkingSpot.getStatus());
                 existingParkingSpot.setPlate(updatedParkingSpot.getPlate());
                 parkingSpotService.updateParkingSpot(existingParkingSpot);
                 return ResponseEntity.ok("The correct plate is occupying the spot");
-        	}
-        	else
-        	{
-        		return ResponseEntity.ok("An incorrect plate is occupying the spot");
-        	}
+            } else {
+                String message = String.format("A car with the plate %s is here on parking spot %d from parking lot %s OCCUPYING SOMEONE ELSE'S SPOT.",
+                        updatedParkingSpot.getPlate(), updatedParkingSpot.getId(), existingParkingSpot.getParkingLot().getName());
+                saveMessage(existingParkingSpot.getParkingLot().getUser(), message);
+                return ResponseEntity.ok(message);
+            }
         }
-     }
+    }
+
+
 
     @PutMapping("/update-name/{id}")
     public ResponseEntity<String> updateParkingSpotName(@PathVariable("id") Long id, @RequestBody ParkingSpot updatedParkingSpot) {
@@ -90,7 +99,10 @@ public class ParkingSpotController {
         return ResponseEntity.ok("Parking spot updated successfully");
     }
 
-
+    private void saveMessage(User admin, String messageContent) {
+        Message message = new Message(admin, messageContent, new Date(), false);
+        messageService.saveMessage(message);
+    }
 
     @DeleteMapping("/delete")
     public ResponseEntity<String> deleteParkingSpot(@RequestBody ParkingSpot parkingSpot) {
@@ -102,4 +114,5 @@ public class ParkingSpotController {
             return ResponseEntity.status(500).body("Failed to delete parking spot");
         }
     }
+
 }

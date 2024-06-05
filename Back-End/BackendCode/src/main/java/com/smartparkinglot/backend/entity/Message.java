@@ -12,36 +12,29 @@ public class Message {
     private Long messageId;
 
     @ManyToOne
-    @JoinColumn(name = "sender_email", referencedColumnName = "email", foreignKey = @ForeignKey(name = "fk_messages_sender_users"))
-    private User sender;
-
-    @ManyToOne
-    @JoinColumn(name = "receiver_email", referencedColumnName = "email", foreignKey = @ForeignKey(name = "fk_messages_receiver_users"))
-    private User receiver;
+    @JoinColumn(name = "admin_email", referencedColumnName = "email", foreignKey = @ForeignKey(name = "fk_messages_admin_users"))
+    private User admin;
 
     @Column(name = "message_content", length = 256)
     private String messageContent;
 
-    @Column(name = "timestamp")
-    private Date timestamp;
+    @Column(name = "date_added")
+    private Date dateAdded;
 
-    @Column(name = "status")
-    private Boolean status;
+    @Column(name = "seen")
+    private Boolean seen;
 
     public Message() {
     }
 
-    public Message(Long messageId, User sender, User receiver, String messageContent, Date timestamp) {
-        this.messageId = messageId;
-        this.sender = sender;
-        this.receiver = receiver;
+    public Message(User admin, String messageContent, Date dateAdded, Boolean seen) {
+        this.admin = admin;
         this.messageContent = messageContent;
-        this.timestamp = timestamp;
-        this.status = false;
+        this.dateAdded = dateAdded;
+        this.seen = seen;
     }
 
     // Getters and setters
-
 
     public Long getMessageId() {
         return messageId;
@@ -51,20 +44,12 @@ public class Message {
         this.messageId = messageId;
     }
 
-    public User getSender() {
-        return sender;
+    public User getAdmin() {
+        return admin;
     }
 
-    public void setSender(User sender) {
-        this.sender = sender;
-    }
-
-    public User getReceiver() {
-        return receiver;
-    }
-
-    public void setReceiver(User receiver) {
-        this.receiver = receiver;
+    public void setAdmin(User admin) {
+        this.admin = admin;
     }
 
     public String getMessageContent() {
@@ -75,19 +60,19 @@ public class Message {
         this.messageContent = messageContent;
     }
 
-    public Date getTimestamp() {
-        return timestamp;
+    public Date getDateAdded() {
+        return dateAdded;
     }
 
-    public void setTimestamp(Date timestamp) {
-        this.timestamp = timestamp;
+    public void setDateAdded(Date dateAdded) {
+        this.dateAdded = dateAdded;
     }
 
-    public Boolean getStatus() {
-        return status;
+    public Boolean getSeen() {
+        return seen;
     }
 
-    public void setStatus(Boolean status) {
-        this.status = status;
+    public void setSeen(Boolean seen) {
+        this.seen = seen;
     }
 }

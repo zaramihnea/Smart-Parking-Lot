@@ -1,5 +1,7 @@
 package com.smartparkinglot.backend.controller;
+import com.smartparkinglot.backend.DTO.MessageDTO;
 import com.smartparkinglot.backend.DTO.RefundRequest;
+import jakarta.transaction.Transactional;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -8,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import com.smartparkinglot.backend.service.*;
 import com.smartparkinglot.backend.entity.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -18,13 +21,14 @@ public class AdminController {
     private final TokenService tokenService;
     private final ParkingLotService parkingLotService;
     private final PaymentService paymentService;
-
+    private final MessageService messageService;
     @Autowired
-    public AdminController(UserService userService, TokenService tokenService, ParkingLotService parkingLotService, PaymentService paymentService) {
+    public AdminController(UserService userService, TokenService tokenService, ParkingLotService parkingLotService, PaymentService paymentService, MessageService messageService) {
         this.userService = userService;
         this.tokenService = tokenService;
         this.parkingLotService = parkingLotService;
         this.paymentService = paymentService;
+        this.messageService = messageService;
     }
 
     @GetMapping(value = "/all-users")
@@ -44,6 +48,100 @@ public class AdminController {
         }
     }
 
+    @PostMapping("/mark-as-seen/{messageId}")
+    public ResponseEntity<?> markNotificationAsSeen(@RequestHeader("Authorization") String authorizationHeader, @PathVariable("messageId") Long messageId) {
+        try {
+            String token = authorizationHeader.substring(7);
+            if (!tokenService.validateToken(token)) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token");
+            }
+
+            User userAuthorized = tokenService.getUserByToken(token);
+            if (userAuthorized.getType() != 3 && userAuthorized.getType() != 2) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("User is not admin");
+            }
+
+            Message message = messageService.findById(messageId);
+            if (message == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Message not found");
+            }
+
+            message.setSeen(true);
+            messageService.saveMessage(message);
+
+            return ResponseEntity.ok("Notification marked as seen");
+        } catch (IndexOutOfBoundsException e) {
+            return ResponseEntity.badRequest().body("Invalid Authorization header format");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred");
+        }
+    }
+
+    @Transactional
+    @DeleteMapping("/delete-notification/{messageId}")
+    public ResponseEntity<String> deleteNotification(@RequestHeader("Authorization") String authorizationHeader, @PathVariable("messageId") Long messageId) {
+        try {
+            String token = authorizationHeader.substring(7);
+            if (!tokenService.validateToken(token)) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token");
+            }
+
+            User userAuthorized = tokenService.getUserByToken(token);
+            if (userAuthorized.getType() != 3 && userAuthorized.getType() != 2) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("User is not admin");
+            }
+
+            Message message = messageService.findById(messageId);
+            if (message == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Message not found");
+            }
+
+            messageService.deleteMessage(message);
+
+            return ResponseEntity.ok("Notification deleted successfully");
+        } catch (IndexOutOfBoundsException e) {
+            return ResponseEntity.badRequest().body("Invalid Authorization header format");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred");
+        }
+    }
+
+
+    @GetMapping("/see-notifs")
+    public ResponseEntity<?> getAllMessagesForAdmin(@RequestHeader("Authorization") String authorizationHeader) {
+        try {
+            String token = authorizationHeader.substring(7);
+            if (!tokenService.validateToken(token)) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token");
+            }
+
+            User userAuthorized = tokenService.getUserByToken(token);
+            if (userAuthorized.getType() != 3 && userAuthorized.getType() != 2) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("User is not admin");
+            }
+            List<Message> messages = messageService.findAllByAdminEmail(userAuthorized.getEmail());
+
+            List<MessageDTO> messageDTOs = new ArrayList<>();
+            for (Message message : messages) {
+                MessageDTO messageDTO = new MessageDTO(
+                        message.getMessageId(),
+                        message.getMessageContent(),
+                        message.getDateAdded(),
+                        message.getSeen()
+                );
+                messageDTOs.add(messageDTO);
+            }
+
+            return ResponseEntity.ok(messageDTOs);
+        } catch (IndexOutOfBoundsException e) {
+            return ResponseEntity.badRequest().body("Invalid Authorization header format");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred");
+        }
+    }
 
     @PostMapping(value = "/ban")
     public ResponseEntity<String> banUser(@RequestHeader("Authorization") String authorizationHeader, @RequestBody User user) {
