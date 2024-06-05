@@ -1,10 +1,14 @@
-import React from 'react';
+import React, {useCallback} from 'react';
 import { useNavigate } from 'react-router-dom';
 import SearchBar from '../components/SearchBar';
 import NavBar from '../components/Navbar';
 
 const Profiles: React.FC = () => {
     const navigate = useNavigate();
+
+    const handleLogout = useCallback(() => {
+        document.cookie = 'authToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+      }, []);
 
     return (
         <div className="min-h-screen flex flex-col bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 p-4 pb-16">
@@ -39,9 +43,7 @@ const Profiles: React.FC = () => {
                         >
                             Parking lot manager panel
                         </button>
-                        <button className="bg-purple-600 text-white font-bold py-2 px-12 rounded-lg mt-8 shadow-lg hover:bg-purple-700 transition duration-300">
-                            Logout
-                        </button>
+                        <a href="/profile" className='bg-purple-600 text-white font-bold py-2 px-12 rounded-lg mt-8 shadow-lg hover:bg-purple-700 transition duration-300 text-center' onClick={handleLogout}>Logout</a>
                     </div>
                 </div>
             </div>

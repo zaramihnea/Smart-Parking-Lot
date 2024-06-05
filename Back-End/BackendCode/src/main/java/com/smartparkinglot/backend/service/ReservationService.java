@@ -29,6 +29,10 @@ public class ReservationService {
         return reservationRepository.findAll();
     }
 
+    public Reservation getReservationById(Long id) {
+        return reservationRepository.getReservationById(id).orElse(null);
+    }
+    
     public void addNewReservation(Reservation reservation) {
         reservationRepository.save(reservation);
     }

@@ -12,8 +12,8 @@ GPIO.setmode(GPIO.BOARD)
 GPIO.setup(8, GPIO.OUT)
 GPIO.setup(10, GPIO.IN)
 prevDistance = 0
-result = "no plate"
-status = "spot is not occupied"
+result = "null"
+status = "unoccupied"
 command = "python detetctplate.py /home/raspberry/Arduino_Module/3.jpg"
 free = 0
 camera = Picamera2()
@@ -21,8 +21,7 @@ camera.set_controls({"AfMode": controls.AfModeEnum.Continuous})
 camera.start_and_capture_file("/home/raspberry/Arduino_Module/img.jpg")
 sleep(2)
 prevDistance = 0
-endpoint = "https://jsonplaceholder.typicode.com/posts"
-os.system('clear')
+endpoint = "https://api.smartparkinglot.com/parking_spots/update/1"
 
 while True:
     GPIO.output(8, GPIO.HIGH)
@@ -45,27 +44,27 @@ while True:
                                 capture_output=True, text=True)
         result = result.stdout.strip()
         status = "occupied"
-        data = {'idSensor': 1,
+        data = {'id': 1,
                 'plate': result,
-                'status': status}
+                'status': status,
+                'name': "RPI sensor"}
         r = requests.post(url=endpoint, data=data)
-        print(r.text)
     elif free == 1 and distance > 100:
         prevDistance = distance
         free = 0
-        status = "free"
-        result = "none"
-        data = {'idSensor': 1,
+        status = "unoccupied"
+        result = "null"
+        data = {'id': 1,
                 'plate': result,
-                'status': status}
+                'status': status,
+                'name': "RPI sensor"}
         r = requests.post(url=endpoint, data=data)
-        print(r.text)
     elif distance > prevDistance + 5 or distance < prevDistance - 5:
         if prevDistance == 0:
-            data = {'idSensor': 1,
+            data = {'id': 1,
                     'plate': result,
-                    'status': status}
+                    'status': status,
+                    'name': "RPI sensor"}
             r = requests.post(url=endpoint, data=data)
-            print(r.text)
         prevDistance = distance
     sleep(1)
