@@ -2,7 +2,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import SearchBar from './components/SearchBar';
 import Navbar from './components/Navbar';
-import GoogleMap from './components/Map';
+import Map from './components/Map';
 import useUsername from "./hooks/useUsername"
 import useReservations from "./hooks/useReservations"
 import { useUserContext } from './UserContext';
@@ -15,9 +15,9 @@ import useSavedCars from './hooks/useSavedCars';
 
 const Homepage: React.FC = () => {
   const baseUrl = process.env.API_BASE_URL;
+  const [baseUrlString]= useState<string>(baseUrl || 'http://localhost:8081');
 
   const { userType, setUserType } = useUserContext();
-  const [baseUrlString]= useState<string>(baseUrl || 'http://localhost:8081');
   const [username, setUsername] = useState('username');
   const [savedCars, setSavedCars] = useState<Car[]>([]);
   const [reservations, setReservations] = useState<Reservation[]>([]);
@@ -41,17 +41,22 @@ const Homepage: React.FC = () => {
     });
   }, [baseUrlString, getUserCars]); 
 
-  // Fetch reservations
-  useEffect(() => {
+  const refreshReservations = useCallback(() => {
     getOwnActiveReservations(baseUrlString).then((reservations) => {
       setReservations(reservations);
     });
-  }, [baseUrlString, getOwnActiveReservations]); // Dependencies
+  }, [baseUrlString, getOwnActiveReservations]);
+  
+  // Fetch reservations
+  useEffect(() => {
+    refreshReservations();
+  }, []); // Dependencies
+
 
   useEffect(() => {
       const fetchUserType = async () => {
         try {
-          const fetchedUserType = await getUserType(baseUrl);
+          const fetchedUserType = await getUserType(baseUrlString);
           setUserType(fetchedUserType);
         } catch (error) {
           console.error('Error fetching user type:', error);
@@ -83,7 +88,9 @@ const Homepage: React.FC = () => {
         </div>   
       <div className="flex justify-center items-center flex-grow mt-4 mb-4 px-4">
         <div className="w-full max-w-4xl h-96 bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden z-0 space-y">
-          <GoogleMap />
+          <Map 
+            onReservationConfirmed={refreshReservations}
+          />
         </div>
       </div>
       <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md mb-8">

@@ -8,11 +8,17 @@ import useSavedCars from '../hooks/useSavedCars';
 import { calculateBearing, calculateDistance, calculateNearestParkingLot } from './helperFunctions';
 import { LatLngExpression } from '../types/LatLngExpression';
 import '../styles/googlemap.css';
+import useFavoriteLot from '../hooks/useFavoriteLot';
 
-function Map() {
+export interface GoogleMapProps {
+  onReservationConfirmed: () => void;
+}
+
+const Map: React.FC<GoogleMapProps> = ({ onReservationConfirmed }: GoogleMapProps) => {
   const googleMapElementRef = useRef<HTMLDivElement>(null);
   const googleMapRef = useRef<google.maps.Map | null>(null);
   const [googleMap, setGoogleMap] = useState<google.maps.Map | null>(null);
+  const [mapLoaded, setMapLoaded] = useState(false);
   const markersRef = useRef<google.maps.marker.AdvancedMarkerElement[]>([]);
   const infoWindowRef = useRef<google.maps.InfoWindow | null>(null);
   const directionsRendererRef = useRef<google.maps.DirectionsRenderer | null>(null);
@@ -26,6 +32,8 @@ function Map() {
   const isDrivingBoolRef: React.MutableRefObject<boolean> = useRef(false);
   const hoursforAutoReserveRef = useRef<number>(2);
   const isAutoReserveOnRef = useRef<boolean>(false);
+  const [favoriteParkingLot, setFavoriteParkingLot] = useState<number>(-1);
+  const [modalForceRefresh, setModalForceRefresh] = useState<number>(0);
 
   // const [userPosition, setUserPosition] = useState<L.LatLngExpression | null>(null);
   // const [shouldCenter, setShouldCenter] = useState(true); // Controls whether the map should re-center
@@ -52,6 +60,7 @@ function Map() {
   const carsRef = useRef<Car[]>([]);
   const { getUserCars } = useSavedCars();
   const { reserveParkingSpot } = useReservations();
+  const { getFavoriteLot } = useFavoriteLot();
 
   // fetching availableParkingLots (backend documentation item nr.7)
 
@@ -136,10 +145,13 @@ function Map() {
 
           isAutoReserveOnRef.current = false;
           drawButtons();
+          setModalForceRefresh(modalForceRefresh + 1);
+          onReservationConfirmed();
         }
       }
       else {
-        window.location.reload()
+        setModalForceRefresh(modalForceRefresh + 1);
+        onReservationConfirmed();
       }
     } else {
       window.location.reload()
@@ -185,6 +197,7 @@ function Map() {
 
         drawButtons();
         updateMarkers(availableParkingLotsRef.current);
+        setMapLoaded(true);
       }
 
     };
@@ -196,7 +209,6 @@ function Map() {
     if(googleMapRef.current == null) {
       return;
     }
-    console.log("Drawing buttons");
     googleMapRef.current.controls[google.maps.ControlPosition.BOTTOM_LEFT].clear();
     googleMapRef.current.controls[google.maps.ControlPosition.RIGHT_TOP].clear();
     googleMapRef.current.controls[google.maps.ControlPosition.LEFT_BOTTOM].clear();
@@ -406,7 +418,6 @@ function Map() {
   }, [directionsServiceRef, directionsRendererRef, newRoutePointRef]);
 
   const updateMarkers = useCallback((parkingLots: ParkingLot[]) => {
-    console.log("Updating markers");
       if (!googleMapRef.current || !parkingLots.length) {
         console.log("No google map or parking lots");
         return;
@@ -417,10 +428,18 @@ function Map() {
 
 
       const newMarkers = parkingLots.map(lot => {
-        const customSymbolSVG = `
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="36" height="36">
-          <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5S10.62 6.5 12 6.5 14.5 7.62 14.5 9 13.38 11.5 12 11.5z" fill="#9333EA" stroke="black" stroke-width="2"/>
-        </svg>`;
+        let customSymbolSVG;
+        if(favoriteParkingLot >= 0 && lot.id == favoriteParkingLot) {
+          customSymbolSVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="36" height="36">
+          <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5S10.62 6.5 12 6.5 14.5 7.62 14.5 9 13.38 11.5 12 11.5z" fill="#FFD700" stroke="black" stroke-width="2"/>
+      </svg>`
+        }
+        else {
+          customSymbolSVG = `
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="36" height="36">
+            <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5S10.62 6.5 12 6.5 14.5 7.62 14.5 9 13.38 11.5 12 11.5z" fill="#9333EA" stroke="black" stroke-width="2"/>
+          </svg>`;
+        }
 
         // Create the icon as a custom HTML element
         const customIcon = document.createElement('div');
@@ -437,6 +456,7 @@ function Map() {
           content: `
                     <div class="p-4 text-black bg-white rounded-lg shadow-lg">
                         <p class="text-lg font-bold -mt-5">${lot.name}</p>
+                        ${favoriteParkingLot >= 0 && lot.id == favoriteParkingLot ? `<p class="text-sm font-bold text-yellow-600">Favorite parking lot</p>` : ''}
                         <p class="mt-1 text-sm">Spots available: ${lot.parkingSpotsIds.length} / ${lot.nrSpots}</p>
                         <p class="mt-1 text-sm">Price per hour: ${lot.price} RON</p>
                         <div class="flex justify-evenly">
@@ -497,18 +517,22 @@ function Map() {
           }
         });
       }
-
-
-
-  }, []);
+  }, [favoriteParkingLot]);
 
   useEffect(() => {
+    getFavoriteLot(baseUrlString).then((lot) => {
+      setFavoriteParkingLot(lot);
+      updateMarkers(availableParkingLotsRef.current);
+    });
+  }, [baseUrlString, mapLoaded, favoriteParkingLot]);
+
+  useEffect(() => {
+
     if (navigator.geolocation) {
       navigator.geolocation.watchPosition(
         (pos) => {
           userLocationRef.current = new google.maps.LatLng(pos.coords.latitude, pos.coords.longitude);
           setUserLocation(new google.maps.LatLng(pos.coords.latitude, pos.coords.longitude));
-          console.log("User location updated");
         },
         (err) => {
           console.log('Error getting location:', err);
@@ -530,62 +554,65 @@ function Map() {
     }
 
     if(userLocationLastMarkerRef.current) {
-      console.log("Removing user marker");
-      userLocationLastMarkerRef.current.map = null;
+      userLocationLastMarkerRef.current.position = userLocationRef.current;
     }
+    else {
 
-
-    const glyphImg = document.createElement('img');
-    glyphImg.src = 'https://developers.google.com/maps/documentation/javascript/examples/full/images/google_logo_g.svg';
-
-    // Create the outer circle
-    const outerCircle = document.createElement('div');
-    outerCircle.style.display = 'flex';
-    outerCircle.style.justifyContent = 'center';
-    outerCircle.style.alignItems = 'center';
-    outerCircle.style.width = '1.5rem';
-    outerCircle.style.height = '1.5rem';
-    outerCircle.style.backgroundColor = 'rgba(0, 123, 255, 0.2)'; // Light blue with some transparency
-    outerCircle.style.borderRadius = '50%';
-    outerCircle.style.transform = 'translateY(50%)';
-
-    // Create the middle circle
-    const middleCircle = document.createElement('div');
-    middleCircle.style.display = 'flex';
-    middleCircle.style.justifyContent = 'center';
-    middleCircle.style.alignItems = 'center';
-    middleCircle.style.width = '1rem';
-    middleCircle.style.height = '1rem';
-    middleCircle.style.backgroundColor = 'rgba(0, 123, 255, 0.5)'; // Slightly darker blue
-    middleCircle.style.borderRadius = '50%';
-
-    // Create the inner circle
-    const innerCircle = document.createElement('div');
-    innerCircle.style.width = '0.5rem';
-    innerCircle.style.height = '0.5rem';
-    innerCircle.style.backgroundColor = '#007bff'; // Solid blue
-    innerCircle.style.borderRadius = '50%';
-
-    // Append the circles to create the desired structure
-    middleCircle.appendChild(innerCircle);
-    outerCircle.appendChild(middleCircle);
-
-    console.log("Generating user marker");
-
-    const userMarker = new google.maps.marker.AdvancedMarkerElement({
-      position: userLocationRef.current,
-      map: googleMapRef.current,
-      content: outerCircle,
-      // content: customPinElement,
-      // icon: customSymbol,
-    });
-
-    userLocationLastMarkerRef.current = userMarker;
+      const glyphImg = document.createElement('img');
+      glyphImg.src = 'https://developers.google.com/maps/documentation/javascript/examples/full/images/google_logo_g.svg';
+  
+      // Create the outer circle
+      const outerCircle = document.createElement('div');
+      outerCircle.style.display = 'flex';
+      outerCircle.style.justifyContent = 'center';
+      outerCircle.style.alignItems = 'center';
+      outerCircle.style.width = '1.5rem';
+      outerCircle.style.height = '1.5rem';
+      outerCircle.style.backgroundColor = 'rgba(0, 123, 255, 0.2)'; // Light blue with some transparency
+      outerCircle.style.borderRadius = '50%';
+      outerCircle.style.transform = 'translateY(50%)';
+  
+      // Create the middle circle
+      const middleCircle = document.createElement('div');
+      middleCircle.style.display = 'flex';
+      middleCircle.style.justifyContent = 'center';
+      middleCircle.style.alignItems = 'center';
+      middleCircle.style.width = '1rem';
+      middleCircle.style.height = '1rem';
+      middleCircle.style.backgroundColor = 'rgba(0, 123, 255, 0.5)'; // Slightly darker blue
+      middleCircle.style.borderRadius = '50%';
+  
+      // Create the inner circle
+      const innerCircle = document.createElement('div');
+      innerCircle.style.width = '0.5rem';
+      innerCircle.style.height = '0.5rem';
+      innerCircle.style.backgroundColor = '#007bff'; // Solid blue
+      innerCircle.style.borderRadius = '50%';
+  
+      // Append the circles to create the desired structure
+      middleCircle.appendChild(innerCircle);
+      outerCircle.appendChild(middleCircle);
+  
+  
+      const userMarker = new google.maps.marker.AdvancedMarkerElement({
+        position: userLocationRef.current,
+        map: googleMapRef.current,
+        content: outerCircle,
+        // content: customPinElement,
+        // icon: customSymbol,
+      });
+  
+      userLocationLastMarkerRef.current = userMarker;
+    }
 
   }, [userLocation, googleMapRef, googleMap]);
 
+
+
   useEffect(() => {
+
     const updateLocation = () => {
+
       if(!availableParkingLotsRef.current.length) {
         console.log("No available parking lots");
         return;
@@ -682,11 +709,13 @@ function Map() {
 
 
   return (
+    
     <div style={{ height: '100%', width: '100%' }}>
       <div ref={googleMapElementRef} style={{ height: '100%', width: '100%' }} />
 
       <div className='z-2000000'>
         <ConfirmationModal
+          key={modalForceRefresh}
           isOpen={modalIsOpen}
           onRequestClose={() => setModalIsOpen(false)}
           onConfirm={confirmReservation}
