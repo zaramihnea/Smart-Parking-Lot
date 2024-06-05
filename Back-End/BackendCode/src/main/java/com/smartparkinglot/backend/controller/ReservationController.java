@@ -154,6 +154,19 @@ public class ReservationController {
         }
     }
 
+    @DeleteMapping("cancel/{id}")
+    public ResponseEntity<String> deleteReservation(@RequestHeader("Authorization") String authorizationHeader, @PathVariable Long id) {
+        String token = authorizationHeader.substring(7);// Assuming the scheme is "Bearer "
+        if(tokenService.validateToken(token)) {
+            User userAuthorized = tokenService.getUserByToken(token);
+            return reservationService.deleteReservation(userAuthorized, id);
+        }
+        else {
+            return ResponseEntity.badRequest().body("Invalid token");
+        }
+    }
+
+
     @Getter @Setter
     @AllArgsConstructor
     public static class ReservationRequest {

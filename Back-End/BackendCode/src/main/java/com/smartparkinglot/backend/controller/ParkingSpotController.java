@@ -4,7 +4,6 @@ import com.smartparkinglot.backend.entity.Message;
 import com.smartparkinglot.backend.entity.ParkingSpot;
 import com.smartparkinglot.backend.entity.Reservation;
 import com.smartparkinglot.backend.entity.User;
-import com.smartparkinglot.backend.repository.ReservationRepository;
 import com.smartparkinglot.backend.service.MessageService;
 import com.smartparkinglot.backend.service.ParkingSpotService;
 import com.smartparkinglot.backend.service.ReservationService;
@@ -13,12 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.security.PrivateKey;
-import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Date;
-import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/parking_spots")
@@ -62,7 +57,7 @@ public class ParkingSpotController {
             return ResponseEntity.ok("Spot freed");
         }
 
-        Reservation res = reservationService.getReservationById(updatedParkingSpot.getId());
+        Reservation res = reservationService.getReservationByParkingSpotId(updatedParkingSpot.getId());
         if (res == null) {
             String message = String.format("A car with the plate %s is on parking spot %d here from parking lot %s WITHOUT A RESERVATION.",
                     updatedParkingSpot.getPlate(), updatedParkingSpot.getId(), existingParkingSpot.getParkingLot().getName());

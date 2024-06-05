@@ -84,5 +84,32 @@ export default function useReservations() {
     });
   }, []);
 
-  return { getOwnActiveReservations, reserveParkingSpot };
+  const cancelReservation = useCallback((baseUrl: string, reservationId: number): Promise<string> => {
+    const cookies = document.cookie.split(';').map(cookie => cookie.trim().split('='));
+    const authToken = cookies.find(cookie => cookie[0].includes('authToken'));
+
+    if (!authToken) {
+      // Ensure that we return a Promise even if there is no auth token
+      return Promise.resolve("Not logged in");
+    }
+
+    return fetch(`${baseUrl}/reservation/cancel/${reservationId}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${authToken[1]}`,
+      },
+    })
+    .then(response => {
+      return response.text();
+    })
+    .then(data => {
+      return data;
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      return "Internal Server error. Try again later";
+    });
+  }, []);
+
+  return { getOwnActiveReservations, reserveParkingSpot, cancelReservation };
 }

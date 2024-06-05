@@ -35,7 +35,6 @@ public class UserController {
         this.paymentService = paymentService;
     }
 
-
     @GetMapping(value = "/username")
     public ResponseEntity<String> getUsernameByEmail(@RequestHeader("Authorization") String authorizationHeader) {
         String token = authorizationHeader.substring(7);// Assuming the scheme is "Bearer "

@@ -1,6 +1,7 @@
 package com.smartparkinglot.backend.controller;
 import com.smartparkinglot.backend.DTO.MessageDTO;
 import com.smartparkinglot.backend.DTO.RefundRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +33,8 @@ public class AdminController {
     }
 
     @GetMapping(value = "/all-users")
-    public ResponseEntity<?> getAllUsers(@RequestHeader("Authorization") String authorizationHeader) {
+    public ResponseEntity<?> getAllUsers(@RequestHeader("Authorization") String authorizationHeader, HttpServletRequest request) {
+        request.getRequestURL();
         String token = authorizationHeader.substring(7);// Assuming the scheme is "Bearer "
         if(tokenService.validateToken(token)) {
             User userAuthorized = tokenService.getUserByToken(token);
