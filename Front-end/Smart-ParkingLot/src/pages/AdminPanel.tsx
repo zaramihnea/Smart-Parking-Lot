@@ -7,7 +7,11 @@ const ProfileAdminPage: React.FC = () => {
   const navigate = useNavigate();
 
   const handleQuestionsClick = () => {
-    navigate('/profile/admin/questions');
+    window.open('https://my.livechatinc.com/chats', '_blank');
+  };
+
+  const handleTicketsClick = () => {
+    window.open('https://app.helpdesk.com/tickets/all', '_blank');
   };
 
   const handleSeeAllUsersClick = () => {
@@ -44,6 +48,12 @@ const ProfileAdminPage: React.FC = () => {
               className="w-full px-4 py-2 bg-gray-300 dark:bg-gray-700 text-gray-900 dark:text-white font-bold rounded-lg shadow-md hover:bg-gray-400 dark:hover:bg-gray-600 transition duration-300"
             >
               Questions
+            </button>
+            <button
+              onClick={handleTicketsClick}
+              className="w-full px-4 py-2 bg-gray-300 dark:bg-gray-700 text-gray-900 dark:text-white font-bold rounded-lg shadow-md hover:bg-gray-400 dark:hover:bg-gray-600 transition duration-300"
+            >
+              Tickets
             </button>
             <button
               onClick={handleSeeAllUsersClick}
