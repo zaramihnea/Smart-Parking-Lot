@@ -26,6 +26,10 @@ const ProfileAdminPage: React.FC = () => {
     navigate('/unseenwarningadmin');
   };*/
 
+  const handleLotNotificationsClick = () => {
+    navigate('/profile/admin/see-lot-notifs')
+  }
+
   const handleLogout = () => {
     navigate('/');
   };
@@ -37,12 +41,12 @@ const ProfileAdminPage: React.FC = () => {
         <div className="mt-6 max-w-md mx-auto bg-gray-300 dark:bg-gray-800 p-6 rounded-lg shadow-lg">
           <h2 className="text-xl font-semibold mb-4">Admin panel</h2>
           <div className="space-y-4">
-          <button
-            onClick={() => navigate('/profile')}
-            className="px-4 py-2 bg-purple-600 text-white font-bold rounded-lg shadow-md hover:bg-purple-700 transition duration-300"
-          >
-            Back
-          </button>
+            <button
+              onClick={() => navigate('/profile')}
+              className="px-4 py-2 bg-purple-600 text-white font-bold rounded-lg shadow-md hover:bg-purple-700 transition duration-300"
+            >
+              Back
+            </button>
             <button
               onClick={handleQuestionsClick}
               className="w-full px-4 py-2 bg-gray-300 dark:bg-gray-700 text-gray-900 dark:text-white font-bold rounded-lg shadow-md hover:bg-gray-400 dark:hover:bg-gray-600 transition duration-300"
@@ -60,6 +64,12 @@ const ProfileAdminPage: React.FC = () => {
               className="w-full px-4 py-2 bg-gray-300 dark:bg-gray-700 text-gray-900 dark:text-white font-bold rounded-lg shadow-md hover:bg-gray-400 dark:hover:bg-gray-600 transition duration-300"
             >
               See all users
+            </button>
+            <button
+              onClick={handleLotNotificationsClick}
+              className="w-full px-4 py-2 bg-gray-300 dark:bg-gray-700 text-gray-900 dark:text-white font-bold rounded-lg shadow-md hover:bg-gray-400 dark:hover:bg-gray-600 transition duration-300"
+            >
+              Lot Notifications
             </button>
           </div>
         </div>
