@@ -5,9 +5,9 @@ export default function useFavoriteLot() {
   const getFavoriteLot = useCallback((baseUrl: string): Promise<number> => {
     const token = Cookies.get("authToken");
 
-    const id = - 1;
+    const id = -1;
     if (!token) {
-      return Promise.resolve(type);
+      return Promise.resolve(id);
     }
 
     return fetch(`${baseUrl}/user/favorite-lot`, {
@@ -23,7 +23,7 @@ export default function useFavoriteLot() {
       return response.text();
     })
     .then(data => {
-      const longId = parseLong(data, 10); // Parse the response as an integer
+      const longId = parseInt(data, 10); // Parse the response as an integer
       if (isNaN(longId)) {
         throw new Error('Invalid id received');
       }

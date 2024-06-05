@@ -35,6 +35,7 @@ public class UserController {
         this.paymentService = paymentService;
     }
 
+
     @GetMapping(value = "/username")
     public ResponseEntity<String> getUsernameByEmail(@RequestHeader("Authorization") String authorizationHeader) {
         String token = authorizationHeader.substring(7);// Assuming the scheme is "Bearer "
@@ -239,6 +240,18 @@ public class UserController {
             return ResponseEntity.ok(userDetails);
         } else {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token");
+        }
+    }
+
+    @GetMapping(value = "/favorite-lot")
+    public ResponseEntity<String> getFavoriteLot(@RequestHeader("Authorization") String authorizationHeader) {
+        String token = authorizationHeader.substring(7);// Assuming the scheme is "Bearer "
+        if(tokenService.validateToken(token)) {
+            User userAuthorized = tokenService.getUserByToken(token);
+            return ResponseEntity.ok(String.valueOf(userService.getFavoriteLot(userAuthorized)));
+        }
+        else {
+            return ResponseEntity.badRequest().body("Invalid token");
         }
     }
 

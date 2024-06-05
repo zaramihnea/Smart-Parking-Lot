@@ -41,7 +41,7 @@ export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
         const startDateTime = new Date(new Date(reservationStartTime).getTime() + 3 * 3600000).toISOString().slice(0, 19).replace('T', ' ');
         const endDateTime = new Date(new Date(reservationStartTime).getTime() + (hoursToReserve + 3) * 3600000).toISOString().slice(0, 19).replace('T', ' ');
 
-        getAvailableCars(baseUrl, startDateTime, endDateTime).then((fetchedCars: Car[]) => {
+        getAvailableCars(baseUrlString, startDateTime, endDateTime).then((fetchedCars: Car[]) => {
           setCars(fetchedCars);
           setInputCar(fetchedCars[0]?.id || -1); // Set the first car as default selected if available
         });
@@ -85,7 +85,7 @@ export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
           onChange={(event) => setInputCar(Number(event.target.value))}
           className="w-64 bg-gray-100 dark:bg-gray-800 text-white p-2 rounded-md mb-4"
         >
-          {cars.length === 0 && <option value=''>No cars saved</option>}
+          {cars.length === 0 && <option value=''>No cars available</option>}
           {cars.map((car: Car) => (
             <option key={car.id} value={car.id}>{car.model}, {car.plate}</option>
           ))}
