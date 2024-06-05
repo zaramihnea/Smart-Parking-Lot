@@ -58,13 +58,6 @@ const LoginPage: React.FC = () => {
               const data = await response.json(); // Assuming the response contains JSON data
               console.log("Login successful:", data);
 
-
-             
-             
-                    
-
-              
-
                   // Assuming the response contains a token
                   const { token } = data;
           

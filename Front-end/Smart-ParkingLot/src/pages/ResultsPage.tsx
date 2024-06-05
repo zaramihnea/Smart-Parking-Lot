@@ -98,7 +98,7 @@ export default function ResultsPage() {
 
     let startTimeString = reservationStartTime + ':00Z';
     const startTime = new Date(startTimeString);
-    startTime.setHours(startTime.getHours() + 3);
+    startTime.setHours(startTime.getHours());
     startTimeString = startTime.toISOString().slice(0, 19) + 'Z';
     
     const stopTimeString = new Date(startTime.getTime() + (hoursToReserve) * 60 * 60 * 1000).toISOString().slice(0, 19) + 'Z'; 
