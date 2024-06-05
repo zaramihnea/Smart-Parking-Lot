@@ -19,6 +19,9 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
 
     @Query(value = "SELECT * FROM GetUsersReservations(:userEmail)", nativeQuery = true)
     public Optional<List<Reservation>> getUsersReservations(@Param("userEmail") String userEmail);
+    
+    @Query(value = "SELECT * FROM Reservations r Where r.parking_spot_id = :id", nativeQuery = true)
+    public Optional<Reservation> getReservationById(@Param("id") Long id);
 
     @Transactional
     @Modifying

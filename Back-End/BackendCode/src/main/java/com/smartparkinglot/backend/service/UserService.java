@@ -96,8 +96,4 @@ public class UserService {
         }
     }
 
-    public Long getFavoriteLot(User user){
-        return userRepository.getFavoriteLot(user.getEmail());
-    }
-
 }
