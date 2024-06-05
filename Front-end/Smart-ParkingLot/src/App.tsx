@@ -86,6 +86,32 @@ const App: React.FC = () => {
 
   return (
     <UserProvider>
+      
+      {/* <div> */}
+      {/* {isInstalled ? ( */}
+      <div>
+        <Router>
+          <Routes>
+            <Route path="/" element={<LoginPage />} />
+            <Route path="/signup" element={<SignupPage />} />
+            <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+            <Route path="/reset-password" element={<ResetPasswordPage />} />
+            <Route path="/home" element={<Homepage />} />
+            <Route path="/profile/*" element={<PrivateRoute />} />
+            <Route path="/balance" element={<AccountBalance />} />
+            <Route path="/help" element={<HelpPage />} />
+            <Route path="/loading" element={<LoadingPage />} />
+            <Route path="/results" element={<ResultsPage />} />
+            <Route path="/see-all-parking-spots" element={<SeeAllParkingSpots />} />
+            <Route path="*" element={<Navigate to="/" />} />
+          </Routes>
+        </Router>
+      </div>
+     {/* ) : ( */}
+       {/* <InstallPrompt device={device} /> */}
+       {/* )} */}
+       {/* </div> */}
+       </UserProvider>
       <div>
         {isInstalled ? (
           <div>
@@ -111,6 +137,7 @@ const App: React.FC = () => {
         )}
       </div>
     </UserProvider>
+
   );
 };
 
