@@ -86,9 +86,10 @@ const App: React.FC = () => {
 
   return (
     <UserProvider>
-{/*       
+
+      
       <div>
-      {isInstalled ? ( */}
+      {isInstalled ? (
       <div>
         <Router>
           <Routes>
@@ -107,10 +108,10 @@ const App: React.FC = () => {
           </Routes>
         </Router>
       </div>
-    {/*  ) : (
-      <InstallPrompt device={device} />
-    )}
-    </div> */}
+     ) : (
+       <InstallPrompt device={device} />
+       )}
+       </div>
     </UserProvider>
 
   );
