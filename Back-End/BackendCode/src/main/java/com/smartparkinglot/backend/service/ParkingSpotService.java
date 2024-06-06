@@ -42,9 +42,9 @@ public class ParkingSpotService {
         return parkingSpotRepository.checkParkingSpotAvailability(spot_id, start_time, stop_time);
     }
 
-    public int calculateReservationCost(Timestamp start_time, Timestamp stop_time, Long spot_id) {
-        Integer cost = parkingSpotRepository.calculateReservationCost(start_time, stop_time, spot_id);
-        return (cost != null) ? cost : 0; // Default to 0 if null
+    public Double calculateReservationCost(Timestamp start_time, Timestamp stop_time, Long spot_id) {
+        Double cost = parkingSpotRepository.calculateReservationCost(start_time, stop_time, spot_id);
+        return (cost != null) ? cost : 0.0; // Default to 0 if null
     }
 
 

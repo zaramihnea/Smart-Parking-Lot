@@ -24,7 +24,7 @@ public interface ParkingSpotRepository extends JpaRepository<ParkingSpot, Long> 
     public boolean checkParkingSpotAvailability(Long spot_id, Timestamp start_time, Timestamp stop_time);
 
     @Query(value = "SELECT calculatereservationcost(:start_time, :stop_time, :spot_id)", nativeQuery = true)
-    public Integer calculateReservationCost(Timestamp start_time, Timestamp stop_time, Long spot_id);
+    public Double calculateReservationCost(Timestamp start_time, Timestamp stop_time, Long spot_id);
 
     Optional<List<ParkingSpot>> getParkingSpotsByParkingLot(ParkingLot parkingLot);
 }

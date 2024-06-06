@@ -30,7 +30,7 @@ public class ParkingSpotController {
     }
 
     @GetMapping("/get-price")
-    public int getParkingSpotPrice(@RequestParam Timestamp start_time, @RequestParam Timestamp stop_time, @RequestParam Long id){
+    public Double getParkingSpotPrice(@RequestParam Timestamp start_time, @RequestParam Timestamp stop_time, @RequestParam Long id){
         System.out.println(start_time);
         System.out.println(stop_time);
 
