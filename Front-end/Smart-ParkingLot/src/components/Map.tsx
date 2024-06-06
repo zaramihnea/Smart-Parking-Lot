@@ -12,9 +12,11 @@ import useFavoriteLot from '../hooks/useFavoriteLot';
 
 export interface GoogleMapProps {
   onReservationConfirmed: () => void;
+  setSpotToNavigateTo: (spot: number) => void;
+  spotToNavigateTo: number;
 }
 
-const Map: React.FC<GoogleMapProps> = ({ onReservationConfirmed }: GoogleMapProps) => {
+const Map: React.FC<GoogleMapProps> = ({ onReservationConfirmed, spotToNavigateTo, setSpotToNavigateTo }: GoogleMapProps) => {
   const googleMapElementRef = useRef<HTMLDivElement>(null);
   const googleMapRef = useRef<google.maps.Map | null>(null);
   const [googleMap, setGoogleMap] = useState<google.maps.Map | null>(null);
@@ -48,7 +50,8 @@ const Map: React.FC<GoogleMapProps> = ({ onReservationConfirmed }: GoogleMapProp
   // wrap the centerOfIasi in a useMemo hook to avoid recalculating it on every render
   const centerOfIasi = useMemo(() => ({ lat: 47.16798, lng: 27.58320 }), []);
   const availableParkingLotsRef = useRef<ParkingLot[]>([]);
-  const { getAvailableParkingLotsAndClosestLot } = useParkingLots();
+  const parkingLotsRef = useRef<ParkingLot[]>([]);
+  const { getAvailableParkingLotsAndClosestLot, getParkingLots } = useParkingLots();
 
 
   const [modalIsOpen, setModalIsOpen] = useState(false);
@@ -83,6 +86,21 @@ const Map: React.FC<GoogleMapProps> = ({ onReservationConfirmed }: GoogleMapProp
     }
     fetchData();
   }, []);
+
+  useEffect(() => {
+    const fetchParkingLots = async () => {
+      try {
+        const data = await getParkingLots(baseUrlString, 3000, centerOfIasi.lat, centerOfIasi.lng);
+        parkingLotsRef.current = data;
+      } catch (error) {
+        console.error('Fetch error:', error);
+      }
+    }
+    fetchParkingLots();
+  }
+  , []);
+
+
 
   const handleReserveClick = useCallback(async (lotId: number) => {
     console.log("Reserving spot at lot", lotId);
@@ -342,6 +360,7 @@ const Map: React.FC<GoogleMapProps> = ({ onReservationConfirmed }: GoogleMapProp
 
           directionsRendererRef.current?.setMap(null);
           directionsRendererRef.current = null;
+          setSpotToNavigateTo(-1);
           drawButtons();
           break;
         case "nearestLot": {
@@ -709,6 +728,43 @@ const Map: React.FC<GoogleMapProps> = ({ onReservationConfirmed }: GoogleMapProp
     }
 
   }, [])
+  
+  useEffect(() => {
+    console.log("Spot to navigate to:");
+    console.log(spotToNavigateTo);
+    if(spotToNavigateTo == -1) {
+      return;
+    }
+    const parkingLot = parkingLotsRef.current.find((parkingLot) => 
+    {
+      console.log(spotToNavigateTo);
+      console.log(parkingLot);
+      return parkingLot.parkingSpotsIds.includes(spotToNavigateTo);
+    })
+    if(!parkingLot) {
+      console.log("Cant drive to non existent parking lot");
+      return;
+    }
+    destinationLocationRef.current = new google.maps.LatLng(parkingLot.latitude, parkingLot.longitude);
+    if(oldRoutePointRef.current) {
+      // used to trigger re-centering
+      oldRoutePointRef.current.lat += 0.000001;
+    }
+    if(userLocationRef.current) {
+      setTimeout(() => googleMapRef.current?.setZoom(17), 1000);
+    }
+    
+    lotToReserveRef.current = parkingLot.id;
+
+    googleMapElementRef.current?.scrollIntoView({
+      behavior: 'smooth', // Options: 'auto' or 'smooth'
+      block: 'center',    // Options: 'start', 'center', 'end', 'nearest'
+      inline: 'center'    // Options: 'start', 'center', 'end', 'nearest'
+    });
+
+    handleDrive(spotToNavigateTo);
+
+  }, [spotToNavigateTo]);
 
 
 

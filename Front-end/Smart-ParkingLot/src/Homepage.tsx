@@ -21,6 +21,7 @@ const Homepage: React.FC = () => {
   const [username, setUsername] = useState('username');
   const [savedCars, setSavedCars] = useState<Car[]>([]);
   const [reservations, setReservations] = useState<Reservation[]>([]);
+  const [spotToNavigateTo, setSpotToNavigateTo] = useState<number>(0);
 
   const { getUserType } = useUserType();
   const { getUsername } = useUsername();
@@ -76,6 +77,15 @@ const Homepage: React.FC = () => {
     document.cookie = 'authToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
   }, []);
 
+  const handleNavigate = (e: React.MouseEvent<HTMLButtonElement>) => {
+    const reservationId = e.currentTarget.dataset.reservationId;
+
+    const spotId = reservations.find(reservation => reservation.id === Number(reservationId))?.spot_id; 
+
+    setSpotToNavigateTo(spotId || -1);
+
+  }
+
   return (
     <div className="min-h-screen flex flex-col bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 p-4 pb-16">
       <div className="sticky top-0 z-50 bg-gray-100 dark:bg-gray-900">
@@ -95,6 +105,8 @@ const Homepage: React.FC = () => {
         <div className="w-full max-w-4xl h-96 bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden z-0 space-y">
           <Map 
             onReservationConfirmed={refreshReservations}
+            setSpotToNavigateTo={setSpotToNavigateTo}
+            spotToNavigateTo={spotToNavigateTo}
           />
         </div>
       </div>
@@ -112,17 +124,25 @@ const Homepage: React.FC = () => {
                 savedCars.find(car => car.id === reservation.car_id)?.plate || 'Unknown'
               }</p>
             </div>
+            <button 
+              key={reservation.id}
+              className='bg-purple-600 m-1 text-white px-2 py-1 rounded-lg shadow-md hover:bg-blue-700 transition duration-300'
+              onClick={handleNavigate}
+              data-reservation-id={reservation.id}
+            >
+              Navigate to to parking lot
+            </button>
             {<a
               href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(reservation.latitude + ',' + reservation.longitude)}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="bg-purple-600 text-white px-2 py-1 rounded-lg shadow-md hover:bg-blue-700 transition duration-300"
+              className="bg-purple-600 m-1 text-white px-2 py-1 rounded-lg shadow-md hover:bg-blue-700 transition duration-300"
             >
-              Navigate to Parking
+              Open on Google Maps
             </a>}
             <button
               onClick={() => cancelReservationHandler(reservation.id)}
-              className="bg-red-600 ml-2 text-white px-2 py-1 rounded-lg shadow-md hover:bg-red-700 transition duration-300"
+              className="bg-red-600 m-1 text-white px-2 py-1 rounded-lg shadow-md hover:bg-red-700 transition duration-300"
             >
               Cancel
             </button>
