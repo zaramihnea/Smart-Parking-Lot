@@ -109,7 +109,14 @@ const App: React.FC = () => {
         </Router>
       </div>
      ) : (
-       <InstallPrompt device={device} />
+        <div>
+          <Router>
+            <Routes>
+              <Route path="*" element={<InstallPrompt device={device} />} />
+              <Route path="/reset-password" element={<ResetPasswordPage />} />
+            </Routes>
+          </Router>
+        </div>
        )}
        </div>
     </UserProvider>
