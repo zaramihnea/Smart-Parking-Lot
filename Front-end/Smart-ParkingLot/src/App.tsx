@@ -23,9 +23,8 @@ import HelpPage from './pages/HelpPage';
 import LoadingPage from './pages/LoadingPage';
 import ResultsPage from './pages/ResultsPage';
 import SeeAllParkingSpots from './pages/SeeAllParkingSpots';
-import Notifs from './pages/Notifs';
-import './App.css';
 import SeeNotifications from './pages/Notifs';
+import './App.css';
 
 const InstallPrompt: React.FC<{ device: string }> = ({ device }) => {
   const installInstructions =

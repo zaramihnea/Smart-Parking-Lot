@@ -106,7 +106,7 @@ const ResetPasswordPage: React.FC = () => {
           >
             Reset Password
           </button>
-          <a href="/login" className="text-sm text-purple-600 dark:text-purple-400 hover:underline block text-center">
+          <a href="/" className="text-sm text-purple-600 dark:text-purple-400 hover:underline block text-center">
             Back to Login
           </a>
         </div>
