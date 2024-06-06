@@ -109,6 +109,7 @@ public class ReservationController {
                         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred");
                     }
                 }
+                System.out.println("Reservation cost: " + reservationCost);
                 if(reservationCost < balance) {
                     Car userCar;
                     if(carService.existsByPlate(reservationRequest.carPlate)) {
