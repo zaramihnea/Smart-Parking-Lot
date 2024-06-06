@@ -168,6 +168,7 @@ const Map: React.FC<GoogleMapProps> = ({ onReservationConfirmed, spotToNavigateT
           drawButtons();
           modalForceRefreshRef.current = modalForceRefreshRef.current + 1;
           setModalForceRefresh(modalForceRefreshRef.current);
+          onReservationConfirmed();
         }
       }
       else {

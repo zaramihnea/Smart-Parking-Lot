@@ -125,7 +125,7 @@ public class UserController {
             String token = tokenService.generateToken(user);
 
             //construiesc linkul care va fi trimis prim email utilizatorului
-            String resetPasswordLink = resetPasswordRequest.getBaseUrl() + "/reset-password?token=" + token;
+            String resetPasswordLink =  "https://smartparkinglot.online/reset-password?token=" + token;
 
             emailService.sendResetPasswordEmail(user.getEmail(), resetPasswordLink);
 
