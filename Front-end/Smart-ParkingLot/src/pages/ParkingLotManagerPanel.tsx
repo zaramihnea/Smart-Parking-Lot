@@ -37,7 +37,7 @@ const AdminPanelPage: React.FC = () => {
     }, []);
 
     const handleLotNotificationsClick = () => {
-        navigate('/profile//admin-parking-panel/see-lot-notifs')
+        navigate('/profile/admin-parking-panel/see-lot-notifs')
       }
 
     return (
