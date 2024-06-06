@@ -177,7 +177,9 @@ const Map: React.FC<GoogleMapProps> = ({ onReservationConfirmed, spotToNavigateT
         onReservationConfirmed();
       }
     } else {
-      window.location.reload()
+        modalForceRefreshRef.current = modalForceRefreshRef.current + 1;
+        setModalForceRefresh(modalForceRefreshRef.current);
+        onReservationConfirmed();
     }
   }, [baseUrlString]);
 

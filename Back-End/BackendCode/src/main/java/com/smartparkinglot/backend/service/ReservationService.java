@@ -55,7 +55,14 @@ public class ReservationService {
             Reservation reservation = new Reservation(car, spot, startTimestamp, endTimestamp, "active");
             reservationRepository.save(reservation);  // Persist the reservation
             PaymentDetailsDTO paymentDetailsDTO = new PaymentDetailsDTO(userAuthorized.getEmail(), reservationCost, reservation.getParkingSpot().getId());
-            paymentService.payForParkingSpot(paymentDetailsDTO);
+            String result = paymentService.payForParkingSpot(paymentDetailsDTO);
+            if(!result.equals("success")) {
+                return ResponseEntity.badRequest().body("Payment failed. Spot could not be reserved");
+            }
+            System.out.println("paid for parking spot with these details: ");
+            System.out.println(paymentDetailsDTO.getAmount());
+            System.out.println(paymentDetailsDTO.getEmail());
+            System.out.println(paymentDetailsDTO.getParkingSpotId());
 
             return ResponseEntity.ok("Spot reserved successfully");
         } catch (Exception e) {
