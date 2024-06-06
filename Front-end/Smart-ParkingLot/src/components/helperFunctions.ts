@@ -76,9 +76,10 @@ function isDeviceOrientationSupported(): boolean {
 
 function calculateNearestParkingLot(userLocation: LatLngExpression, parkingLots: ParkingLot[]): ParkingLot {
   let nearestParkingLot = parkingLots[0];
-  let nearestDistance = calculateDistance(userLocation, { lat: nearestParkingLot.latitude, lng: nearestParkingLot.longitude });
-
-  for (let i = 1; i < parkingLots.length; i++) {
+  let nearestDistance = Infinity;
+  
+  for (let i = 0; i < parkingLots.length; i++) {
+    if(parkingLots[i].parkingSpotsIds.length === 0) continue; // Skip parking lots with no parking spots (no available parking spots)
     const distance = calculateDistance(userLocation, { lat: parkingLots[i].latitude, lng: parkingLots[i].longitude });
 
     if (distance < nearestDistance) {
