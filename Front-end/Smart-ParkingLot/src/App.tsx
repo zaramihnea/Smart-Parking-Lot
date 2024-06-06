@@ -87,9 +87,8 @@ const App: React.FC = () => {
   return (
     <UserProvider>
 
-      
       <div>
-      {isInstalled ? (
+      {isInstalled || location.pathname === '/reset-password' ? (
       <div>
         <Router>
           <Routes>
