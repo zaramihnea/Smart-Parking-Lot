@@ -68,7 +68,7 @@ A smart parking solution is needed which can detect occupied/free parking spots 
 
    ![Screenshot_189](https://github.com/zaramihnea/Smart-Parking-Lot/assets/108344766/42778e91-5faf-46ef-9ad6-4b10c965136a)
 
-   - Add, edit parking lot, view parking lot notifications(Notifications are sent when a user without a reservation enters a parking lot reserved by other user, or a empty spot he didn't reserve, information which is being sent by the Arduino Sensor)
+   - Add, edit parking lot, view parking lot notifications(Notifications are sent by the Arduino Sensor that checks car plates when a user without a reservation enters a parking lot reserved by other user, or a empty spot he didn't reserve.)
 
    ![Screenshot_193](https://github.com/zaramihnea/Smart-Parking-Lot/assets/108344766/3f7e0308-2a7a-4cd1-995b-ecdd37dcab99)
 
