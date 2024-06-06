@@ -65,7 +65,7 @@ async function handleSubmit(e) {
         elements,
         confirmParams: {
             //if payment was successful it redirects here
-            return_url: `http://localhost:8081/user/after-payment-processing`,
+            return_url: `https://api.smartparkinglot.online/user/after-payment-processing`,
         },
     });
 
@@ -75,7 +75,7 @@ async function handleSubmit(e) {
     } else {
         // If no error, send the payment status and payment intent ID to the backend
         const paymentIntentId = paymentIntent.id;
-        const response = await fetch(`http://localhost:8081/user/after-payment-processing`);
+        const response = await fetch(`https://api.smartparkinglot.online/user/after-payment-processing`);
         setLoading(false);
     }
 }
