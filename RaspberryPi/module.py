@@ -21,7 +21,8 @@ camera.set_controls({"AfMode": controls.AfModeEnum.Continuous})
 camera.start_and_capture_file("/home/raspberry/Arduino_Module/img.jpg")
 sleep(2)
 prevDistance = 0
-endpoint = "https://api.smartparkinglot.com/parking_spots/update/1"
+endpoint = "https://api.smartparkinglot.online/parking_spots/update/50"
+headers = { 'Content-Type' : 'application/json' }
 
 while True:
     GPIO.output(8, GPIO.HIGH)
@@ -44,27 +45,33 @@ while True:
                                 capture_output=True, text=True)
         result = result.stdout.strip()
         status = "occupied"
-        data = {'id': 1,
+        data = {'id': 50,
                 'plate': result,
                 'status': status,
-                'name': "RPI sensor"}
-        r = requests.post(url=endpoint, data=data)
+                'name': 'RPI sensor'}
+        r = requests.post(url=endpoint, headers=headers, json=data)
+        print(r.text)
+        print(result)
     elif free == 1 and distance > 100:
         prevDistance = distance
         free = 0
         status = "unoccupied"
         result = "null"
-        data = {'id': 1,
+        data = {'id': 50,
                 'plate': result,
                 'status': status,
-                'name': "RPI sensor"}
-        r = requests.post(url=endpoint, data=data)
+                'name': 'RPI sensor'}
+        r = requests.post(url=endpoint, headers=headers, json=data)
+        print(r.text)
+        print(distance)
     elif distance > prevDistance + 5 or distance < prevDistance - 5:
         if prevDistance == 0:
-            data = {'id': 1,
-                    'plate': result,
-                    'status': status,
-                    'name': "RPI sensor"}
-            r = requests.post(url=endpoint, data=data)
+            data = {'id': 50,
+                    'plate': "null",
+                    'status': "unoccupied",
+                    'name': 'RPI sensor'}
+            r = requests.post(url=endpoint, headers=headers, json=data)
+            print(r.text)
+            print(distance)
         prevDistance = distance
     sleep(1)
