@@ -86,9 +86,9 @@ const App: React.FC = () => {
 
   return (
     <UserProvider>
-      
-      {/* <div> */}
-      {/* {isInstalled ? ( */}
+{/*       
+      <div>
+      {isInstalled ? ( */}
       <div>
         <Router>
           <Routes>
@@ -107,10 +107,10 @@ const App: React.FC = () => {
           </Routes>
         </Router>
       </div>
-     {/* ) : ( */}
-       {/* <InstallPrompt device={device} /> */}
-       {/* )} */}
-       {/* </div> */}
+    {/*  ) : (
+      <InstallPrompt device={device} />
+    )}
+    </div> */}
     </UserProvider>
 
   );
@@ -137,10 +137,10 @@ const PrivateRoute = () => {
       <Route path="/admin-parking-panel" element={<ParkingLotManagerPanel />} />
       <Route path="/admin-parking-panel/add-parking-lot" element={<AddParkingLotPage />} />
       <Route path="/admin-parking-panel/edit-parking-lot/:id" element={<EditParkingLotPage />} />
+      <Route path="/admin-parking-panel/see-lot-notifs" element={<SeeNotifications />} />
       <Route path="/admin" element={<AdminPanel />} />
       <Route path="/admin/see-all-users" element={<SeeAllUsersAdmin />} />
       <Route path="/admin/questions" element={<AdminQuestions />} />
-      <Route path="/admin/see-lot-notifs" element={<SeeNotifications />} />
     </Routes>
   );
 };

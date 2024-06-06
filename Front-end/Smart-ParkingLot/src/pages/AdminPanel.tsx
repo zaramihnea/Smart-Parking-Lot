@@ -26,9 +26,7 @@ const ProfileAdminPage: React.FC = () => {
     navigate('/unseenwarningadmin');
   };*/
 
-  const handleLotNotificationsClick = () => {
-    navigate('/profile/admin/see-lot-notifs')
-  }
+  
 
   const handleLogout = () => {
     navigate('/');
@@ -64,12 +62,6 @@ const ProfileAdminPage: React.FC = () => {
               className="w-full px-4 py-2 bg-gray-300 dark:bg-gray-700 text-gray-900 dark:text-white font-bold rounded-lg shadow-md hover:bg-gray-400 dark:hover:bg-gray-600 transition duration-300"
             >
               See all users
-            </button>
-            <button
-              onClick={handleLotNotificationsClick}
-              className="w-full px-4 py-2 bg-gray-300 dark:bg-gray-700 text-gray-900 dark:text-white font-bold rounded-lg shadow-md hover:bg-gray-400 dark:hover:bg-gray-600 transition duration-300"
-            >
-              Lot Notifications
             </button>
           </div>
         </div>

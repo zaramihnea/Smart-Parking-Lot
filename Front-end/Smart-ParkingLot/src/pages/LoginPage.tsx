@@ -5,6 +5,8 @@ import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 
 // some user
 // cosmina_baciu@gmail.com 84732saf
+//admin user
+// baciu_elena@gmail.com 84732saf
 
 const LoginPage: React.FC = () => {
   const navigate = useNavigate();

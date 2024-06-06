@@ -31,18 +31,6 @@ const Profiles: React.FC = () => {
                         >
                             Cars
                         </button>
-                        <button
-                            className="bg-gray-300 dark:bg-gray-700 text-gray-900 dark:text-gray-100 font-bold py-2 px-12 rounded-lg shadow-lg"
-                            onClick={() => navigate('/profile/reserve')}
-                        >
-                            Reserve
-                        </button>
-                        <button
-                            className="bg-gray-300 dark:bg-gray-700 text-gray-900 dark:text-gray-100 font-bold py-2 px-12 rounded-lg shadow-lg"
-                            onClick={() => navigate('/profile/messages')}
-                        >
-                            Messages
-                        </button>
                         <a href="/profile" className='bg-purple-600 text-white font-bold py-2 px-12 rounded-lg mt-8 shadow-lg hover:bg-purple-700 transition duration-300 text-center' onClick={handleLogout}>Logout</a>
                     </div>
                 </div>
