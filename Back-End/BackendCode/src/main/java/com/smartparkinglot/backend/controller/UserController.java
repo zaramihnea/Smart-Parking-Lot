@@ -101,7 +101,6 @@ public class UserController {
     public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
         if(userService.existsByEmail(loginRequest.getEmail())) {
             User userToLog = userService.getUserByEmail(loginRequest.getEmail());
-            System.out.println(loginRequest.getPassword());
 
             boolean isAuthenticated = userService.authenticateUser(userToLog.getEmail(), loginRequest.getPassword());
             String generatedToken = tokenService.generateToken(userToLog);
