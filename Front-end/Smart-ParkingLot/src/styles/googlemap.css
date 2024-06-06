@@ -64,6 +64,7 @@ body {
 }
 
 .ui-button-reset {
+  margin-top: 2.5rem;
   min-width: 2.5rem;
 }
 
