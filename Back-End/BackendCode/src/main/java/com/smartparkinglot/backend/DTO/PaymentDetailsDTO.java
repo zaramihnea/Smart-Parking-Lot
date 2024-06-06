@@ -10,10 +10,10 @@ public class PaymentDetailsDTO {
     private Double amount;
     private Long parkingSpotId;
 
-    public PaymentDetailsDTO(String email, Double amount, Long id) {
+    public PaymentDetailsDTO(String email, Double amount, Long parkingSpotId) {
         this.email = email;
         this.amount = amount;
-        this.parkingSpotId = id;
+        this.parkingSpotId = parkingSpotId;
     }
 
 }

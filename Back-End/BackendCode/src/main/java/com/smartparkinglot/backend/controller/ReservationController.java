@@ -3,10 +3,12 @@ package com.smartparkinglot.backend.controller;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.smartparkinglot.backend.entity.*;
 import com.smartparkinglot.backend.service.*;
+import com.stripe.exception.StripeException;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,15 +30,17 @@ public class ReservationController {
     private final ParkingLotService parkingLotService;
     private final CarService carService;
     private final UserService userService;
+    private final PaymentService paymentService;
 
     @Autowired
-    public ReservationController(ReservationService reservationService, TokenService tokenService, ParkingSpotService parkingSpotService, UserService userService, ParkingLotService parkingLotService, CarService carService) {
+    public ReservationController(ReservationService reservationService, TokenService tokenService, ParkingSpotService parkingSpotService, UserService userService, ParkingLotService parkingLotService, CarService carService, PaymentService paymentService) {
         this.reservationService = reservationService;
         this.tokenService = tokenService;
         this.parkingSpotService = parkingSpotService;
         this.carService = carService;
         this.userService = userService;
         this.parkingLotService = parkingLotService;
+        this.paymentService = paymentService;
     }
     @GetMapping("get-own-active-reservations")
     public ResponseEntity<?> getOwnReservations(@RequestHeader("Authorization") String authorizationHeader) {
@@ -91,8 +95,21 @@ public class ReservationController {
         if(tokenService.validateToken(token)) {
             User userAuthorized = tokenService.getUserByToken(token);
             if(parkingSpotService.checkParkingSpotAvailability(reservationRequest.spotID, startTimestamp, endTimestamp)) {
-                int reservationCost = parkingSpotService.calculateReservationCost(startTimestamp, endTimestamp, reservationRequest.spotID);
-                if(reservationCost < userAuthorized.getBalance()) {
+                Double reservationCost = parkingSpotService.calculateReservationCost(startTimestamp, endTimestamp, reservationRequest.spotID);
+                Double balance;
+                try {
+                    balance = paymentService.retrieveCustomerBalance(userAuthorized.getEmail());
+
+                } catch (RuntimeException e) {
+                    if (e.getMessage().contains("No customer found with email")) {
+                        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+                    } else if (e.getCause() instanceof StripeException) {
+                        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error retrieving customer balance from Stripe");
+                    } else {
+                        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error occurred");
+                    }
+                }
+                if(reservationCost < balance) {
                     Car userCar;
                     if(carService.existsByPlate(reservationRequest.carPlate)) {
                         userCar = carService.getByPlate(reservationRequest.carPlate);
@@ -104,19 +121,7 @@ public class ReservationController {
                     return reservationService.createReservation(userAuthorized, reservationRequest.spotID, startTimestamp, endTimestamp, reservationCost, userCar);
                 }
                 else {
-                    ///// COMMENT THIS IN PRODUCTION, RIGHT NOW ALL RESERVATIONS ARE FREE
-                    Car userCar;
-                    if(carService.existsByPlate(reservationRequest.carPlate)) {
-                        userCar = carService.getByPlate(reservationRequest.carPlate);
-                    }
-                    else {
-                        userCar = new Car(reservationRequest.carPlate, reservationRequest.carCapacity, reservationRequest.carType, userAuthorized);
-                        carService.addNewCar(userCar);
-                    }
-                    return reservationService.createReservation(userAuthorized, reservationRequest.spotID, startTimestamp, endTimestamp, reservationCost, userCar);
-                    /////
-
-//                    return ResponseEntity.badRequest().body("User does not have enough money in his balance");
+                    return ResponseEntity.badRequest().body("User does not have enough money in his balance");
                 }
 
             }

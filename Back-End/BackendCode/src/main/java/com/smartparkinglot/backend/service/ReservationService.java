@@ -1,5 +1,6 @@
 package com.smartparkinglot.backend.service;
 
+import com.smartparkinglot.backend.DTO.PaymentDetailsDTO;
 import com.smartparkinglot.backend.entity.*;
 import com.smartparkinglot.backend.repository.ReservationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,12 +17,14 @@ public class ReservationService {
     private final UserService userService;
     private final ParkingSpotService parkingSpotService;
     private final CarService carService;
+    private final PaymentService paymentService;
     @Autowired
-    public ReservationService(ReservationRepository reservationRepository, UserService userService, ParkingSpotService parkingSpotService, CarService carService) {
+    public ReservationService(ReservationRepository reservationRepository, UserService userService, ParkingSpotService parkingSpotService, CarService carService, PaymentService paymentService) {
         this.reservationRepository = reservationRepository;
         this.userService = userService;
         this.parkingSpotService = parkingSpotService;
         this.carService = carService;
+        this.paymentService = paymentService;
     }
 
     public List<Reservation> getAllReservations() {
@@ -43,7 +46,7 @@ public class ReservationService {
         return reservationRepository.getUsersReservations(email).orElse(null);
     }
     @Transactional
-    public ResponseEntity<String> createReservation(User userAuthorized, Long spotId, Timestamp startTimestamp, Timestamp endTimestamp, int reservationCost, Car car) {
+    public ResponseEntity<String> createReservation(User userAuthorized, Long spotId, Timestamp startTimestamp, Timestamp endTimestamp, Double reservationCost, Car car) {
         try {
             ParkingSpot spot = parkingSpotService.getById(spotId);
             if(spot == null) {
@@ -51,6 +54,8 @@ public class ReservationService {
             }
             Reservation reservation = new Reservation(car, spot, startTimestamp, endTimestamp, "active");
             reservationRepository.save(reservation);  // Persist the reservation
+            PaymentDetailsDTO paymentDetailsDTO = new PaymentDetailsDTO(userAuthorized.getEmail(), reservationCost, reservation.getParkingSpot().getId());
+            paymentService.payForParkingSpot(paymentDetailsDTO);
 
             return ResponseEntity.ok("Spot reserved successfully");
         } catch (Exception e) {

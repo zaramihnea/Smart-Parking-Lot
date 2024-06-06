@@ -41,8 +41,8 @@ public class ReservationConfig {
             Timestamp startTimestamp = new Timestamp(new Date().getTime());
             Timestamp endTimestamp = new Timestamp(new Date().getTime() + 1000 * 60 * 60 * 2); // 2 hours from now
 
-            reservationService.createReservation(admin, someSpot.getId(), startTimestamp, endTimestamp, 0, someUserCar);
-            reservationService.createReservation(admin, someSpot2.getId(), startTimestamp, endTimestamp, 0, someUserCar);
+            reservationService.createReservation(admin, someSpot.getId(), startTimestamp, endTimestamp, 0.0, someUserCar);
+            reservationService.createReservation(admin, someSpot2.getId(), startTimestamp, endTimestamp, 0.0, someUserCar);
         };
     }
 }

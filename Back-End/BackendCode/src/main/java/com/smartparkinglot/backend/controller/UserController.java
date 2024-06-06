@@ -201,7 +201,7 @@ public class UserController {
 
         if ("success".equals(result)) {
             // Redirect to the homepage if the payment was successful
-            return ResponseEntity.status(HttpStatus.FOUND).location(URI.create("https://api.smartparkinglot.online/balance")).build();
+            return ResponseEntity.status(HttpStatus.FOUND).location(URI.create("https://smartparkinglot.online/balance")).build();
         } else {
             return ResponseEntity.ok(result);
         }
