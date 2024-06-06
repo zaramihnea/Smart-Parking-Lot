@@ -131,7 +131,7 @@ const AccountBalance = () => {
         <div className="w-full max-w-md p-8 bg-white dark:bg-gray-800 rounded-lg shadow-md">
           <h2 className="text-3xl font-bold text-purple-500 mb-4" style={{ color: '#796bdd' }}>Account Balance</h2>
           <div className="bg-gray-300 dark:bg-gray-700 px-4 py-3 rounded-md text-gray-900 dark:text-gray-100 mb-4 flex items-center justify-between shadow-lg">
-            <p className="text-4xl font-bold">${balance}</p>
+            <p className="text-4xl font-bold">RON {balance}</p>
             <button
               className="bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-gray-100 font-bold py-2 px-4 rounded-md shadow-lg hover:bg-gray-300 dark:hover:bg-gray-500 transition duration-300"
               onClick={handleToggleInput}
