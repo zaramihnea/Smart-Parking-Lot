@@ -86,6 +86,10 @@ const Homepage: React.FC = () => {
 
   }
 
+  const refreshNavigateTo = () => {
+    setSpotToNavigateTo(-1);
+  }
+
   return (
     <div className="min-h-screen flex flex-col bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 p-4 pb-16">
       <div className="sticky top-0 z-50 bg-gray-100 dark:bg-gray-900">
@@ -105,7 +109,7 @@ const Homepage: React.FC = () => {
         <div className="w-full max-w-4xl h-96 bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden z-0 space-y">
           <Map 
             onReservationConfirmed={refreshReservations}
-            setSpotToNavigateTo={setSpotToNavigateTo}
+            refreshNavigateTo={refreshNavigateTo}
             spotToNavigateTo={spotToNavigateTo}
           />
         </div>

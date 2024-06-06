@@ -12,11 +12,11 @@ import useFavoriteLot from '../hooks/useFavoriteLot';
 
 export interface GoogleMapProps {
   onReservationConfirmed: () => void;
-  setSpotToNavigateTo: (spot: number) => void;
+  refreshNavigateTo: () => void;
   spotToNavigateTo: number;
 }
 
-const Map: React.FC<GoogleMapProps> = ({ onReservationConfirmed, spotToNavigateTo, setSpotToNavigateTo }: GoogleMapProps) => {
+const Map: React.FC<GoogleMapProps> = ({ onReservationConfirmed, spotToNavigateTo, refreshNavigateTo }: GoogleMapProps) => {
   const googleMapElementRef = useRef<HTMLDivElement>(null);
   const googleMapRef = useRef<google.maps.Map | null>(null);
   const [googleMap, setGoogleMap] = useState<google.maps.Map | null>(null);
@@ -360,7 +360,7 @@ const Map: React.FC<GoogleMapProps> = ({ onReservationConfirmed, spotToNavigateT
 
           directionsRendererRef.current?.setMap(null);
           directionsRendererRef.current = null;
-          setSpotToNavigateTo(-1);
+          refreshNavigateTo();
           drawButtons();
           break;
         case "nearestLot": {
