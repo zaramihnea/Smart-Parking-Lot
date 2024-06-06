@@ -36,6 +36,10 @@ const AdminPanelPage: React.FC = () => {
         fetchParkingLots();
     }, []);
 
+    const handleLotNotificationsClick = () => {
+        navigate('/profile/admin/see-lot-notifs')
+      }
+
     return (
         <div className="flex flex-col min-h-screen bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-white p-4 pb-16">
             <div className="sticky top-0 z-50 bg-gray-100 dark:bg-gray-900">
@@ -69,6 +73,12 @@ const AdminPanelPage: React.FC = () => {
                             Add Parking Lot
                         </button>
                     </div>
+                    <button
+              onClick={handleLotNotificationsClick}
+              className="w-full px-4 py-2 bg-gray-300 dark:bg-gray-700 text-gray-900 dark:text-white font-bold rounded-lg shadow-md hover:bg-gray-400 dark:hover:bg-gray-600 transition duration-300"
+            >
+              Lot Notifications
+            </button>
                 </div>
             </div>
             <Navbar />

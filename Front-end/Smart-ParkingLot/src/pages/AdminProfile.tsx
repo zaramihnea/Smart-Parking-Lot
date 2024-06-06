@@ -32,12 +32,6 @@ const Profiles: React.FC = () => {
                         </button>
                         <button
                             className="bg-gray-300 dark:bg-gray-700 text-gray-900 dark:text-gray-100 font-bold py-2 px-12 rounded-lg shadow-lg"
-                            onClick={() => navigate('/profile/reserve')}
-                        >
-                            Reserve
-                        </button>
-                        <button
-                            className="bg-gray-300 dark:bg-gray-700 text-gray-900 dark:text-gray-100 font-bold py-2 px-12 rounded-lg shadow-lg"
                             onClick={() => navigate('/profile/admin')}
                         >
                             Admin Panel
