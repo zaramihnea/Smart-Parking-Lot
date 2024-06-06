@@ -176,7 +176,13 @@ const Map: React.FC<GoogleMapProps> = ({ onReservationConfirmed, spotToNavigateT
         setModalForceRefresh(modalForceRefreshRef.current);
         onReservationConfirmed();
       }
+    } else if(result === 'User does not have enough money in his balance') {
+      alert('User does not have enough money in his balance');
+      modalForceRefreshRef.current = modalForceRefreshRef.current + 1;
+      setModalForceRefresh(modalForceRefreshRef.current);
+      onReservationConfirmed();
     } else {
+        console.log(result);
         modalForceRefreshRef.current = modalForceRefreshRef.current + 1;
         setModalForceRefresh(modalForceRefreshRef.current);
         onReservationConfirmed();
