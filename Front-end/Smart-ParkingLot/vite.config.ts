@@ -3,6 +3,7 @@ import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 import os from 'os';
 
+const frontBaseUrl = os.type() === 'Linux' ? 'https://smartparkinglot.online' : 'http://localhost:8888';
 // Set API base URL based on OS type ( Use the IP adress of the EC2 Instance or localhost)
 const apiBaseUrl = os.type() === 'Linux' ? 'https://api.smartparkinglot.online' : 'http://localhost:8081';
 const REACT_APP_GOOGLE_MAPS_API_KEY = 'AIzaSyC0c45KPuqZ2kVQcNWU89SLAj0m7DhKQ-A';
@@ -33,6 +34,7 @@ export default defineConfig({
     })
   ],
   define: {
+    'process.env.FRONT_END_URL': JSON.stringify(frontBaseUrl),
     'process.env.API_BASE_URL': JSON.stringify(apiBaseUrl),
     'process.env.REACT_APP_GOOGLE_MAPS_API_KEY': JSON.stringify(REACT_APP_GOOGLE_MAPS_API_KEY),
   }
