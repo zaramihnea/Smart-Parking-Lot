@@ -11,6 +11,7 @@ import java.math.BigDecimal;
 @ToString
 @Entity
 @Table(name = "parking_lots")
+@Getter @Setter
 public class ParkingLot {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

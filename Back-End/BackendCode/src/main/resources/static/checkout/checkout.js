@@ -15,8 +15,15 @@ function initialize(clientSecret) {
     paymentElement.mount("#payment-element");
 }
 
+async function getConfig() {
+    const response = await fetch('/config');
+    const config = await response.json();
+    return config.baseUrl;
+}
+
 async function fetchAndInitialize() {
     try {
+        const baseUrl = await getConfig();
         const urlParams = new URLSearchParams(window.location.search);
         const email = urlParams.get('email');
         const amount = parseFloat(urlParams.get('amount'));
@@ -31,7 +38,7 @@ async function fetchAndInitialize() {
             email: email,
             amount: amount
         };
-        const response = await fetch('/user/create-payment-intent', {
+        const response = await fetch(`${baseUrl}/user/create-payment-intent`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -65,7 +72,7 @@ async function handleSubmit(e) {
         elements,
         confirmParams: {
             //if payment was successful it redirects here
-            return_url: `https://api.smartparkinglot.online/user/after-payment-processing`,
+            return_url: `http://localhost:8081/user/after-payment-processing`,
         },
     });
 
@@ -75,7 +82,7 @@ async function handleSubmit(e) {
     } else {
         // If no error, send the payment status and payment intent ID to the backend
         const paymentIntentId = paymentIntent.id;
-        const response = await fetch(`https://api.smartparkinglot.online/user/after-payment-processing`);
+        const response = await fetch(`http://localhost:8081/user/after-payment-processing`);
         setLoading(false);
     }
 }

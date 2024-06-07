@@ -54,7 +54,7 @@ public class User {
 
 
     @Getter @Setter
-    @Column(name = "stripe_account_id")
+    @Column
     private String stripeAccountId;
 
 

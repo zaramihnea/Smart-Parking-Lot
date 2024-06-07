@@ -6,15 +6,20 @@ import com.smartparkinglot.backend.DTO.TransactionDTO;
 import com.smartparkinglot.backend.DTO.PaymentResponseDTO;
 import com.smartparkinglot.backend.configuration.StripeConfig;
 import com.smartparkinglot.backend.customexceptions.PaymentException;
+import com.smartparkinglot.backend.entity.ParkingLot;
 import com.smartparkinglot.backend.entity.ParkingSpot;
 import com.smartparkinglot.backend.entity.User;
 import com.smartparkinglot.backend.repository.ParkingSpotRepository;
+import com.smartparkinglot.backend.repository.UserRepository;
 import com.stripe.Stripe;
 import com.stripe.exception.InvalidRequestException;
 import com.stripe.exception.StripeException;
 import com.stripe.model.*;
 import com.stripe.param.*;
+import io.github.cdimascio.dotenv.Dotenv;
 import jakarta.annotation.PostConstruct;
+import jakarta.transaction.Transactional;
+import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +32,8 @@ import java.util.*;
 @Service
 public class PaymentService {
 
+    @Autowired
+    private Dotenv dotenv;
     private final StripeConfig stripeConfig;
     private final Logger log = LoggerFactory.getLogger(PaymentService.class);
 
@@ -38,6 +45,8 @@ public class PaymentService {
 
     @Autowired
     private UserService userService;
+    @Autowired
+    private UserRepository userRepository;
 
     @PostConstruct
     public void init() {
@@ -105,16 +114,11 @@ public class PaymentService {
         return PaymentIntent.create(paymentParams);
     }
 
-    private String getAdminStripeAccountIdByParkingSpotId(Long parkingSpotId) {
+    private User getAdminAccountByParkingSpotId(Long parkingSpotId) {
         ParkingSpot parkingSpot = parkingSpotRepository.findById(parkingSpotId)
                 .orElseThrow(() -> new PaymentException("Parking spot not found"));
-        String admin = new ParkingSpotService(parkingSpotRepository).getAdminStripeIdByParkingSpotId(parkingSpotId);
-        if (admin == null) {
-            throw new PaymentException("Admin or Stripe account ID not found for this parking lot");
-        }
 
-        log.info("Admin Stripe Account ID: {}", admin);
-        return admin;
+        return userService.getUserByEmail(parkingSpot.getParkingLot().getAdminMail());
     }
 
     public String handlePaymentResult(String paymentIntentId) {
@@ -460,14 +464,27 @@ public class PaymentService {
     */
 
     public String payForParkingSpot(PaymentDetailsDTO paymentDetailsDTO) {
+        if(paymentDetailsDTO.getAmount() < 2) {
+            return "Amount must be greater than 2.";
+        }
         Stripe.apiKey = stripeConfig.getApiKey();
 
+        // create admin stripe account
+        ParkingLot parkingLot = parkingSpotRepository.findById(paymentDetailsDTO.getParkingSpotId()).get().getParkingLot();
+        String adminEmail = parkingLot.getAdminMail();
+        CreateAccountRequest request = new CreateAccountRequest();
+        request.setEmail(adminEmail);
+        createStripeAccount(request);
+
         try {
-            String stripeAccountId = getAdminStripeAccountIdByParkingSpotId(paymentDetailsDTO.getParkingSpotId());
-            if (stripeAccountId == null || stripeAccountId.isEmpty()) {
+            User stripeAdminAccount = getAdminAccountByParkingSpotId(paymentDetailsDTO.getParkingSpotId());
+            System.out.println(stripeAdminAccount);
+            if (userRepository.receiveStripeAccountId(stripeAdminAccount.getEmail()) == null) {
                 log.error("Admin Stripe account ID not found or empty for parking spot ID: {}", paymentDetailsDTO.getParkingSpotId());
                 return "The payment cannot be processed because the administrator has not set up a Stripe account.";
             }
+
+            System.out.println("stripe admin account id: " + userRepository.receiveStripeAccountId(stripeAdminAccount.getEmail()));
 
             CustomerListParams customerListParams = CustomerListParams.builder()
                     .setEmail(paymentDetailsDTO.getEmail())
@@ -497,7 +514,7 @@ public class PaymentService {
             TransferCreateParams transferParams = TransferCreateParams.builder()
                     .setAmount((long) (paymentDetailsDTO.getAmount() * 100))
                     .setCurrency("ron")
-                    .setDestination(stripeAccountId)
+                    .setDestination(userRepository.receiveStripeAccountId(stripeAdminAccount.getEmail()))
                     .build();
             Transfer transfer = Transfer.create(transferParams);
             log.info("Transfer created: {}", transfer.getId());
@@ -510,6 +527,7 @@ public class PaymentService {
 
 
 
+    @Transactional
     public ResponseEntity<?> createStripeAccount(CreateAccountRequest request) {
         User user = userService.getUserByEmail(request.getEmail());
 
@@ -520,7 +538,7 @@ public class PaymentService {
 
         }
 
-        if (!user.getStripeAccountId().equals("")) {
+        if (!user.getStripeAccountId().isEmpty()) {
             return ResponseEntity.ok(new CreateAccountLinkRequest(user.getStripeAccountId()));
         }
         else {
@@ -547,8 +565,8 @@ public class PaymentService {
         try {
             AccountLinkCreateParams linkParams = AccountLinkCreateParams.builder()
                     .setAccount(request.getAccountId())
-                    .setRefreshUrl("http://localhost:8081/user/create-stripe-account")
-                    .setReturnUrl("http://localhost:8081/user/return?accountId=" + request.getAccountId())
+                    .setRefreshUrl(dotenv.get("SERVER_URL") + "/user/create-stripe-account")
+                    .setReturnUrl(dotenv.get("SERVER_URL") + "user/return?accountId=" + request.getAccountId())
                     .setType(AccountLinkCreateParams.Type.ACCOUNT_ONBOARDING)
                     .build();
             AccountLink accountLink = AccountLink.create(linkParams);
@@ -570,7 +588,7 @@ public class PaymentService {
 
             if (!account.getChargesEnabled()) {
                 return ResponseEntity.status(HttpStatus.FOUND)
-                        .header("Location", "http://localhost:8081/user/create-stripe-account")
+                        .header("Location", dotenv.get("SERVER_URL") + "/user/create-stripe-account")
                         .build();
             } else {
                 //Save the stripe account id in the user database
@@ -591,6 +609,7 @@ public class PaymentService {
         }
     }
 
+    @AllArgsConstructor
     public static class CreateAccountRequest {
         private String email;
 
@@ -600,6 +619,8 @@ public class PaymentService {
 
         public void setEmail(String email) {
             this.email = email;
+        }
+        public CreateAccountRequest() {
         }
     }
 
