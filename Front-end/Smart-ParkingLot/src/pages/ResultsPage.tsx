@@ -156,6 +156,8 @@ export default function ResultsPage() {
           <input
             value={reservationStartTime}
             onChange={(event) => {
+              if(event.target.value === '' || event.target.value.length > 16) return;
+
               setReservationStartTime(event.target.value);
             }}
             type="datetime-local"

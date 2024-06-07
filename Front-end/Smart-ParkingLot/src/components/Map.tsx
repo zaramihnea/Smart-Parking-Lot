@@ -68,8 +68,7 @@ const Map: React.FC<GoogleMapProps> = ({ onReservationConfirmed, spotToNavigateT
 
   // fetching availableParkingLots (backend documentation item nr.7)
 
-  useEffect(() => {
-    const fetchData = async () => {
+  const fetchAvailableParkingLots = useCallback(async () => {
       try {
         const radius = 3000;
         const startTimeString = new Date(new Date().getTime() + 3 * 60 * 60 * 1000).toISOString().slice(0, 19) + 'Z';
@@ -84,8 +83,11 @@ const Map: React.FC<GoogleMapProps> = ({ onReservationConfirmed, spotToNavigateT
         console.error('Fetch error:', error);
       }
     }
-    fetchData();
-  }, []);
+  , []);
+
+  useEffect(() => {
+    fetchAvailableParkingLots();
+  }, [fetchAvailableParkingLots]);
 
   useEffect(() => {
     const fetchParkingLots = async () => {
@@ -169,23 +171,27 @@ const Map: React.FC<GoogleMapProps> = ({ onReservationConfirmed, spotToNavigateT
           modalForceRefreshRef.current = modalForceRefreshRef.current + 1;
           setModalForceRefresh(modalForceRefreshRef.current);
           onReservationConfirmed();
+          fetchAvailableParkingLots();
         }
       }
       else {
         modalForceRefreshRef.current = modalForceRefreshRef.current + 1;
         setModalForceRefresh(modalForceRefreshRef.current);
         onReservationConfirmed();
+        fetchAvailableParkingLots();
       }
     } else if(result === 'User does not have enough money in his balance') {
       alert('User does not have enough money in his balance');
       modalForceRefreshRef.current = modalForceRefreshRef.current + 1;
       setModalForceRefresh(modalForceRefreshRef.current);
       onReservationConfirmed();
+      fetchAvailableParkingLots();
     } else {
         console.log(result);
         modalForceRefreshRef.current = modalForceRefreshRef.current + 1;
         setModalForceRefresh(modalForceRefreshRef.current);
         onReservationConfirmed();
+        fetchAvailableParkingLots();
     }
   }, [baseUrlString]);
 

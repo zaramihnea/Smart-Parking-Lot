@@ -48,10 +48,13 @@ public class ReservationService {
     @Transactional
     public ResponseEntity<String> createReservation(User userAuthorized, Long spotId, Timestamp startTimestamp, Timestamp endTimestamp, Double reservationCost, Car car) {
         try {
+            System.out.println("HELLOOOOOOOO");
             ParkingSpot spot = parkingSpotService.getById(spotId);
             if(spot == null) {
                 return ResponseEntity.badRequest().body("Spot could not be reserved. Spot not found");
             }
+            System.out.println("HELOOOOOOOOOO");
+
             Reservation reservation = new Reservation(car, spot, startTimestamp, endTimestamp, "active");
             reservationRepository.save(reservation);  // Persist the reservation
             PaymentDetailsDTO paymentDetailsDTO = new PaymentDetailsDTO(userAuthorized.getEmail(), reservationCost, reservation.getParkingSpot().getId());
