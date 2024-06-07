@@ -57,7 +57,8 @@ public class ReservationService {
             PaymentDetailsDTO paymentDetailsDTO = new PaymentDetailsDTO(userAuthorized.getEmail(), reservationCost, reservation.getParkingSpot().getId());
             String result = paymentService.payForParkingSpot(paymentDetailsDTO);
             if(!result.equals("success")) {
-                return ResponseEntity.badRequest().body("Payment failed. Spot could not be reserved");
+                System.out.println(result);
+                return ResponseEntity.badRequest().body(result);
             }
             System.out.println("paid for parking spot with these details: ");
             System.out.println(paymentDetailsDTO.getAmount());
@@ -67,8 +68,8 @@ public class ReservationService {
             return ResponseEntity.ok("Spot reserved successfully");
         } catch (Exception e) {
             e.printStackTrace();
+            return ResponseEntity.internalServerError().body("Reservation error: " + e.getMessage());
         }
-        return ResponseEntity.internalServerError().body("Spot could not be reserved");
     }
 
     public ResponseEntity<String> deleteReservation(User userAuthorized, Long id) {

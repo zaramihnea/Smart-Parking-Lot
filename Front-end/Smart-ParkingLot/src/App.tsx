@@ -87,8 +87,6 @@ const App: React.FC = () => {
     <UserProvider>
 
       <div>
-      {isInstalled || location.pathname === '/reset-password' ? (
-      <div>
         <Router>
           <Routes>
             <Route path="/" element={<LoginPage />} />
@@ -106,10 +104,7 @@ const App: React.FC = () => {
           </Routes>
         </Router>
       </div>
-     ) : (
-       <InstallPrompt device={device} />
-       )}
-       </div>
+     
     </UserProvider>
 
   );

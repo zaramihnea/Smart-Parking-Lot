@@ -2,8 +2,10 @@ package com.smartparkinglot.backend.controller;
 import com.smartparkinglot.backend.DTO.*;
 import com.smartparkinglot.backend.customexceptions.EmailExistsException;
 import com.smartparkinglot.backend.customexceptions.UsernameExistsException;
+import com.smartparkinglot.backend.repository.UserRepository;
 import com.stripe.exception.StripeException;
 import com.stripe.model.issuing.Authorization;
+import io.github.cdimascio.dotenv.Dotenv;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.Getter;
 import lombok.Setter;
@@ -26,13 +28,17 @@ public class UserController {
     private final TokenService tokenService;
     private final EmailService emailService;
     private final PaymentService paymentService;
+    private final UserRepository userRepository;
+    private final Dotenv dotenv;
 
     @Autowired
-    public UserController(UserService userService, TokenService tokenService, EmailService emailService, PaymentService paymentService) {
+    public UserController(Dotenv dotenv, UserService userService, UserRepository userRepository, TokenService tokenService, EmailService emailService, PaymentService paymentService) {
         this.userService = userService;
         this.tokenService = tokenService;
         this.emailService = emailService;
         this.paymentService = paymentService;
+        this.userRepository = userRepository;
+        this.dotenv = dotenv;
     }
 
     @GetMapping(value = "/username")
@@ -124,7 +130,7 @@ public class UserController {
             String token = tokenService.generateToken(user);
 
             //construiesc linkul care va fi trimis prim email utilizatorului
-            String resetPasswordLink =  "https://smartparkinglot.online/reset-password?token=" + token;
+            String resetPasswordLink =  dotenv.get("FRONTEND_URL") + "/reset-password?token=" + token;
 
             emailService.sendResetPasswordEmail(user.getEmail(), resetPasswordLink);
 
@@ -201,7 +207,7 @@ public class UserController {
 
         if ("success".equals(result)) {
             // Redirect to the homepage if the payment was successful
-            return ResponseEntity.status(HttpStatus.FOUND).location(URI.create("https://smartparkinglot.online/balance")).build();
+            return ResponseEntity.status(HttpStatus.FOUND).location(URI.create(dotenv.get("FRONTEND_URL") + "/balance")).build();
         } else {
             return ResponseEntity.ok(result);
         }

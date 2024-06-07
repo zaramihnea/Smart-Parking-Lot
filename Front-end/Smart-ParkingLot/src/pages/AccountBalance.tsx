@@ -42,7 +42,7 @@ const AccountBalance = () => {
           setBalance(0);
           console.error('Error fetching stripe balance from user:', error);
         }
-      };
+      }
     }
     fetchUserBalance();
   }, [email]);
