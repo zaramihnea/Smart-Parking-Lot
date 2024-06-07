@@ -11,7 +11,7 @@ public class Car {
     @Column(name = "id")
     private Long id;
 
-    @Column(name = "plate", length = 7)
+    @Column(name = "plate", length = 7, unique = true)
     private String plate;
 
     @Column(name = "capacity")

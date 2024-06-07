@@ -96,6 +96,8 @@ export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
           <input
             value={reservationStartTime}
             onChange={(event) => {
+              if(event.target.value === '' || event.target.value.length > 16) return;
+
               setReservationStartTime(event.target.value);
               fetchAvailableCars();
             }}
