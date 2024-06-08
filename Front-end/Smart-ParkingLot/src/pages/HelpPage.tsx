@@ -83,7 +83,7 @@ const FAQ: React.FC<{ goBack: () => void }> = ({ goBack }) => {
                 <li onClick={() => toggleQuestion(1)} className="cursor-pointer">
                     How does the parking detection work?
                     {openQuestions.includes(1) && (
-                        <p className="ml-4 mt-2 mb-4 text-gray-700 dark:text-gray-300">The parking detection works by using sensors and GPS data to identify whether a parking spot is occupied or free.</p>
+                        <p className="ml-4 mt-2 mb-4 text-gray-700 dark:text-gray-300">The parking detection uses sensors and GPS data to identify whether a parking spot is occupied or free.</p>
                     )}
                 </li>
                 <li onClick={() => toggleQuestion(2)} className="cursor-pointer">
@@ -95,7 +95,7 @@ const FAQ: React.FC<{ goBack: () => void }> = ({ goBack }) => {
                 <li onClick={() => toggleQuestion(3)} className="cursor-pointer">
                     How can I reserve a parking spot?
                     {openQuestions.includes(3) && (
-                        <p className="ml-4 mt-2 mb-4 text-gray-700 dark:text-gray-300">You can reserve a parking spot through our mobile or web application by selecting an available spot and confirming your reservation.</p>
+                        <p className="ml-4 mt-2 mb-4 text-gray-700 dark:text-gray-300">You can reserve a parking spot through our web application by selecting a pin on the map, choosing the start date, time, and number of hours for the reservation, and then completing the payment.</p>
                     )}
                 </li>
                 <li onClick={() => toggleQuestion(4)} className="cursor-pointer">
@@ -137,7 +137,7 @@ const Emergency: React.FC<{ goBack: () => void }> = ({ goBack }) => (
         </div>
         <p>If you have an emergency related to your parking experience, please contact our support team immediately:</p>
         <p>Phone: 0733182991</p>
-        <p>Email: support@smartparking.com</p>
+        <p>Email: contact.smartparkinglot@gmail.com</p>
         <p>We also recommend following these steps if you encounter issues:</p>
         <ul className="list-disc ml-5 mt-2">
             <li>Ensure your vehicle is in a safe location.</li>
