@@ -45,12 +45,12 @@ const ProfileAdminPage: React.FC = () => {
             >
               Back
             </button>
-            <button
+            {/* <button
               onClick={handleQuestionsClick}
               className="w-full px-4 py-2 bg-gray-300 dark:bg-gray-700 text-gray-900 dark:text-white font-bold rounded-lg shadow-md hover:bg-gray-400 dark:hover:bg-gray-600 transition duration-300"
             >
               Questions
-            </button>
+            </button> as long as there is openAI chatgpt integration, live chat cannot be available*/}
             <button
               onClick={handleTicketsClick}
               className="w-full px-4 py-2 bg-gray-300 dark:bg-gray-700 text-gray-900 dark:text-white font-bold rounded-lg shadow-md hover:bg-gray-400 dark:hover:bg-gray-600 transition duration-300"
