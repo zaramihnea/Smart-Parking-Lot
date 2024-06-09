@@ -33,7 +33,7 @@ const ResetPasswordPage: React.FC = () => {
                 setErrorMessage("Password is invalid! (should be 5+ characters and have at least 1 number & one special character)");
             } else {
                 try {
-                  const response = await fetch(`https://api.smartparkinglot.online/user/after-reset-password-request`, {
+                  const response = await fetch(`${baseUrl}/user/after-reset-password-request`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
