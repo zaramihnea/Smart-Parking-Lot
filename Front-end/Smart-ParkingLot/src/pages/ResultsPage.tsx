@@ -116,7 +116,13 @@ export default function ResultsPage() {
     reserveParkingSpot(baseUrlString, spotChosen, startTimeString, stopTimeString, car.plate, car.capacity, car.model).then((response) => {
       if (response === 'Spot reserved successfully') {
         navigate('/home');
-      } else {
+      } else if(response.startsWith("Reservation error: com.stripe.exception")) {
+        console.error(response);
+        setTimeout(() => {
+          navigate('/home');
+        }, 1000);
+      }
+      else {
         setErrorMessage(response);
       }
     });

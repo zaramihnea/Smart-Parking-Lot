@@ -66,13 +66,15 @@ async function handleSubmit(e) {
     e.preventDefault();
     setLoading(true);
 
+    const baseUrl = await getConfig();
+
     let paymentIntentId;
 
     const { error, paymentIntent } = await stripe.confirmPayment({
         elements,
         confirmParams: {
             //if payment was successful it redirects here
-            return_url: `http://localhost:8081/user/after-payment-processing`,
+            return_url: `${baseUrl}/user/after-payment-processing`,
         },
     });
 
@@ -82,7 +84,7 @@ async function handleSubmit(e) {
     } else {
         // If no error, send the payment status and payment intent ID to the backend
         const paymentIntentId = paymentIntent.id;
-        const response = await fetch(`http://localhost:8081/user/after-payment-processing`);
+        const response = await fetch(`${baseUrl}/user/after-payment-processing`);
         setLoading(false);
     }
 }
