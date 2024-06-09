@@ -156,43 +156,19 @@ const Map: React.FC<GoogleMapProps> = ({ onReservationConfirmed, spotToNavigateT
 
     const result = await reserveParkingSpot(baseUrlString, parkingSpotIdToReserve, startTimeString, stopTimeString, car.plate, car.capacity, car.model);
 
-    if (result === 'Spot reserved successfully') {
-      if(isAutoReserveOnRef.current) {
-        if(calculateDistance({lat: userLocationRef.current!.lat(), lng: userLocationRef.current!.lng()}, {lat: destinationLocationRef.current!.lat(), lng: destinationLocationRef.current!.lng()}) < 0.1) {
-          const autoReserveButton = document.querySelector('.ui-button-active');
-          if(autoReserveButton) {
-            // set the button value to 0 if reservation was succesful
-            autoReserveButton.innerHTML = "0";
-            hoursforAutoReserveRef.current = 0;
-          }
-
-          isAutoReserveOnRef.current = false;
-          drawButtons();
-          modalForceRefreshRef.current = modalForceRefreshRef.current + 1;
-          setModalForceRefresh(modalForceRefreshRef.current);
-          onReservationConfirmed();
-          fetchAvailableParkingLots();
-        }
-      }
-      else {
-        modalForceRefreshRef.current = modalForceRefreshRef.current + 1;
-        setModalForceRefresh(modalForceRefreshRef.current);
-        onReservationConfirmed();
-        fetchAvailableParkingLots();
-      }
-    } else if(result === 'User does not have enough money in his balance') {
-      alert('User does not have enough money in his balance');
-      modalForceRefreshRef.current = modalForceRefreshRef.current + 1;
-      setModalForceRefresh(modalForceRefreshRef.current);
-      onReservationConfirmed();
-      fetchAvailableParkingLots();
-    } else {
-        console.log(result);
-        modalForceRefreshRef.current = modalForceRefreshRef.current + 1;
-        setModalForceRefresh(modalForceRefreshRef.current);
-        onReservationConfirmed();
-        fetchAvailableParkingLots();
+    if(isAutoReserveOnRef.current) {
+      isAutoReserveOnRef.current = false;
     }
+    
+    if(result === 'User does not have enough money in his balance') {
+      alert('User does not have enough money in his balance');
+    } else {
+      console.log(result);
+    }
+    modalForceRefreshRef.current = modalForceRefreshRef.current + 1;
+    setModalForceRefresh(modalForceRefreshRef.current);
+    onReservationConfirmed();
+    fetchAvailableParkingLots();
   }, [baseUrlString]);
 
   useEffect(() => {
@@ -686,6 +662,15 @@ const Map: React.FC<GoogleMapProps> = ({ onReservationConfirmed, spotToNavigateT
           console.log(carsRef.current);
           console.log(lotToReserveRef.current);
           confirmReservation(hoursforAutoReserveRef.current, carsRef.current[0].id, lotToReserveRef.current);
+          isAutoReserveOnRef.current = false;
+          const autoReserveButton = document.querySelector('.ui-button-active');
+          if(autoReserveButton) {
+            console.log("Setting button value to 0");
+            // set the button value to 0 if reservation was succesful
+            autoReserveButton.innerHTML = "0";
+            hoursforAutoReserveRef.current = 0;
+          }
+          drawButtons();
         }
 
       }
