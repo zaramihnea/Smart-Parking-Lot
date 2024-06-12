@@ -18,6 +18,7 @@ public class ConfigController {
     public Map<String, String> getConfig() {
         Map<String, String> config = new HashMap<>();
         config.put("baseUrl", dotenv.get("SERVER_URL"));
+        config.put("stripePublicKey", dotenv.get("STRIPE_API_KEY_FRONTEND"));
         return config;
     }
 }
