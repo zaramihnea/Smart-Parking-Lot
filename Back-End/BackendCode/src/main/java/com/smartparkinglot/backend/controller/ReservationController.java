@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.smartparkinglot.backend.entity.*;
 import com.smartparkinglot.backend.service.*;
 import com.stripe.exception.StripeException;
+import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -85,6 +86,7 @@ public class ReservationController {
     }
 
     @PostMapping("/reserve")
+    @Transactional
     public ResponseEntity<String> registerNewReservation(@RequestHeader("Authorization") String authorizationHeader, @RequestBody ReservationRequest reservationRequest) {
         String token = authorizationHeader.substring(7);// Assuming the scheme is "Bearer "
 
