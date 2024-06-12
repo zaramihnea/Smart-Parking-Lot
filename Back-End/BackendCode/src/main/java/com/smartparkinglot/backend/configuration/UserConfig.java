@@ -28,7 +28,7 @@ public class UserConfig {
                     "Romania",
                     "Iasi",
                     57.00,
-                    1
+                    2
             );
 
             User user2 = new User(
