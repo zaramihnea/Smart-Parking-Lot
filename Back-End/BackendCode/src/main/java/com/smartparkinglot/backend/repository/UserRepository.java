@@ -50,4 +50,5 @@ public interface UserRepository extends JpaRepository<User, String> {
     @Query(value = "INSERT INTO banned_users (email) VALUES (:email)", nativeQuery = true)
     void addToBannedUsers(@Param("email") String email);
 
+    void deleteUserByEmail(String email);
 }

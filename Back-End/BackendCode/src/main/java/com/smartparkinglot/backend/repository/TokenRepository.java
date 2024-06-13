@@ -22,4 +22,8 @@ public interface TokenRepository extends JpaRepository<Token, String> {
     @Modifying
     @Query("DELETE FROM Token t WHERE t.expirationDate <= :timestamp")  // Use the entity name "Token"
     void deleteAllExpiredSince(Timestamp timestamp);
+
+    @Modifying
+    @Query("DELETE FROM Token t WHERE t.user.email = :email")  // Use the entity name "Token"
+    void deleteUserTokens(String email);
 }

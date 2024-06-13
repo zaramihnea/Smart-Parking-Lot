@@ -43,11 +43,14 @@ public class PaymentService {
     @Autowired
     private ParkingSpotRepository parkingSpotRepository;
 
-    @Autowired
     private UserService userService;
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    public void setUserService(UserService userService) {
+        this.userService = userService;
+    }
     @PostConstruct
     public void init() {
         Stripe.apiKey = stripeConfig.getApiKey();

@@ -32,4 +32,9 @@ public interface CarRepository extends JpaRepository<Car, Long> {
     List<Car> getAvailableCarsByUser(String email, Timestamp start, Timestamp stop);
 
 
+    @Modifying
+    @Transactional
+    @Query("DELETE FROM Car c WHERE c.user.email = :email")
+    void deleteUserCars(String email);
+
 }

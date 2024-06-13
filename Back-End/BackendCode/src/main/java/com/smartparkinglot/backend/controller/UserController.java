@@ -259,6 +259,19 @@ public class UserController {
         }
     }
 
+    @DeleteMapping
+    public ResponseEntity<String> deleteUser(@RequestHeader("Authorization") String authorizationHeader) {
+        String token = authorizationHeader.substring(7);// Assuming the scheme is "Bearer "
+        if(tokenService.validateToken(token)) {
+            User userAuthorized = tokenService.getUserByToken(token);
+            userService.deleteUser(userAuthorized);
+            return ResponseEntity.ok("User deleted successfully");
+        }
+        else {
+            return ResponseEntity.badRequest().body("Invalid token");
+        }
+    }
+
     @Getter @Setter
     public static class UserDetailsResponse {
         private String email;

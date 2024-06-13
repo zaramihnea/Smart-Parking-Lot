@@ -14,17 +14,19 @@ import java.util.List;
 @Service
 public class ReservationService {
     private final ReservationRepository reservationRepository;
-    private final UserService userService;
     private final ParkingSpotService parkingSpotService;
     private final CarService carService;
     private final PaymentService paymentService;
     @Autowired
-    public ReservationService(ReservationRepository reservationRepository, UserService userService, ParkingSpotService parkingSpotService, CarService carService, PaymentService paymentService) {
+    public ReservationService(ReservationRepository reservationRepository, ParkingSpotService parkingSpotService, CarService carService, PaymentService paymentService) {
         this.reservationRepository = reservationRepository;
-        this.userService = userService;
         this.parkingSpotService = parkingSpotService;
         this.carService = carService;
         this.paymentService = paymentService;
+    }
+
+    public void deleteUserReservations(User userAuthorized) {
+        reservationRepository.deleteUserReservations(userAuthorized.getEmail());
     }
 
     public List<Reservation> getAllReservations() {

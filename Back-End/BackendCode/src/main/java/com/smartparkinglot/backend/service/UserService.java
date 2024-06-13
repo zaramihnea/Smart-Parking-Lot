@@ -4,7 +4,9 @@ import com.smartparkinglot.backend.customexceptions.EmailExistsException;
 import com.smartparkinglot.backend.customexceptions.UserIsBannedException;
 import com.smartparkinglot.backend.customexceptions.UsernameExistsException;
 import com.smartparkinglot.backend.entity.ParkingLot;
+import com.smartparkinglot.backend.entity.Token;
 import com.smartparkinglot.backend.entity.User;
+import com.smartparkinglot.backend.repository.ReservationRepository;
 import com.smartparkinglot.backend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jmx.access.InvalidInvocationException;
@@ -17,13 +19,17 @@ import java.util.Optional;
 @Service
 public class UserService {
     private final UserRepository userRepository;
+    private final CarService carService;
+    private final TokenService tokenService;
+    private final ReservationRepository reservationRepository;
 
     @Autowired
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, CarService carService, TokenService tokenService, ReservationRepository reservationRepository) {
         this.userRepository = userRepository;
+        this.carService = carService;
+        this.tokenService = tokenService;
+        this.reservationRepository = reservationRepository;
     }
-
-
 
     public User getUserById(String id){
         return userRepository.findById(id).orElse(null);
@@ -103,4 +109,11 @@ public class UserService {
         return userRepository.getFavoriteLot(user.getEmail());
     }
 
+    @Transactional
+    public void deleteUser(User userAuthorized) {
+        reservationRepository.deleteUserReservations(userAuthorized.getEmail());
+        carService.deleteUserCars(userAuthorized);
+        tokenService.deleteUserTokens(userAuthorized);
+        userRepository.deleteUserByEmail(userAuthorized.getEmail());
+    }
 }
