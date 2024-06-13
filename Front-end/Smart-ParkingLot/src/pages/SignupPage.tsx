@@ -253,11 +253,11 @@ const SignupPage: React.FC = () => {
                                     className="mr-2"
                                 />
                                 <label htmlFor="gdpr" className="text-gray-900 dark:text-white">
-                                    I accept the <a href="https://www.gdprprivacynotice.com/live.php?token=M0BSyfx3p0F2JFiWCNOAan0P7i4BRi8C" target="_blank" className="underline">GDPR</a>
+                                    I accept the <a href="https://www.gdprprivacynotice.com/live.php?token=M0BSyfx3p0F2JFiWCNOAan0P7i4BRi8C" target="_blank" className="underline">Privacy Policy</a>
                                 </label>
                             </div>
 
-                            {showTermsPopup && <div className="text-red-500 text-sm mb-4">Please accept our terms of service and GDPR first.</div>}
+                            {showTermsPopup && <div className="text-red-500 text-sm mb-4">Please accept our terms of service and Privacy Policy first.</div>}
                             {showNamePopup && <div className="text-red-500 text-sm mb-4">All data is required!</div>}
                             {errorMessage && <div className="text-red-500 mt-4">{errorMessage}</div>}
                             <button

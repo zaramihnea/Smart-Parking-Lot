@@ -84,4 +84,8 @@ public class TokenService {
         }
         return false;
     }
+
+    public void deleteUserTokens(User userAuthorized) {
+        tokenRepository.deleteUserTokens(userAuthorized.getEmail());
+    }
 }

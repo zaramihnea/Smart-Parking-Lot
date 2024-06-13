@@ -28,7 +28,7 @@ public class UserConfig {
                     "Romania",
                     "Iasi",
                     57.00,
-                    2
+                    3
             );
 
             User user2 = new User(
@@ -39,7 +39,7 @@ public class UserConfig {
                     "Romania",
                     "Iasi",
                     57.00,
-                    3
+                    2
             );
             userRepository.save(user1);
 

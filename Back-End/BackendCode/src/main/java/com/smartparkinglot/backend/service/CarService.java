@@ -21,6 +21,10 @@ public class CarService {
         this.carRepository = carRepository;
     }
 
+    public void deleteUserCars(User userAuthorized) {
+        carRepository.deleteUserCars(userAuthorized.getEmail());
+    }
+
     public List<Car> getAllCars() {
         return carRepository.findAll();
     }
