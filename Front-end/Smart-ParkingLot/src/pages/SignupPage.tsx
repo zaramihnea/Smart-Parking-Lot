@@ -16,6 +16,9 @@ const SignupPage: React.FC = () => {
     const [country, setCountry] = useState('');
     const [city, setCity] = useState('');
 
+    const [termsAccepted, setTermsAccepted] = useState(false);
+    const [gdprAccepted, setGdprAccepted] = useState(false);
+
     //temp vars to send to backend for database query
     const [tempEmail, setTempEmail] = useState('');
     const [tempPassword, setTempPassword] = useState('');
@@ -34,6 +37,7 @@ const SignupPage: React.FC = () => {
     const [showNamePopup, setShowNamePopup] = useState(false);
     const [showUsernamePopup, setShowUsernamePopup] = useState(false);
     const [errorMessage, setUIErrorMessage] = useState('');
+    const [showTermsPopup, setShowTermsPopup] = useState(false);
 
     const handleNext = () => {
         if (isValidEmail(email)) {
@@ -72,57 +76,49 @@ const SignupPage: React.FC = () => {
     };
 
     const handleSignup = async () => {
-        if (dob && country && city) {
+        if (dob && country && city && termsAccepted && gdprAccepted) {
             console.log("Sending data to backend:", tempEmail, tempPassword, tempUsername, dob, country, city);
     
-            if (dob && country && city) {
-                console.log("Sending data to backend:", tempEmail, tempPassword, tempUsername, dob, country, city);
-    
-                try {
-                    const response = await fetch(`${baseUrl}/user/register`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                            email: tempEmail,
-                            password: tempPassword,
-                            name: tempUsername,
-                            dob: formatDate(dob),
-                            country: country,
-                            city: city,
-                        }),
-                    });
-    
-                    console.log(JSON.stringify({
+            try {
+                const response = await fetch(`${baseUrl}/user/register`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
                         email: tempEmail,
                         password: tempPassword,
                         name: tempUsername,
                         dob: formatDate(dob),
                         country: country,
                         city: city,
-                    }));
+                    }),
+                });
     
-                    if (response.ok) {
-                        const data = await response.text();
-                        console.log("Registration successful:", data);
-                        navigate('/');
-                    } else {
-                        const errorData = await response.text();
-                        console.error("Registration failed:", errorData);
-                        setUIErrorMessage(errorData); // Set the error message state
-                    }
-                } catch (error) {
-                    console.error("Error during registration:", error);
-                    setUIErrorMessage('An unexpected error occurred. Please try again.'); // Set a generic error message
+                console.log(JSON.stringify({
+                    email: tempEmail,
+                    password: tempPassword,
+                    name: tempUsername,
+                    dob: formatDate(dob),
+                    country: country,
+                    city: city,
+                }));
+    
+                if (response.ok) {
+                    const data = await response.text();
+                    console.log("Registration successful:", data);
+                    navigate('/');
+                } else {
+                    const errorData = await response.text();
+                    console.error("Registration failed:", errorData);
+                    setUIErrorMessage(errorData); // Set the error message state
                 }
-            } else {
-                setShowNamePopup(true);
+            } catch (error) {
+                console.error("Error during registration:", error);
+                setUIErrorMessage('An unexpected error occurred. Please try again.'); // Set a generic error message
             }
-    
-    
         } else {
-            setShowNamePopup(true);
+            setShowTermsPopup(true);
         }
     };
 
@@ -234,8 +230,37 @@ const SignupPage: React.FC = () => {
                                 onChange={(e) => setCity(e.target.value)}
                                 className="w-full max-w-xs px-4 py-2 mb-4 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:border-purple-500"
                             />
+
+                            <div className="flex items-center mb-4">
+                                <input
+                                    type="checkbox"
+                                    id="terms"
+                                    checked={termsAccepted}
+                                    onChange={(e) => setTermsAccepted(e.target.checked)}
+                                    className="mr-2"
+                                />
+                                <label htmlFor="terms" className="text-gray-900 dark:text-white">
+                                    I accept the <a href="https://www.termsandconditionsgenerator.com/live.php?token=wrFKPPrZem2KsWreDoo2q7mzaU91XgLW" target="_blank" className="underline">Terms of Service</a>
+                                </label>
+                            </div>
+
+                            <div className="flex items-center mb-4">
+                                <input
+                                    type="checkbox"
+                                    id="gdpr"
+                                    checked={gdprAccepted}
+                                    onChange={(e) => setGdprAccepted(e.target.checked)}
+                                    className="mr-2"
+                                />
+                                <label htmlFor="gdpr" className="text-gray-900 dark:text-white">
+                                    I accept the <a href="https://www.gdprprivacynotice.com/live.php?token=M0BSyfx3p0F2JFiWCNOAan0P7i4BRi8C" target="_blank" className="underline">GDPR</a>
+                                </label>
+                            </div>
+
+                            {showTermsPopup && <div className="text-red-500 text-sm mb-4">Please accept our terms of service and GDPR first.</div>}
                             {showNamePopup && <div className="text-red-500 text-sm mb-4">All data is required!</div>}
-                            {errorMessage && <div className="text-red-500 mt-4">{errorMessage}</div>}                            <button
+                            {errorMessage && <div className="text-red-500 mt-4">{errorMessage}</div>}
+                            <button
                                 onClick={handleSignup}
                                 className="w-full max-w-xs px-4 py-2 mb-4 bg-purple-600 text-white font-bold rounded-lg shadow-md hover:bg-purple-700 transition duration-300"
                             > Sign Up </button>
