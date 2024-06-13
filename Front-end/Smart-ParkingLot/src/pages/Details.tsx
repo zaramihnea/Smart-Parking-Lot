@@ -21,7 +21,7 @@ const Details: React.FC = () => {
             const baseUrl = process.env.API_BASE_URL;
 
             try {
-                const response = await fetch('http://localhost:8081/user/details', {
+                const response = await fetch(`${baseUrl}/user/details`, {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
