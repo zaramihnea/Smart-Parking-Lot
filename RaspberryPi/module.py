@@ -17,7 +17,7 @@ GPIO.setup(12, GPIO.OUT)
 prevDistance = 0
 result = "null"
 status = "unoccupied"
-command = "python detetctplate.py /home/raspberry/Arduino_Module/imgg.jpg"
+command = "python detetctplate.py /home/raspberry/Arduino_Module/img.jpg"
 free = 0
 GPIO.output(12, GPIO.HIGH)
 sleep(0.5)
