@@ -1,5 +1,7 @@
 from picamera2 import Picamera2, Preview
+from picamera2.controls import Controls
 from time import sleep
+import libcamera
 import time
 import requests
 import os
@@ -11,19 +13,25 @@ GPIO.setwarnings(False)
 GPIO.setmode(GPIO.BOARD)
 GPIO.setup(8, GPIO.OUT)
 GPIO.setup(10, GPIO.IN)
+GPIO.setup(12, GPIO.OUT)
 prevDistance = 0
 result = "null"
 status = "unoccupied"
-command = "python detetctplate.py /home/raspberry/Arduino_Module/img.jpg"
+command = "python detetctplate.py /home/raspberry/Arduino_Module/imgg.jpg"
 free = 0
+GPIO.output(12, GPIO.HIGH)
+sleep(0.5)
+GPIO.output(12, GPIO.LOW)
 camera = Picamera2()
-#camera.start_and_capture_file("/home/raspberry/Arduino_Module/img.jpg")
+config = camera.create_preview_configuration()
+config["transform"] = libcamera.Transform(hflip=True, vflip=True)
+camera.configure(config)
 camera.start_preview(Preview.QTGL)
 camera.start()
 camera.set_controls({"AfMode": controls.AfModeEnum.Continuous})
 sleep(2)
 prevDistance = 0
-endpoint = "https://api.smartparkinglot.online/parking_spots/update/118"
+endpoint = "https://api.smartparkinglot.online/parking_spots/update/24"
 headers = { 'Content-Type' : 'application/json' }
 
 while True:
@@ -44,19 +52,21 @@ while True:
         free = 1
         result = "NULL"
         print("OCR started")
+        GPIO.output(12, GPIO.HIGH)
         sleep(2)
         camera.capture_file("/home/raspberry/Arduino_Module/img.jpg")
         result = subprocess.run(command, shell=True,
-                                capture_output=True, text=True, timeout=50)
+                                capture_output=True, text=True, timeout=40)
         result = result.stdout.strip()
         if len(result) > 8:
             result = "null"
         status = "occupied"
-        data = {'id': 118,
+        data = {'id': 24,
                 'plate': result,
                 'status': status,
                 'name': 'RPI sensor'}
         r = requests.post(url=endpoint, headers=headers, json=data)
+        GPIO.output(12, GPIO.LOW)
         print(r.text)
         print(result)
     elif free == 1 and distance > 100:
@@ -64,7 +74,7 @@ while True:
         free = 0
         status = "unoccupied"
         result = "null"
-        data = {'id': 118,
+        data = {'id': 24,
                 'plate': result,
                 'status': status,
                 'name': 'RPI sensor'}
@@ -73,7 +83,7 @@ while True:
         print(distance)
     elif distance > prevDistance + 5 or distance < prevDistance - 5:
         if prevDistance == 0:
-            data = {'id': 118,
+            data = {'id': 24,
                     'plate': "null",
                     'status': "unoccupied",
                     'name': 'RPI sensor'}
