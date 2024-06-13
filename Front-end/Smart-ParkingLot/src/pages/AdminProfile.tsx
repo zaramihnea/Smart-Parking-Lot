@@ -1,13 +1,23 @@
 import React, {useCallback} from 'react';
 import { useNavigate } from 'react-router-dom';
 import SearchBar from '../components/SearchBar';
-import NavBar from '../components/Navbar';
+import NavBar from '../components/Navbar'; 
+import useUser from '../hooks/useUser';
 
 const Profiles: React.FC = () => {
     const navigate = useNavigate();
+    const { deleteUser } = useUser();
+    const baseUrl = process.env.API_BASE_URL;
     const handleLogout = useCallback(() => {
         document.cookie = 'authToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
       }, []);
+
+    const handleDelete = useCallback(() => {
+        deleteUser(baseUrl!).then(() => {
+            document.cookie = 'authToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+            navigate('/');
+        });
+    }, [navigate]);
 
     return (
         <div className="min-h-screen flex flex-col bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 p-4 pb-16">
@@ -35,6 +45,12 @@ const Profiles: React.FC = () => {
                             onClick={() => navigate('/profile/admin')}
                         >
                             Admin Panel
+                        </button>
+                        <button
+                            className="bg-red-500 text-white font-bold py-2 px-12 rounded-lg mt-4 shadow-lg"
+                            onClick={handleDelete}
+                        >
+                            Delete Account
                         </button>
                         <a href="/profile" className='bg-purple-600 text-white font-bold py-2 px-12 rounded-lg mt-8 shadow-lg hover:bg-purple-700 transition duration-300 text-center' onClick={handleLogout}>Logout</a>
                     </div>
