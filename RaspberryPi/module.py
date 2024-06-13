@@ -47,7 +47,7 @@ while True:
         sleep(2)
         camera.capture_file("/home/raspberry/Arduino_Module/img.jpg")
         result = subprocess.run(command, shell=True,
-                                capture_output=True, text=True, timeout=40)
+                                capture_output=True, text=True, timeout=50)
         result = result.stdout.strip()
         if len(result) > 8:
             result = "null"
